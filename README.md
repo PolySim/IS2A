@@ -8,3 +8,11 @@ cd IS2A
 pnpm install
 ```
 
+## Run
+
+### Python
+
+```bash
+pnpm run dev:python S5/algo/TP1
+# sh script/start.python.sh {{path/to/file/or/folder}}
+```
