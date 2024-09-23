@@ -1,0 +1,13 @@
+#IDE
+.idea
+
+#Build
+node_modules
+pnpm-lock.yaml
+dist
+
+#OS
+.DS_Store
+
+#Python
+__pycache__
