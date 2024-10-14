@@ -1,11 +1,10 @@
 #include <stdio.h>
-#include <stdbool.h>
 
-bool isLetter(char c) {
+int isLetter(char c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-bool isVowel(char c) {
+int isVowel(char c) {
     return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' || c == 'y' || c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U' || c == 'Y');
 }
 
