@@ -8,7 +8,7 @@ mkdir -p "$bin_dir"
 
 if [ "$filename" != "" ]; then
   # compile c
-  gcc "$path" -o "$bin_dir/$filename_without_ext"
+  gcc -Wall "$path" -o "$bin_dir/$filename_without_ext"
   echo "build finish"
   ./"$bin_dir/$filename_without_ext"
 else
