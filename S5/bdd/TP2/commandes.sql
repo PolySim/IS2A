@@ -1,4 +1,4 @@
-drop table if exists Client;
+drop table if exists Client cascade ;
 drop table if exists FactureProduit;
 drop table if exists Produit;
 drop table if exists Facture;
@@ -41,4 +41,6 @@ insert into Facture values (1, '2020-01-01');
 insert into FactureProduit values ('P1', 1, 2);
 insert into FactureProduit values ('P2', 1, 1);
 
+alter table produit add column promotion boolean default false;
 
+update client set nom = 'Dupont' where code = 'C2';
