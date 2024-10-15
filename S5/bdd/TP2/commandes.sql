@@ -1,7 +1,7 @@
 drop table if exists Client;
+drop table if exists FactureProduit;
 drop table if exists Produit;
 drop table if exists Facture;
-drop table if exists FacrureProduit;
 
 create table Client (
     code varchar(64) primary key,
@@ -11,21 +11,22 @@ create table Client (
 
 create table Produit (
     code varchar(64) primary key,
-    nom varchar(64),
+    designation varchar(64),
     prix double precision,
     nombreEnStock integer
 );
 
 create table Facture (
     numero integer primary key,
-    dateVente date
+    dateVente date,
+    codeClient varchar(64) references Client(code)
 );
 
 create table FactureProduit (
     refCodeProduit varchar(64) references Produit(code),
     refNumeroFacture integer references Facture(numero),
     nombreExemplaires integer,
-    primary key (refCodeProduit, refNumeroFacture, nombreExemplaires)
+    primary key (refCodeProduit, refNumeroFacture)
 );
 
 insert into Client values ('C2', 'Doe', 'Joe');
