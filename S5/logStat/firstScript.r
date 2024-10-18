@@ -1,7 +1,7 @@
-install.packages("dplyr")
-library(dplyr)
+# library(dplyr)
 
 commune <- read.csv("communes.csv", sep = ";")
 immeubles <- read.csv("immeubles.csv", sep = ";")
 
-commune %>% select('INSEE')
+merge(commune, immeubles, by="INSEE")
+# commune %>% select('INSEE')
