@@ -8,3 +8,5 @@ resultat1<- iris %>% group_by(Species) %>% summarise(Longueur_Moyenne_PETAL=mean
 
 # Commune ayant le plus des habitants.
 resultat2<- iris %>% arrange(desc(Sepal.Length))
+
+iris[3, 2]
