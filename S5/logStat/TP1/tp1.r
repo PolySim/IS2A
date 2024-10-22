@@ -96,7 +96,26 @@ P1 <-  P[, apply(P, 2, function(col) all(col < 3.5))]
 P
 P1
 
+# Exercice 2
+
+factorielle <- function(x) {
+  result <- 1
+  for (i in 1:x) {
+    result = result * i
+  }
+  return(result)
+}
+
+factorielle(3)
+factorielle(4)
+factorielle(10)
 
 
+factorielle_bis <- function(x) {
+  return(prod(seq(x)))
+}
 
+factorielle_bis(3)
+factorielle_bis(4)
+factorielle_bis(10)
 
