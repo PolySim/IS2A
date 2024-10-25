@@ -535,12 +535,10 @@ WHERE not exists(
     WHERE realisateur = 'Quentin Tarantino'
     AND not exists(
         SELECT *
-        FROM abonne
-        JOIN emprunt on abonne.nab = emprunt.nab
+        FROM emprunt
         JOIN dvd on emprunt.ndvd = dvd.ndvd
-        JOIN film on dvd.nfilm = film.nfilm
-        WHERE film.realisateur = 'Quentin Tarantino'
-        AND a.nab = abonne.nab
+        WHERE emprunt.nab = a.nab
+        AND f.nfilm = dvd.nfilm
     )
 );
 /*
