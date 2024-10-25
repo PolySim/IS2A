@@ -1,0 +1,179 @@
+
+-- 1. Tuples de la table 'film'
+
+=> 30 lignes affichées
+
+-- 2. Nom et prenom des abonnés, Une seule colonne en majuscule
+    nom_prenom    
+------------------
+ DUPONT MARIE
+ COHEN RÉBECCA
+ NGUYEN LI
+ YU HOA
+ MARTIN DAMIEN
+ DURANT SOPHIE
+ ABDALLAH YOUSSEF
+ BENATI RAMZI
+ DUPONT STÉPHANE
+ LEVY SIMON
+ LI ZU
+ MARQUIS CLOE
+(12 rows)
+
+-- 3. titres des films antérieurs à 2005 
+
+=> 10 lignes affichées
+
+-- 4 titres des films parus entre 2005 et 2010 triés par ordre alpha
+
+=> 20 lignes affichées; 
+
+-- 5 liste des films dont le titre commence par 'p' ou 'P'
+
+=> 5 lignes affichées , 0 lignes si strictement 'p'
+
+-- 6 films dont le titre contient 'se'
+
+=> 3 lignes affichées
+
+-- 7 libelle des catégories dont font partie les films présents dans la base
+
+=> 6 lignes affichées
+
+-- 8 nombre de catégories différentes dont font partie les films présents dans la base
+
+ => 6
+
+
+--9 nombre de films par categorie
+ ncat | count 
+------+-------
+    3 |     7
+    5 |     7
+    6 |     2
+    2 |     9
+    7 |     1
+    1 |     4
+(6 rows)
+
+--10 nombre moyen d'emprunts des abonnés
+
+=> 2.75
+
+
+--11 titre des films classés dans la catégorie 'Drame' 
+
+=> 7 lignes affichées
+
+-- 12 titre et année des films de 'Tim Burton'
+ 
+ => 2 lignes affichées
+
+
+
+-- 13 nombre de films réalisés par 'Clint Eastwood'
+
+ => 2 
+
+--14 liste des films de Woody Allen avec pour chaque film, le nombre de dvd correspondant
+
+          titre                             | count 
+-------------------------------------+-------
+ Whatever Works               |     1
+ Vicky Cristina Barcelona |     2
+ Scoop                                  |     1
+(3 rows)
+
+--15 liste des films dont on possède plusieurs dvd dans la base
+ 
+ => 15 lignes affichées
+
+
+--16 liste des films avec le nombre de dvd correspondant qu'on possède
+ 
+ => 29 lignes affichées
+
+
+--17 noms et prénoms des abonnés ayant emprunté 'Pulp Fiction'
+ nomab  | prenomab 
+------------+----------
+ Cohen   | Rébecca
+ Duran t | Sophie
+(2 rows)
+
+--18 liste des films des catégories 'Drame' et 'Action'
+ 
+ => 16 lignes affichées
+
+--19 liste des films empruntés par 'Marie Dupont'
+ 
+ => 3 lignes affichées
+
+--20 liste des films n'ayant jamais été empruntés
+
+ => 17 lignes affichées
+ 
+--21 titre des films de Woody Allen de la catégorie 'Drame'
+
+ => 0 ligne affichée
+ 
+
+--22 liste des films dont au moins un dvd a été acheté en aout 2009
+
+ => 5 lignes affichées
+ 
+
+--23 noms et prénoms des abonnés ayant emprunté un film de Woody Allen et un film de Clint Eastwood
+
+ nomab  | prenomab 
+--------+----------
+ Benati | Ramzi
+ Cohen  | Rébecca
+ Martin | Damien
+(3 rows)
+
+
+--24 liste des films ayant été empruntés par tous les abonnes
+        titre         
+----------------------
+ Good Morning England
+(1 row)
+
+--25 liste des films dont l'année est antérieure aux années des films réalisés par Tim Burton
+
+ => 10 lignes affichées
+ 
+
+--26 liste des films dont on ne possede pas de dvd
+   titre   
+-----------
+ Gladiator
+(1 row)
+
+
+-- 27. Liste des abonnés ayant empruntés tous les films réalisés par Quentin Tarantino.
+
+ nab | nomab  | prenomab 
+-----+--------+----------
+   2 | Cohen  | Rébecca
+   6 | Durant | Sophie
+(2 rows)
+
+-- 28. Titre des films produits en 2008 ou 2009.
+
+ => 13 lignes affichées
+ 
+
+-- 29. Liste des films dont au moins un dvd a été acheté l’année de sa production.
+
+ => 18 lignes affichées
+ 
+
+-- 30. Titre des films produits ni en 2007, ni en 2008, ni en 2009.
+
+ => 14 lignes affichées
+ 
+--31 noms des réalisateurs dont aucun des films contenus dans la base n'a été réalisé en 2009
+
+ => 10 lignes affichées
+ 
