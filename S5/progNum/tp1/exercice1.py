@@ -56,7 +56,7 @@ def question3():
 
 # Question 4
 def question4(nb_tour = 80):
-    a, b = np.float64(0), np.float64(1/3)
+    a, b = np.float64(0), np.float64(1)
     x = np.empty (nb_tour + 1, dtype=np.float64)
     x[0] = a + b
     x[1] = 2 * a + b / 2
@@ -76,8 +76,7 @@ def question6(nb_tour = 80):
     x0 = a + b
     x1 = 2 * a + b / 2
     for i in range(2, nb_tour + 1):
-        tmp = (np.float64(5) / np.float64(2)) * x1 - x0
-        x0, x1 = x1, tmp
+        x0, x1 = x1, (np.float64(5) / np.float64(2)) * x1 - x0
     return x1
 
 if __name__ == '__main__':
@@ -87,8 +86,7 @@ if __name__ == '__main__':
     # print(question4())
     # print(question6())
 
-    print(question4())
-    # assert question6() == question4()[-1]
+    assert question6() == question4()[-1]
 
     print("All tests passed")
 
