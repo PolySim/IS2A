@@ -54,10 +54,41 @@ def question3():
 # x2 par c / x1bis 1.3579177e-10
 
 
+# Question 4
+def question4(nb_tour = 80):
+    a, b = np.float64(0), np.float64(1/3)
+    x = np.empty (nb_tour + 1, dtype=np.float64)
+    x[0] = a + b
+    x[1] = 2 * a + b / 2
+    for i in range(2, nb_tour + 1):
+        x[i] = (np.float64(5) / np.float64(2)) * x[i - 1] - x[i - 2]
+    return x
+
+# a2^n est égal à 0 la limite est donc b/2n, cette fonction tend vers 0 en +infini
+
+# Question 5
+# Avec b = 1/3, la suite tend vers -infini et non 0
+# A un moment donné la suite a été arrondi à 0, ce qui a fait que la suite a divergé
+
+# Question 6
+def question6(nb_tour = 80):
+    a, b = np.float64(0), np.float64(1)
+    x0 = a + b
+    x1 = 2 * a + b / 2
+    for i in range(2, nb_tour + 1):
+        tmp = (np.float64(5) / np.float64(2)) * x1 - x0
+        x0, x1 = x1, tmp
+    return x1
+
 if __name__ == '__main__':
     # question1()
     # question2()
-    question3()
+    # question3()
+    # print(question4())
+    # print(question6())
+
+    print(question4())
+    # assert question6() == question4()[-1]
 
     print("All tests passed")
 
