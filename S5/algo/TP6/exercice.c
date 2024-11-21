@@ -80,14 +80,26 @@ void initVecteur0(int vect[], int n) {
     }
 }
 
-int isMagicNormal(int mat[][N], int n) {
-    int i = 0, j = 0, vect[3 * N + 1], result = 1;
-    initVecteur0(vect, 3 * n + 1);
-    if (!isMagic(mat, n)) {
-        return 0;
+int vecteurEverySame(int vect[], int n) {
+    int i;
+    for (i = 1; i < n; i++) {
+        if (vect[i] != vect[0]) {
+            return 0;
+        }
     }
+    return 1;
+}
+
+int isMagicNormal(int mat[][N], int n) {
+    int i = 0, j = 0, vect[3 * N + 1], result = 1, vectAmount[2 * N + 2];
+    initVecteur0(vect, 3 * n + 1);
+    initVecteur0(vectAmount, 2 * n + 2);
     while (i < n && result) {
+        vectAmount[2 * n] += mat[i][i];
+        vectAmount[2 * n + 1] += mat[i][n - 1 - i];
         while (j < n && result) {
+            vectAmount[i] += mat[i][j];
+            vectAmount[n + j] += mat[i][j];
             if (vect[mat[i][j]] != 0) {
                 result = 0;
             }
@@ -97,7 +109,7 @@ int isMagicNormal(int mat[][N], int n) {
         i++;
         j = 0;
     }
-    return result;
+    return result && vecteurEverySame(vectAmount, 2 * n + 2);
 }
 
 int main(void) {
