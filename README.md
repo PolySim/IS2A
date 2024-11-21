@@ -20,7 +20,7 @@ pnpm run dev:python S5/algo/TP1
 ### C
 
 ```bash
-pnpm run dev:c S5/algo/TP1/test.c
+pnpm run dev:c S5/algo/TP1/test.c [arg1 arg2 ...]
 # sh script/start.c.sh {{path/to/file}}
 ```
 
