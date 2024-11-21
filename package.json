@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "dev:python" : "sh -c 'script/start.python.sh ${0}'",
-    "dev:c" : "sh -c 'script/start.c.sh ${0}'"
+    "dev:c": "sh -c 'script/start.c.sh \"$0\" \"$@\"'"
   },
   "keywords": [],
   "author": "",
