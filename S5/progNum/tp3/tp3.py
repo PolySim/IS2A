@@ -59,11 +59,17 @@ def eval_newton_inter(x: np.ndarray[np.float64], c: np.ndarray[np.ndarray[np.flo
         y = y * (z - x[i]) + c[i][i]
     return y
 
-def display_f(x: np.ndarray[np.float64], y: np.ndarray[np.float64]):
+def display_f(x: np.ndarray[np.float64], y: np.ndarray[np.float64], start = 0, end = 8, x2: np.ndarray = None,
+    y2: np.ndarray = None, nb_point=50):
     c = generate_divise(x, y)
-    xplot = np.linspace(0, 8, 50)
+    xplot = np.linspace(start, end, nb_point)
     yplot = np.array([eval_newton_inter(x, c, x_bis) for x_bis in xplot])
     plt.plot(xplot, yplot, color='orange', label='graphe de f')
+
+    if x2 is not None and y2 is not None:
+        c = generate_divise(x2, y2)
+        yplot = np.array([eval_newton_inter(x2, c, x_bis) for x_bis in xplot])
+        plt.plot(xplot, yplot, color='blue', label='graphe de g')
     plt.legend()
     plt.show()
 
