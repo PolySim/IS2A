@@ -59,6 +59,14 @@ def eval_newton_inter(x: np.ndarray[np.float64], c: np.ndarray[np.ndarray[np.flo
         y = y * (z - x[i]) + c[i][i]
     return y
 
+def display_f(x: np.ndarray[np.float64], y: np.ndarray[np.float64]):
+    c = generate_divise(x, y)
+    xplot = np.linspace(0, 8, 50)
+    yplot = np.array([eval_newton_inter(x, c, x_bis) for x_bis in xplot])
+    plt.plot(xplot, yplot, color='orange', label='graphe de f')
+    plt.legend()
+    plt.show()
+
 if __name__ == "__main__":
     x, y , A = generate_data()
     assert np.equal(vandermonde(), A).all()
@@ -73,5 +81,7 @@ if __name__ == "__main__":
         return np.array([eval_newton_inter(x, c, x[i]) for i in range(len(x))], dtype=np.float64)
 
     assert np.allclose(generate_eval_newton_inter(), y)
+
+    display_f(x, y)
 
     print("All test are passed")
