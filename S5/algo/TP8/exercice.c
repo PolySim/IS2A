@@ -24,59 +24,21 @@ typedef struct {
 
 Annuaire initAnnuaire(char *fileName) {
   Annuaire annuaire;
-  char c;
-  int indexLine = 0, indexWord = 0;
-  char data[SIZE_STR];
+  Person person;
   FILE *file = fopen(fileName, "r");
   annuaire.lastPerson = -1;
   if (!file) {
     printf("Impossible d'ouvrir le fichier %s\n", fileName);
     return annuaire;
   }
-  fscanf(file, "%c", &c);
-  if (feof(file)) {
-    return annuaire;
-  }
-  annuaire.lastPerson = 0;
+
+  fscanf(file, "%s %s %s %d %d %d", person.lastName, person.firstName, person.mobile, &person.birthDate.day, &person.birthDate.month, &person.birthDate.year);
   while(!feof(file) && annuaire.lastPerson < MAX_PERSONS) {
-    switch (c) {
-      case '\n':
-        annuaire.lastPerson++;
-        indexLine = 0;
-        indexWord = 0;
-        break;
-      case ';':
-        switch (indexLine) {
-          case 0:
-            strcpy(annuaire.persons[annuaire.lastPerson].lastName, data);
-            break;
-          case 1:
-            strcpy(annuaire.persons[annuaire.lastPerson].firstName, data);
-            break;
-          case 2:
-            strcpy(annuaire.persons[annuaire.lastPerson].mobile, data);
-            break;
-          case 3:
-            annuaire.persons[annuaire.lastPerson].birthDate.day = atoi(data);
-            break;
-          case 4:
-            annuaire.persons[annuaire.lastPerson].birthDate.month = atoi(data);
-            break;
-          case 5:
-            annuaire.persons[annuaire.lastPerson].birthDate.year = atoi(data);
-            break;
-         }
-         indexLine++;
-         indexWord = 0;
-         memset(data, 0, SIZE_STR);
-        break;
-      default:
-        data[indexWord] = c;
-        indexWord++;
-        break;
-    }
-    fscanf(file, "%c", &c);
+    annuaire.lastPerson++;
+    annuaire.persons[annuaire.lastPerson] = person;
+    fscanf(file, "%s %s %s %d %d %d", person.lastName, person.firstName, person.mobile, &person.birthDate.day, &person.birthDate.month, &person.birthDate.year);
   }
+  
   fclose(file);
   return annuaire;
 }
@@ -98,14 +60,14 @@ void printAnnuaire(Annuaire annuaire) {
 }
 
 int compareStrings(char *str1, char *str2) {
-  int i = 0;
-  while (str1[i] != '\0' && str2[i] != '\0') {
+  int i = 0, res = 1;
+  while (str1[i] != '\0' && str2[i] != '\0' && res) {
     if (str1[i] != str2[i]) {
-      return 0;
+      res = 0;
     }
     i++;
   }
-  return 1;
+  return res;
 }
 
 Person findPerson(Annuaire annuaire, char *mobile) {
@@ -184,14 +146,14 @@ int main(int argc, char *argv[]) {
 //  printPerson(findPerson(annuaire, "0269389805"));
 //  printPerson(findPerson(annuaire, "02693d89805"));
 
-  person = initPerson("Lavielle", "Zoe", "0102030405", 05, 05, 2004);
-  printf("\n");
-  printf("Ajout de la personne : ");
-  printPerson(person);
-  addPerson(&annuaire, person);
-  printf("\n");
-  printAnnuaire(annuaire);
-  printf("\n");
+//  person = initPerson("Lavielle", "Zoe", "0102030405", 05, 05, 2004);
+//  printf("\n");
+//  printf("Ajout de la personne : ");
+//  printPerson(person);
+//  addPerson(&annuaire, person);
+//  printf("\n");
+//  printAnnuaire(annuaire);
+//  printf("\n");
 
 //  printf("Suppression de la personne avec le mobile : %s\n \n", person.mobile);
 //  deletePerson(&annuaire, person.mobile);
