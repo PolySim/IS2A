@@ -38,7 +38,7 @@ Annuaire initAnnuaire(char *fileName) {
     annuaire.persons[annuaire.lastPerson] = person;
     fscanf(file, "%s %s %s %d %d %d", person.lastName, person.firstName, person.mobile, &person.birthDate.day, &person.birthDate.month, &person.birthDate.year);
   }
-  
+
   fclose(file);
   return annuaire;
 }
@@ -70,6 +70,7 @@ int compareStrings(char *str1, char *str2) {
   return res;
 }
 
+// To dico
 Person findPerson(Annuaire annuaire, char *mobile) {
   Person person;
   int i = 0;
@@ -94,6 +95,7 @@ Person initPerson(char *lastName, char *firstName, char *mobile, int day, int mo
   return person;
 }
 
+// Sorted
 void addPerson(Annuaire *annuaire, Person person) {
   if ((*annuaire).lastPerson > MAX_PERSONS) {
     printf("Annuaire plein\n");
@@ -126,7 +128,7 @@ void saveAnnuaire(Annuaire annuaire, char *fileName) {
     return;
   }
   for (int i = 0; i <= annuaire.lastPerson; i++) {
-    fprintf(file, "%s;%s;%s;%d;%d;%d;", annuaire.persons[i].lastName, annuaire.persons[i].firstName, annuaire.persons[i].mobile, annuaire.persons[i].birthDate.day, annuaire.persons[i].birthDate.month, annuaire.persons[i].birthDate.year);
+    fprintf(file, "%s %s %s %d %d %d", annuaire.persons[i].lastName, annuaire.persons[i].firstName, annuaire.persons[i].mobile, annuaire.persons[i].birthDate.day, annuaire.persons[i].birthDate.month, annuaire.persons[i].birthDate.year);
     if (i < annuaire.lastPerson) {
       fprintf(file, "\n");
     }
