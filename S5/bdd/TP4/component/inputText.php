@@ -5,7 +5,7 @@ function InputText($label, $name, $value, $placeholder, $class = "", $isRequired
     <div class='flex flex-col gap-4'>
         <label for='<?= $name ?>'><?= $label ?></label>
         <input
-                class='<?= $class ?>'
+                class='p-2 rounded-md border-gray-500 border <?= $class ?>'
                 type='text'
                 name='<?= $name ?>'
                 value='<?= $value ?>'
