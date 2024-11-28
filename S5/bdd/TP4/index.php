@@ -3,6 +3,7 @@
     <head>
         <title>TP4</title>
         <link rel="stylesheet" type="text/css" href="index.css">
+        <link rel="stylesheet" type="text/css" href="output.css">
     </head>
     <body class="m-4 center max-w-6xl">
     <header class="flex gap-4 justify-center">
@@ -13,6 +14,7 @@
     require('./utils/db.php');
     require('./action/films.php');
     require('./action/abonne.php');
+    require('./action/dvd.php');
     require('./component/table.php');
     require('./component/inputText.php');
     require('./component/button.php');
@@ -74,7 +76,8 @@
                     }
                 }
             </script>
-            <form action="" class="grid grid-cols-3 gap-4 items-end w-full" onsubmit="handleSubmit(event)">
+            <form action="action/emprunt.php" method="get" class="grid grid-cols-3 gap-4 items-end w-full"
+                  onsubmit="handleSubmit(event)">
                 <?php
                 InputText('Nom', 'nom', '', 'Nom', "p-2 rounded-md", true);
                 InputText('Film', 'film', '', 'Film', "p-2 rounded-md", true);
