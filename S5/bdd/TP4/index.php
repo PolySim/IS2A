@@ -19,6 +19,7 @@
     require('./component/inputText.php');
     require('./component/button.php');
     require('./component/select.php');
+    require('./component/toast.php');
     require('./formateur/films.php');
     require('./formateur/abonne.php');
     $db = connect_to_database();
@@ -31,6 +32,22 @@
 
     <script>
     </script>
+
+    <?php
+    if (isset($_GET['add'])) {
+        switch ($_GET['add']) {
+            case 'success':
+                Toast('green', 'Film emprunté avec succès');
+                break;
+            case 'unavailable':
+                Toast('red', 'Film non disponible');
+                break;
+            case 'toomuch':
+                Toast('red', 'Vous avez déjà emprunté plus de 3 films');
+                break;
+        }
+    }
+    ?>
 
     <div class="flex justify-between gap-8 flex-wrap">
         <div class="flex flex-col gap-4 w-fit">
@@ -64,7 +81,6 @@
                     const form = e.target;
                     const formData = new FormData(form);
                     const data = Object.fromEntries(formData.entries());
-                    console.log(data);
                     if (!filmIsInList(data.film, <?php echo json_encode($films); ?>)) {
                         e.preventDefault();
                         alert('Film non trouvé');
