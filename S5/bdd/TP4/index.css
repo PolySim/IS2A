@@ -1,0 +1,21 @@
+.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table {
+  text-align: center;
+
+  thead {
+    background-color: #d1d5db;
+    font-weight: bold;
+  }
+
+  td {
+    padding: .5rem 1rem;
+  }
+}
+
+h3 {
+  margin: 0;
+}

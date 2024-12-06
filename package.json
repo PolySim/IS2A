@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev:python" : "sh -c 'script/start.python.sh ${0}'",
-    "dev:c": "sh -c 'script/start.c.sh \"$0\" \"$@\"'"
+    "dev:python": "sh -c 'script/start.python.sh ${0}'",
+    "dev:c": "sh -c 'script/start.c.sh \"$0\" \"$@\"'",
+    "dev:php": "sh -c 'script/start.php.sh ${0}'"
   },
   "keywords": [],
   "author": "",
