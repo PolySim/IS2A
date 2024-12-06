@@ -30,7 +30,6 @@
     ?>
 
     <script>
-        console.log('Hello world');
     </script>
 
     <div class="flex justify-between gap-8 flex-wrap">
