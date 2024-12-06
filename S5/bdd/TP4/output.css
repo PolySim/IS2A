@@ -671,6 +671,14 @@ video {
   right: 1rem;
 }
 
+.right-2 {
+  right: 0.5rem;
+}
+
+.top-2 {
+  top: 0.5rem;
+}
+
 .isolate {
   isolation: isolate;
 }
@@ -839,6 +847,14 @@ video {
   display: none;
 }
 
+.h-4 {
+  height: 1rem;
+}
+
+.h-6 {
+  height: 1.5rem;
+}
+
 .w-\[this-is\\\\\] {
   width: this-is\\;
 }
@@ -866,6 +882,14 @@ video {
 
 .w-96 {
   width: 24rem;
+}
+
+.w-4 {
+  width: 1rem;
+}
+
+.w-6 {
+  width: 1.5rem;
 }
 
 .max-w-2xl {
@@ -938,6 +962,10 @@ video {
 
 .transform-none {
   transform: none;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 
 .touch-auto {
