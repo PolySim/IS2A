@@ -16,7 +16,7 @@ if (!$dvds || count($dvds) === 0) {
     echo "Ce film n'est pas disponible";
     close_db($db);
 
-//    header('Location: /?add=unavailable');
+    header('Location: /?add=unavailable');
     die();
 }
 
@@ -25,7 +25,7 @@ if ($nb_films > 3) {
     echo "Vous avez déjà emprunté $nb_films films";
     close_db($db);
 
-//    header('Location: /?add=toomuch');
+    header('Location: /?add=toomuch');
     die();
 }
 
@@ -33,6 +33,6 @@ updateEmpruntDvd($db, $dvds[0]['ndvd'], $abonne);
 
 close_db($db);
 
-//header('Location: /?add=success');
+header('Location: /?add=success');
 die();
 ?>
