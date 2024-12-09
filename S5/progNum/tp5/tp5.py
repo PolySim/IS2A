@@ -6,10 +6,6 @@ sys.path.append("/Users/simon/Documents/Developpement/IS2A")
 
 from S5.progNum.tp5.code_generation import Python
 
-a = .20345
-b = .01
-n = 10
-
 
 def F(x):
     t1 = 1. / math.sqrt(x)
@@ -41,9 +37,16 @@ def f(x: np.float64) -> np.float64:
 
 
 # Question 1
-def trapeze():
-    pass
+def trapeze(f: callable(np.float64), a: np.float64, b: np.float64, n: int) -> np.float64:
+    h = (b - a) / n
+    sum = (f(a) / 2) + (f(a + n * h) / 2)
+    for i in range(1, n):
+        sum += f(a + i * h)
+    return h * sum
 
 
 if __name__ == '__main__':
+    a = .20345
+    b = .01
+
     print("All test are passed")
