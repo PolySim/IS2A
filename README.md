@@ -1,4 +1,4 @@
-# This is the IS2A repository for the three years in Polytech Lille
+# This is the IS2A repository for the three years in Polytech Lille.
 
 ## Installation
 
