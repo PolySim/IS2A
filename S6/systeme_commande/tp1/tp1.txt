@@ -1,0 +1,29 @@
+# 1
+
+1. ls -a
+2. ls -l is2a3-sd-2025/*/*.[c,h]
+3. man scanf | head -15
+
+# 2
+
+1. man cat > catAide.txt
+3. cat titreCat.txt catAide.txt > catTitreAide.txt
+4. ls: impossible d'accéder à 'strange.txt': Aucun fichier ou dossier de ce type
+
+# 3
+
+1. 867265
+2. cat /usr/localTP/tmpIMA/printaccounting | grep aborted$ | wc -l #49766
+3. cat /usr/localTP/tmpIMA/printaccounting | grep [^aborted$] | wc -l #867265
+4. cat /usr/localTP/tmpIMA/printaccounting |  sort  -nr -t\| -k 5 | head -10
+5. cat /usr/localTP/tmpIMA/printaccounting | grep aborted$ | sed 's/|[^|]*|[^|]//' | sed 's/aborted/erreur/'
+
+# 4
+
+4. find . -type d -ctime -7
+
+# 5
+
+1. du -d 1 | sort -nr | head -10
+2. find ./S5 -type f -exec du  {} \; | grep .c$ | sort -nr
+3. alias garbageSize='find ./S5 -type f -exec du  {} \; | grep .c$ | sort -nr'
