@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     printf("Nom: %s\n", json_object_get_string(nom));
     printf("Prénom: %s\n", json_object_get_string(prenom));
     printf("Age: %d\n", json_object_get_int(age));
-    printf("Moyenne: %f\n", json_object_get_double(moyenne));
+    printf("Moyenne: %.2f\n", json_object_get_double(moyenne));
 
 	return 0;
 }
