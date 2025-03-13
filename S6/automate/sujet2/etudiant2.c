@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
     printf("Nom: %s\n", json_object_get_string(nom));
     printf("Prénom: %s\n", json_object_get_string(prenom));
     printf("Age: %d\n", json_object_get_int(age));
-    printf("Moyenne: %f\n", json_object_get_double(moyenne));
+    printf("Moyenne: %.2f\n", json_object_get_double(moyenne));
     printf("Numéro: %d\n", json_object_get_int(numero));
     printf("Rue: %s\n", json_object_get_string(rue));
     printf("Code postal: %d\n", json_object_get_int(code_postal));
