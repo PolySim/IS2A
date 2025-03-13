@@ -3,6 +3,6 @@
   "Nom": "Crozat",
   "Prénom": "Stéphane",
   "Age": 21,
-  "Boursier": true,
+  "Boursier": false,
   "Moyenne": 15.75
 }
