@@ -1,0 +1,13 @@
+{
+  "Id": "Etu1",
+  "Nom": "Crozat",
+  "Prénom": "Stéphane",
+  "Age": 21,
+  "Boursier": true,
+  "Moyenne": 15.75,
+  "Adresse": {
+    "Numéro": 15,
+    "Rue": "Rue du Général de Gaulle",
+    "Code postal": 59650
+  }
+}

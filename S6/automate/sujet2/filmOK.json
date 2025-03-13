@@ -1,0 +1,25 @@
+{
+  "title": "Taxi driver",
+  "year": 1976,
+  "genre": "drama",
+  "summary": "Vétéran de la Guerre du Vietnam, Travis Bickle est chauffeur de taxi",
+  "country": "USA",
+  "director": {
+    "last_name": "Scorcese",
+    "first_name": "Martin",
+    "birth_date": 1962
+  },
+  "actors": [{
+    "first_name": "Jodie",
+    "last_name": "Foster",
+    "birth_date": null,
+    "role": "Iris Steensma"
+  },
+    {
+      "first_name": "Robert",
+      "last_name": "De Niro",
+      "birth_date": 1943,
+      "role": "Travis Bickle"
+    }
+  ]
+}
