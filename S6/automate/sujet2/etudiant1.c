@@ -4,25 +4,34 @@
 int main(int argc, char **argv) {
 	FILE *fp;
 	char buffer[2048];
-	
-	/* struct json_object : Structure contenant une arborescence d objets json */
-	struct json_object *parsed_json; // Structure pour le stockage de l arboescence complete du fichier
-	struct json_object *boursier;        // Structure pour le stockage de l objet de cle name
 
-	/* Copie du contenu du fichier passe en paramaetre dans la variable buffer */
+	struct json_object *parsed_json;
+	struct json_object *boursier;
+	struct json_object *id;
+    struct json_object *nom;
+    struct json_object *prenom;
+    struct json_object *age;
+    struct json_object *moyenne;
+
 	fp = fopen(argv[1],"r");
 	fread(buffer, 2048, 1, fp);
 	fclose(fp);
 
-	/* Parsing json du contenu de la variable buffer */
 	parsed_json = json_tokener_parse(buffer);
 	
-	/* Recuperation de la valeur de la cle name */
 	json_object_object_get_ex(parsed_json, "Boursier", &boursier);
-	/* json_object_get_string(json_object)                                         */
-	/* Renvoie la valeur chaine de caracteres de l objet json_object               */
-	/* Si l objet n est pas une chaine de caracteres, la fonction renvoie son type */
+    json_object_object_get_ex(parsed_json, "Id", &id);
+    json_object_object_get_ex(parsed_json, "Nom", &nom);
+    json_object_object_get_ex(parsed_json, "Prénom", &prenom);
+    json_object_object_get_ex(parsed_json, "Age", &age);
+    json_object_object_get_ex(parsed_json, "Moyenne", &moyenne);
+
 	printf("Boursier: %d\n", json_object_get_boolean(boursier));
+    printf("Id: %s\n", json_object_get_string(id));
+    printf("Nom: %s\n", json_object_get_string(nom));
+    printf("Prénom: %s\n", json_object_get_string(prenom));
+    printf("Age: %d\n", json_object_get_int(age));
+    printf("Moyenne: %f\n", json_object_get_double(moyenne));
 
 	return 0;
 }
