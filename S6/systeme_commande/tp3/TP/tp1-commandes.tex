@@ -1,0 +1,211 @@
+\documentclass[a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{listings}
+
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{ifthen}
+\usepackage{keystroke}
+\usepackage{fullpage}
+\usepackage{hyperref}
+
+
+%\title{\textbf{IMA 1$^{\mathaccent"7013 ere}$ année - T.P. Système}}
+\title{\textbf{IS 3 - T.P. Système\\Interpréteur de commandes}}
+%\date{Expressions rationnelles, grep, sort, sed, \ldots}
+\date{}
+
+\begin{document}
+\vspace{-4cm}
+\maketitle
+
+\newboolean{reponse}
+%\setboolean{reponse}{true}
+\setboolean{reponse}{false}
+
+Pour réaliser ce TP, vous n'utiliserez pas l'interface graphique mais
+uniquement les terminaux en mode texte. Pour basculer de l'interface
+graphique vers un terminal, utiliser la combinaison de touches \Ctrl +
+\Alt + \keystroke{Fn}, où $1<=n<10$ (le premier terminal disponible
+varie selon les machines, mais habituellement correspond à
+\keystroke{F3}).
+
+\section{Combinaison de commandes, wildcards}
+
+\begin{enumerate}
+\item Visualisez la liste des fichiers de votre répertoire d'accueil
+  page par page. Affichez également les fichiers ``cachés'' (qui
+  commencent par '.').
+\item En utilisant une seule commande, \texttt{ls}, et sans changer de
+  répertoire, listez tous les fichiers d'extension \texttt{.c} ou
+  \texttt{.h} de votre répertoire d'Algorithmique et Programmation du
+  S5. Utilisez un format d'affichage long et repérez la taille, date
+  et heure de création, de ces fichiers.
+\item Affichez uniquement les 15 premières lignes de l'aide de la
+  fonction \texttt{scanf}.
+\end{enumerate}
+
+\section{Redirections}
+
+\begin{enumerate}
+\item Stockez l'aide de la commande \texttt{cat} dans le fichier
+  \texttt{catAide.txt} ;
+\item A l'aide d'un éditeur de texte (e.g. \texttt{nano},
+  \texttt{emacs}, \texttt{vim}), éditez le fichier de nom
+  \texttt{titreCat.txt} pour qu'il contienne le texte
+  suivant~:
+\begin{verbatim}
+	----------------
+	- COMMANDE CAT -
+	- EXPLICATIONS -
+	----------------
+\end{verbatim}
+\item Stockez dans le fichier \texttt{catTitreAide.txt} la
+  con\emph{cat}énation des fichiers \texttt{titreCat.txt} et
+  \texttt{catAide.txt} (cf \texttt{man cat}) ;    
+\item Visualisez le fichier \texttt{strange.txt}. Comme ce
+  dernier n'existe pas, que se passe-t-il ?
+\item Relancez cette commande en redirigeant la sortie d'erreur vers
+  le fichier \texttt{err.txt}, puis visualisez le contenu de ce dernier.
+\item Relancez cette commande en redirigeant la sortie d'erreur vers
+  \texttt{/dev/null}, puis visualisez le contenu de ce dernier. Pour
+  comprendre le résultat, voir \texttt{man null}.
+\item Écrivez le fichier suivant, par exemple avec l'éditeur
+  \texttt{nano}, puis compilez et exécutez :
+\begin{verbatim}
+	#include <stdio.h>
+	int main()
+	{
+		printf("message sur la sortie standard\n");
+		fprintf(stderr,"message sur la sortie d'erreur\n");
+		return 0;
+	}
+\end{verbatim}
+  Lors de l'exécution, il n'y a pas de différence dans l'affichage des
+  deux messages.  Redirigez maintenant la sortie d'erreur vers
+  \texttt{/dev/null} et comparez l'affichage obtenu.
+\end{enumerate}
+
+
+\section{Filtres}
+
+Vous allez travailler sur un fichier de journal d'impressions. Chaque
+ligne a le format suivant~:
+
+\texttt{date et heure | prénom.nom | nom\_machine | nom\_imprimante | nb\_pages}
+
+Par exemple~:
+
+\texttt{Thu Apr  6 10:30:23 CEST 2000|Vincent.Vandamme|hainaut.priv.eudil.fr|gayant|2}
+
+\texttt{nb\_pages} est le nombre de pages effectivement imprimées ou
+"aborted" ou "none" en cas d'échec à l'impression. Le fichier (un
+extrait du vrai) se trouve dans
+\texttt{/usr/localTP/tmpIMA/printaccounting}.  Ne le recopiez pas chez
+vous car il est volumineux. Vous allez appliquer les commandes
+ci-dessous sur ce fichier.
+
+\begin{enumerate}
+\item Donnez le nombre de lignes de ce fichier.
+
+\ifthenelse{\boolean{reponse}}{
+\texttt{wc -l /usr/local/tmpIMA/printaccounting}
+}
+
+\item Donnez le nombre de fois où l'impression est "aborted".
+
+\ifthenelse{\boolean{reponse}}{
+\texttt{grep "aborted" /usr/local/tmpIMA/printaccounting | wc -l}
+}
+
+\item Donnez le nombre de fois où l'impression est ni "aborted"
+  ni "none".
+
+\ifthenelse{\boolean{reponse}}{
+\texttt{egrep -v "none|aborted" /usr/local/tmpIMA/printaccounting | wc -l}
+}
+
+\item Donnez les 10 plus grosses impressions. Attention, cela peut prendre du temps.
+
+\ifthenelse{\boolean{reponse}}{
+\texttt{cat printaccounting | sort -t{\textbackslash}| -k 5nr | head -10}
+}
+
+\item Transformez les lignes ``aborted'' selon l'exemple suivant.
+
+\smallskip
+  
+\texttt{Thu Feb 3 11:54:31 CET 2000|Ahmed.Laib|gayant04|gayant|aborted}
+
+\smallskip
+
+devient
+
+\smallskip
+
+\texttt{Thu Feb 3 11:54:31 CET 2000|gayant|erreur}
+
+\ifthenelse{\boolean{reponse}}{
+\lstinline!cat /usr/local/tmpIMA/printaccounting | grep aborted | sed
+'s/\(.*\)|.*|.*|\(.*\)|.*/\\1|\\2|aborted/'!
+
+ou
+
+\lstinline!cat /usr/local/tmpIMA/printaccounting | grep aborted |cut-d'|' -f1,4 | sed "s/\(.*\)/\\1|aborted/"!
+}
+\end{enumerate}
+
+\section{find}
+
+\begin{enumerate}
+\item Créez l'arborescence de fichiers et répertoires suivante :
+  \begin{itemize}
+  \item Dans le répertoire où vous lancez les commandes : un fichier
+    \texttt{local.c}, un répertoire \texttt{ToSearch} ;
+  \item Dans \texttt{ToSearch} : \texttt{Rep1}, \texttt{Rep2}, \texttt{niv1.c}
+  \item Dans \texttt{Rep1} : \texttt{niv2-1.c}, \texttt{niv2-1.c\~}
+  \item Dans \texttt{Rep2} : \texttt{niv2-2.c}, \texttt{niv2-2.c\~}, \texttt{niv2-3.c}
+  \end{itemize}
+\item Écrivez une commande qui permet d'afficher la liste de tous les
+  fichiers c dans le répertoire courant et sa sous-arborescence. Essayez
+  avec le répertoire contenant \texttt{ToSearch}.
+\item Écrivez une commande qui permet d'afficher le contenu de tous les
+  fichiers se terminant par \texttt{c\~} dans le répertoire courant et
+  sa sous-arborescence. Essayez avec le répertoire contenant
+  \texttt{ToSearch}, puis sur votre répertoire d'Algorithmique et Programmation du
+  S5.
+\item Affichez la liste des répertoires que vous avez créés dans les 7
+  derniers jours. \textbf{NB} : on veut les répertoires et non pas les
+  fichiers normaux qu'ils contiennent. Essayez sur votre répertoire
+  personnel.
+\end{enumerate}
+
+\section{Bonus}
+
+\begin{enumerate}
+\item Écrivez une commande qui liste les 10 sous-répertoires de votre
+  répertoire personnel dont le contenu est le plus volumineux. Indice
+  : voir le man \texttt{du}, option \texttt{-d}.
+  % du -d1 2>/dev/null | sort -nr | head -10
+\item Créez une commande qui affiche la taille totale de l'ensemble
+  des fichiers se terminant par \texttt{\~}, dans un répertoire donné
+  et ses sous-répertoires. Indice : voir le man de \texttt{find}, en
+  particulier les deux formes de l'option \texttt{exec}, et à nouveau
+  le man de \texttt{du}.
+  % find . -name "*~" -exec du -c {} +
+\item Faites en sorte de pouvoir exécuter cette commande en tapant
+  simplement \texttt{garbageSize}. Indice : cherchez \texttt{alias}
+  dans le man de \texttt{bash}; pour chercher efficacement, consultez
+  l'aide interactive de \texttt{man}.
+\item Faites en sorte que la commande \texttt{garbageSize} soit
+  utilisable pour tout nouveau terminal. Indice : voir
+  \href{https://www.gnu.org/software/bash/manual/html_node/Bash-Startup-Files.html}{cette
+    page}.
+\end{enumerate}
+
+
+
+\end{document}
