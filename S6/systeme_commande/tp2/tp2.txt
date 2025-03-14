@@ -1,0 +1,22 @@
+# Exercice 1
+
+2. ps -u sdesdevi -A
+3. kill <PID>
+5. ^z
+6. bg
+7. ./a.out &
+
+# Exercice 2
+
+# 2.1
+
+4. Le programme se s'arrete que lors de la lecture d'un entier. Le reste du temps il execute continuellement les calcules.
+
+# 2.2
+
+1. Ils prennent tous les deux 100% du CPU.
+2. Cela n'influe pas la consomation.
+
+# Exercice 3
+
+
