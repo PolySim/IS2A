@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE etudiants SYSTEM "listeEtu.dtd">
+<etudiants>
+<etudiant>
+<boursier>1</boursier>
+<id>Etu1</id>
+<nom>Crozat</nom>
+<prenom>Stéphane</prenom>
+<age>21</age>
+<moyenne>15.75</moyenne>
+<adresse numero="15" code="59650" rue="Rue du Général de Gaulle" />
+</etudiant>
+<etudiant>
+<boursier>0</boursier>
+<id>Etu2</id>
+<nom>Dupont</nom>
+<prenom>Jean</prenom>
+<age>22</age>
+<moyenne></moyenne>
+<adresse numero="7" code="59000" rue="Boulevard Alphonse Daudet" />
+</etudiant>
+<etudiant>
+<boursier>1</boursier>
+<id>Etu3</id>
+<nom>Guerville</nom>
+<prenom>Amandine</prenom>
+<age>21</age>
+<moyenne>12.50</moyenne>
+<adresse numero="127" code="14000" rue="Rue de la Borne" />
+</etudiant>
+</etudiants>

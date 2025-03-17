@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="contacts">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="contact" minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="contact">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="identité"/>
+                <xs:element ref="adresse"/>
+                <xs:element name="email" minOccurs="0" maxOccurs="2" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="identité">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nom" type="xs:string"/>
+                <xs:element name="prénom" minOccurs="1" maxOccurs="unbounded" type="xs:string"/>
+                <xs:element name="date_naissance" type="xs:date"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="adresse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="rue" type="xs:string"/>
+                <xs:element name="ville">
+                    <xs:complexType>
+                        <xs:attribute name="code_postal" type="xs:int" use="required"/>
+                        <xs:attribute name="nom" type="xs:string" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="paye" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
