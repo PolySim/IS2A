@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<contacts xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="contactsV1.xsd">
+    <contact>
+        <identité>
+            <nom>Blanquaert</nom>
+            <prénom>Jacques</prénom>
+            <date_naissance>2022-10-23</date_naissance>
+        </identité>
+        <email>jblanquaert@sfr.fr</email>
+    </contact>
+</contacts>

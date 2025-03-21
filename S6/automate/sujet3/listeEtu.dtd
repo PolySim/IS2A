@@ -1,0 +1,15 @@
+<!ELEMENT etudiants (etudiant+)>
+        <!ELEMENT etudiant (boursier, id, nom, prenom, age, moyenne, adresse)>
+        <!ELEMENT boursier (#PCDATA)>
+        <!ELEMENT id (#PCDATA)>
+        <!ELEMENT nom (#PCDATA)>
+        <!ELEMENT prenom (#PCDATA)>
+        <!ELEMENT age (#PCDATA)>
+        <!ELEMENT moyenne (#PCDATA)>
+        <!ELEMENT adresse EMPTY>
+        <!ATTLIST adresse numero CDATA #REQUIRED
+                code CDATA #REQUIRED
+                rue CDATA #REQUIRED>
+        <!ELEMENT numero (#PCDATA)>
+        <!ELEMENT code (#PCDATA)>
+        <!ELEMENT rue (#PCDATA)>

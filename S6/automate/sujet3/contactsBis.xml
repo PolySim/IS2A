@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE contacts SYSTEM "contactsBis.dtd">
+<contacts>
+    <contact>
+        <identité>
+            <nom>Blanquaert</nom>
+            <prénom>Jacques</prénom>
+            <date_naissance>23/10/2002</date_naissance>
+        </identité>
+        <addresse>
+            <rue nom="rue du Vert Pré" numéro="27"/>
+            <ville code_postal="59100" nom="Roubaix"/>
+            <pays>France</pays>
+        </addresse>
+        <email>jblanquaert@sfr.fr</email>
+        <email>jblanquaert@gmail.com</email>
+    </contact>
+    <contact>
+        <identité>
+            <nom>Giraud</nom>
+            <prénom>Sophie</prénom>
+            <date_naissance>13/08/2001</date_naissance>
+        </identité>
+        <addresse>
+            <rue nom="123B Rue du vert Pré"/>
+            <ville code_postal="69000" nom="Lyon"/>
+            <pays>France</pays>
+        </addresse>
+        <email>sosogiraud@hotmail.com</email>
+    </contact>
+</contacts>
