@@ -1,0 +1,111 @@
+{
+  "automaton": [
+    {
+      "id": "s1",
+      "isInitial": false,
+      "isFinal": false,
+      "transitionsOut": [
+        {
+          "nextState": "s2",
+          "terminal": "a"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "isInitial": false,
+      "isFinal": false,
+      "transitionsOut": [
+        {
+          "nextState": "s9",
+          "terminal": "E"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "isInitial": false,
+      "isFinal": false,
+      "transitionsOut": [
+        {
+          "nextState": "s4",
+          "terminal": "b"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "isInitial": false,
+      "isFinal": false,
+      "transitionsOut": [
+        {
+          "nextState": "s5",
+          "terminal": "E"
+        },
+        {
+          "nextState": "s7",
+          "terminal": "E"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "isInitial": false,
+      "isFinal": false,
+      "transitionsOut": [
+        {
+          "nextState": "s6",
+          "terminal": "c"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "isInitial": false,
+      "isFinal": false,
+      "transitionsOut": [
+        {
+          "nextState": "s5",
+          "terminal": "E"
+        },
+        {
+          "nextState": "s7",
+          "terminal": "E"
+        }
+      ]
+    },
+    {
+      "id": "s7",
+      "isInitial": false,
+      "isFinal": false,
+      "transitionsOut": [
+        {
+          "nextState": "s9",
+          "terminal": "E"
+        }
+      ]
+    },
+    {
+      "id": "s8",
+      "isInitial": true,
+      "isFinal": false,
+      "transitionsOut": [
+        {
+          "nextState": "s1",
+          "terminal": "E"
+        },
+        {
+          "nextState": "s3",
+          "terminal": "E"
+        }
+      ]
+    },
+    {
+      "id": "s9",
+      "isInitial": false,
+      "isFinal": true,
+      "transitionsOut": []
+    }
+  ],
+  "error": "null"
+}
