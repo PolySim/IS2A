@@ -1,4 +1,4 @@
-from houselder import print_matrix, transpose, remonte
+from houselder import print_matrix, transpose, remonte, residu
 import math
 
 C = \
@@ -76,6 +76,8 @@ def algorithme(C: list[list[float]], b: list[list[float]]):
     z = descente(L, b)
     x = remonte(L_T, z)
     print_matrix(x)
+    print("\nRésidu\n")
+    print_matrix(residu(A, b, x))
 
 if __name__ == "__main__":
     algorithme(C, b)

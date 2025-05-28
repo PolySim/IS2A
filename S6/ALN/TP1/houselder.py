@@ -109,6 +109,22 @@ def remonte(M: list[list[float]], b: list[list[float]]) -> list[list[float]]:
                     res[0][0] += M[i][j] * res[-1 * delta][0]
 
     return res
+
+def produit_matrix(A: list[list[float]], B: list[list[float]]) -> list[list[float]]:
+    res = []
+    for i in range(len(A)):
+        for j in range(len(B[0])):
+            somme = 0.0
+            for k in range(len(B)):
+                somme += A[i][k] * B[k][j]
+            res.append([somme])
+    return res
+
+def soustraction_matrix(A: list[list[float]], B: list[list[float]]) -> list[list[float]]:
+    return [[A[i][j] - B[i][j] for j in range(len(A[0]))] for i in range(len(A))]
+
+def residu(A: list[list[float]], b: list[list[float]], x: list[list[float]]) -> float:
+    return soustraction_matrix(produit_matrix(A, x), b)
         
 def algorithme(A: list[list[float]], b: list[list[float]]):
     # Clone matrice
@@ -151,10 +167,8 @@ def algorithme(A: list[list[float]], b: list[list[float]]):
     print("\nRésultat\n")
     res = remonte(A, b)
     print_matrix(res)
-    return res
-
-
-
+    print("\nRésidu\n")
+    print_matrix(residu(A, b, res))
 
 if __name__ == "__main__":
     assert get_column(A_Test, 0) == [[2], [-2], [6], [2], [0], [4]]
@@ -180,6 +194,6 @@ if __name__ == "__main__":
     
     # print_matrix(produit_const_v(vt_b / vt_v_2, v))
     # print_matrix(b_moins(b, produit_const_v(vt_b / vt_v_2, v)))
-    # algorithme(A, b)
+    algorithme(A, b)
 
     # algorithme(A_Test, b_Test)
