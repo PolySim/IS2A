@@ -1,9 +1,11 @@
 import math
 import numpy as np
+from generate_matrix import generate_matrix, generate_vector
+import time
 
 def print_matrix(M: np.ndarray):
     for row in M:
-        print('\t'.join(f"{x:.2f}" for x in row))
+        print('\t'.join(f"{float(x):.2f}" for x in row))
 
 def norme_first_column(M: np.ndarray) -> np.float64:
     return math.sqrt(sum(x[0] ** 2 for x in M))
@@ -83,7 +85,7 @@ def soustraction_matrix(A: np.ndarray, B: np.ndarray) -> np.ndarray:
 def residu(A: np.ndarray, b: np.ndarray, x: np.ndarray) -> np.ndarray:
     return produit_matrix(A, x) - b
 
-def algorithme(A: np.ndarray, b: np.ndarray, with_print: bool = False):
+def algorithme(A: np.ndarray, b: np.ndarray, with_print: bool = False) -> np.float64:
     # Clone matrice
     new_A = A.copy()
     new_b = b.copy()
@@ -125,7 +127,9 @@ def algorithme(A: np.ndarray, b: np.ndarray, with_print: bool = False):
         print_matrix(res)
         print("\nRésidu\n")
         print_matrix(residu(A, b, res))
-    return res
+
+    residu_v = residu(A, b, res)
+    return np.sqrt(np.sum(residu_v ** 2))
 
 if __name__ == "__main__":
     A_non_carre_test = np.array([
@@ -181,4 +185,15 @@ if __name__ == "__main__":
     vt_b = produit_vt_b(vt, b_non_carre_test)
     assert vt_b == 56
 
-    algorithme(A, b, with_print=True)
+    # algorithme(A, b, with_print=True)
+    n = 4
+    with open("houselder_carre_64.txt", "a") as f:
+        while n <= 100_000:
+            print(f"n = {n}")
+            A = generate_matrix(n, n)
+            b = generate_vector(n)
+            start_time = time.time()
+            a = algorithme(A, b)
+            end_time = time.time()
+            f.write(f"{n} {end_time - start_time} {a}\n")
+            n += 100

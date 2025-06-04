@@ -1,19 +1,5 @@
-from houselder import print_matrix, transpose, remonte, residu
+from houselder import print_matrix, transpose, remonte, residu, produit_matrix
 import numpy as np
-
-C = np.array([
-    [1.0, 0.0, 1.0],
-    [0.5, -1.0, 0.0],
-    [0.0, 3.0, -5.0],
-    [1.0, 0.0, -4.0]
-], dtype=np.float64)
-
-b = np.array([
-    [1.0],
-    [-1.0],
-    [4.0]
-], dtype=np.float64)
-
 
 def produit_matrix_transpose(M_T: np.ndarray, M: np.ndarray) -> np.ndarray:
     A = np.zeros((M.shape[1], M.shape[1]), dtype=np.float64)
@@ -72,8 +58,24 @@ def algorithme(C: np.ndarray, b: np.ndarray, with_print: bool = False):
         print("\nMatrice x\n")
         print_matrix(x)
         print("\nRésidu\n")
-        print_matrix(residu(A, b, x))
+        residu_v = residu(A, b, x)
+        print_matrix(residu_v)
+        print("Norme résidu : ", np.sqrt(np.sum(residu_v ** 2)))
     return x
 
 if __name__ == "__main__":
+    C = np.array([
+        [1.0, 0.0, 1.0],
+        [0.5, -1.0, 0.0],
+        [0.0, 3.0, -5.0],
+        [1.0, 0.0, -4.0]
+    ], dtype=np.float64)
+
+    b = np.array([
+        [1.0],
+        [-1.0],
+        [4.0]
+    ], dtype=np.float64)
+
     algorithme(C, b, with_print=True)
+
