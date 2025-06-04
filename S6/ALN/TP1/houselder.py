@@ -8,7 +8,7 @@ def print_matrix(M: np.ndarray):
         print('\t'.join(f"{float(x):.2f}" for x in row))
 
 def norme_first_column(M: np.ndarray) -> np.float64:
-    return math.sqrt(sum(x[0] ** 2 for x in M))
+    return np.sqrt(np.sum(M[:, 0] ** 2))
 
 def calcule_v(M: np.ndarray, norme: float) -> np.ndarray:
     # Récupère la première colonne de la matrice M
@@ -26,13 +26,13 @@ def produit_vt_v(A: np.ndarray, norme: np.float64) -> np.float64:
     return norme * (norme + abs(A[0, 0]))
 
 def produit_vt_b(vt: np.ndarray, b: np.ndarray) -> np.float64:
-    return sum(vt[0, i] * b[i, 0] for i in range(len(b)))
+    return np.sum(vt[0, :] * b[:, 0])
 
 def produit_v_vt(v: np.ndarray, vt: np.ndarray) -> np.ndarray:
-    res = np.zeros((len(v), len(vt)), dtype=np.float64)
-    for i in range(len(v)):
-        for j in range(len(vt)):
-            res[i, j] = v[i][0] * vt[j]
+    res = np.zeros((v.shape[0], vt.shape[0]), dtype=np.float64)
+    for i in range(v.shape[0]):
+        for j in range(vt.shape[0]):
+            res[i, j] = v[i, 0] * vt[j, 0]
     return res
 
 def produit_const_v(const: float, v: np.ndarray) -> np.ndarray:
@@ -86,35 +86,25 @@ def residu(A: np.ndarray, b: np.ndarray, x: np.ndarray) -> np.ndarray:
     return produit_matrix(A, x) - b
 
 def algorithme(A: np.ndarray, b: np.ndarray, with_print: bool = False) -> np.float64:
-    # Clone matrice
-    new_A = A.copy()
-    new_b = b.copy()
-
     for round in range(A.shape[1]):
         # Calcule les données identique 
-        norme_A = norme_first_column(new_A)
-        v = calcule_v(new_A, norme_A)
+        norme_A = norme_first_column(A[round:, round:])
+        v = calcule_v(A[round:, round:], norme_A)
         vt = transpose(v)
-        vt_v_2 = produit_vt_v(new_A, norme_A)
+        vt_v_2 = produit_vt_v(A[round:, round:], norme_A)
         
-        for i in range(new_A.shape[1]):
+        A = replace_column(A, round, v, start=round, with_0=True)
+        for i in range(1, A[round:, round:].shape[1]):
             # Pour chaque colonne de la sous matrice
-            column = get_column(new_A, i)
+            column = get_column(A[round:, round:], i)
             vt_b = produit_vt_b(vt, column)
             new_column = b_moins(column, produit_const_v(vt_b / vt_v_2, v))
-            # Met à jour la matrice A et new_A
-            new_A = replace_column(new_A, i, new_column)
-            A = replace_column(A, i + round, new_column, start=round, with_0=i == 0)
+            # Met à jour la matrice A
+            A = replace_column(A, i + round, new_column, start=round)
 
-        # Met à jour la matrice b et new_b
-        vt_b = produit_vt_b(vt, new_b)
-        new_b = b_moins(new_b, produit_const_v(vt_b / vt_v_2, v))
-        b[round:] = new_b
-
-        # Supprime la première ligne et la première colonne de la matrice new_A et new_b pour la prochaine itération
-        new_b = remove_first_row(new_b)
-        new_A = remove_first_row(new_A)
-        new_A = remove_first_column(new_A)
+        # Met à jour la matrice b
+        vt_b = produit_vt_b(vt, b[round:])
+        b[round:] = b_moins(b[round:], produit_const_v(vt_b / vt_v_2, v))
 
     res = remonte(A, b)
     # Affiche les matrices A et b
