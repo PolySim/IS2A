@@ -22,9 +22,9 @@ trace_histos(X, c(30, 50, 80))
 log_vraisemblance <- function(params, data) {
   mu <- params[1]
   sigma <- params[2]
-  
+
   if (sigma <= 0) return(-Inf)  # σ doit être strictement positif
-  
+
   # Calcul de la somme des log-densités de la loi log-normale pour les données
   # dlnorm fonction de densité de la loi normale
   # log = TRUE car on veut le logarithme de la densité
