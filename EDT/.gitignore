@@ -1,0 +1,4 @@
+credentials.json
+*.log
+token.pickle
+calendar_sync_state.json
