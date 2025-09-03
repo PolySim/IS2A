@@ -86,7 +86,7 @@ class GoogleCalendarSync:
         try:
             today = datetime.now()
             start_date = today.strftime('%Y-%m-%d')
-            end_date = (today + timedelta(days=30)).strftime('%Y-%m-%d')
+            end_date = (today + timedelta(days=2)).strftime('%Y-%m-%d')
             
             url = f"{self.api_url}&start={start_date}&end={end_date}"
             response = requests.get(url, headers=self.api_headers, timeout=30)
@@ -104,24 +104,20 @@ class GoogleCalendarSync:
         """
         Normalise un événement de l'API vers le format Google Calendar
         Structure API : title, description, start (format: 20250901T101500Z), end
-        Les dates de l'API sont en UTC et doivent être converties à l'heure française
+        Les dates de l'API sont déjà en heure française locale
         """
         try:
-            # Définition des fuseaux horaires
-            utc = pytz.UTC
+            # Définition du fuseau horaire français
             paris_tz = pytz.timezone('Europe/Paris')
             
-            # Conversion du format datetime de l'API (20250901T101500Z) depuis UTC
-            start_dt_utc = datetime.strptime(api_event['start'], '%Y%m%dT%H%M%SZ')
-            end_dt_utc = datetime.strptime(api_event['end'], '%Y%m%dT%H%M%SZ')
+            # Conversion du format datetime de l'API (20250901T101500Z) 
+            # Ces dates sont déjà en heure française locale
+            start_dt_naive = datetime.strptime(api_event['start'], '%Y%m%dT%H%M%SZ')
+            end_dt_naive = datetime.strptime(api_event['end'], '%Y%m%dT%H%M%SZ')
             
-            # Assignation du fuseau UTC aux objets datetime
-            start_dt_utc = utc.localize(start_dt_utc)
-            end_dt_utc = utc.localize(end_dt_utc)
-            
-            # Conversion vers l'heure française (Europe/Paris)
-            start_dt_paris = start_dt_utc.astimezone(paris_tz)
-            end_dt_paris = end_dt_utc.astimezone(paris_tz)
+            # Assignation du fuseau horaire français aux objets datetime
+            start_dt_paris = paris_tz.localize(start_dt_naive)
+            end_dt_paris = paris_tz.localize(end_dt_naive)
             
             # Format ISO 8601 pour Google Calendar (avec le fuseau horaire local)
             start_iso = start_dt_paris.strftime('%Y-%m-%dT%H:%M:%S')
@@ -241,7 +237,11 @@ class GoogleCalendarSync:
             return False
     
     def sync_events(self):
-        """Synchronisation complète des événements"""
+        """
+        Synchronisation optimisée des événements
+        1. Nettoie les anciens événements (supprime ceux qui ne sont plus dans l'API ou qui ont changé)
+        2. Ajoute les nouveaux événements (seulement ceux qui n'existaient pas ou qui ont changé)
+        """
         if not self.authenticate_google():
             logger.error("Échec de l'authentification Google")
             return False
@@ -254,49 +254,78 @@ class GoogleCalendarSync:
         
         # Chargement de l'état précédent
         previous_state = self.load_state()
-        current_state = {}
         
-        stats = {'created': 0, 'updated': 0, 'deleted': 0, 'errors': 0}
-        
-        # Traitement des événements de l'API
+        # Normalisation des événements de l'API pour créer un dictionnaire de référence
+        api_events_dict = {}
         for api_event in api_events:
             event, event_hash = self.normalize_event(api_event)
-            if not event or not event_hash:
-                stats['errors'] += 1
-                continue
-            
+            if event and event_hash:
+                api_events_dict[event_hash] = {
+                    'event': event,
+                    'summary': event['summary'],
+                    'last_sync': datetime.utcnow().isoformat()
+                }
+        
+        stats = {'created': 0, 'updated': 0, 'deleted': 0, 'unchanged': 0, 'errors': 0}
+        
+        # ÉTAPE 1: Nettoyer les anciens événements
+        logger.info("Étape 1: Nettoyage des anciens événements...")
+        for old_hash, old_data in previous_state.items():
+            if old_hash not in api_events_dict:
+                # L'événement n'est plus dans l'API -> le supprimer
+                if 'google_id' in old_data:
+                    if self.delete_event(old_data['google_id']):
+                        stats['deleted'] += 1
+                        logger.info(f"Supprimé: {old_data.get('summary', 'Événement sans titre')}")
+                    else:
+                        stats['errors'] += 1
+            else:
+                # L'événement existe encore dans l'API
+                # Vérifier s'il a changé en comparant les résumés
+                api_summary = api_events_dict[old_hash]['summary']
+                old_summary = old_data.get('summary', '')
+                
+                if api_summary != old_summary:
+                    # L'événement a changé -> le supprimer (il sera recréé à l'étape 2)
+                    if 'google_id' in old_data:
+                        if self.delete_event(old_data['google_id']):
+                            stats['updated'] += 1  # Compte comme une mise à jour
+                            logger.info(f"Modifié (suppression): {old_summary} -> {api_summary}")
+                        else:
+                            stats['errors'] += 1
+                else:
+                    # L'événement n'a pas changé -> le conserver
+                    stats['unchanged'] += 1
+                    # Conserver l'ID Google pour éviter de le recréer
+                    api_events_dict[old_hash]['google_id'] = old_data.get('google_id')
+        
+        # ÉTAPE 2: Ajouter les nouveaux événements
+        logger.info("Étape 2: Ajout des nouveaux événements...")
+        current_state = {}
+        for event_hash, event_data in api_events_dict.items():
             current_state[event_hash] = {
-                'summary': event['summary'],
-                'last_sync': datetime.utcnow().isoformat()
+                'summary': event_data['summary'],
+                'last_sync': event_data['last_sync']
             }
             
-            # Vérification si l'événement existe déjà
-            existing_event = self.find_existing_event(event_hash)
+            if 'google_id' in event_data:
+                # L'événement existe déjà et n'a pas changé -> ne rien faire
+                current_state[event_hash]['google_id'] = event_data['google_id']
+                continue
             
-            if existing_event:
-                # Mise à jour de l'événement existant
-                if self.update_event(existing_event['id'], event):
-                    stats['updated'] += 1
-                    current_state[event_hash]['google_id'] = existing_event['id']
+            # L'événement est nouveau ou a changé -> le créer
+            created_event = self.create_event(event_data['event'])
+            if created_event:
+                if event_hash in previous_state:
+                    # C'était une modification (déjà compté dans updated)
+                    logger.info(f"Modifié (création): {event_data['summary']}")
                 else:
-                    stats['errors'] += 1
-            else:
-                # Création d'un nouvel événement
-                created_event = self.create_event(event)
-                if created_event:
+                    # C'est un nouvel événement
                     stats['created'] += 1
-                    current_state[event_hash]['google_id'] = created_event['id']
-                else:
-                    stats['errors'] += 1
-        
-        # Suppression des événements qui ne sont plus dans l'API
-        events_to_delete = set(previous_state.keys()) - set(current_state.keys())
-        for event_hash in events_to_delete:
-            if 'google_id' in previous_state[event_hash]:
-                if self.delete_event(previous_state[event_hash]['google_id']):
-                    stats['deleted'] += 1
-                else:
-                    stats['errors'] += 1
+                    logger.info(f"Créé: {event_data['summary']}")
+                current_state[event_hash]['google_id'] = created_event['id']
+            else:
+                stats['errors'] += 1
         
         # Sauvegarde du nouvel état
         self.save_state(current_state)
@@ -304,7 +333,7 @@ class GoogleCalendarSync:
         # Rapport de synchronisation
         logger.info(f"Synchronisation terminée - Créés: {stats['created']}, "
                    f"Mis à jour: {stats['updated']}, Supprimés: {stats['deleted']}, "
-                   f"Erreurs: {stats['errors']}")
+                   f"Inchangés: {stats['unchanged']}, Erreurs: {stats['errors']}")
         
         return True
 
