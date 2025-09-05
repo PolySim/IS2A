@@ -20,7 +20,7 @@ cd EDT
 ### 2. Installer les dépendances Python
 
 ```bash
-pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client requests
+pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client requests pytz
 ```
 
 Ou via requirements.txt :
