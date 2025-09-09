@@ -1,0 +1,364 @@
+---
+title: "ctp"
+output: html_document
+---
+
+Dans ce TP, nous allons étudier différentes approximations de la distribution d'une loi normale $\mathcal{N}(m,\sigma^2)$ ($m$ et $\sigma^2$ inconnues). Nous allons pour cela nous baser sur différents échantillons de cette loi.
+
+# Génération de la population globale
+
+Tirez aléatoirement un nombre de la loi $\mathcal{N}(0,1)$ (fonction `rnorm`), et rangez cette valeur dans une variable `m_true`. Cette valeur correspondra à l'espérance de la gaussienne que l'on va étudier. Pour la variance, tirez un nombre dans la variable $\mathcal{U}(10,100)$ (fonction `runif`) et rangez cette valeur dans `v_true`.
+
+```{r}
+m_true <- rnorm(1, mean = 0, sd = 1)
+
+v_true <- runif(1, min = 10, max = 100)
+
+cat("Espérance vraie (m_true):", m_true, "\n")
+cat("Variance vraie (v_true):", v_true, "\n")
+```
+
+Tirez aléatoirement et conservez 1000 valeurs issues d'une loi normale avec l'espérance et la variance précédemment fixées.
+
+```{r}
+population <- rnorm(n = 1000, mean = m_true, sd = sqrt(v_true))
+```
+
+# Histogramme
+
+Affichez un histogramme représentant ces valeurs avec 30 classes de largeur égale (fonction `hist`). L'axe des ordonnées représente le nombre de valeurs dans chaque classe.
+
+```{r}
+hist(
+  population,
+  breaks = 30,
+  main = "Histogramme de la population globale",
+  xlab = "Valeurs", ylab = "Fréquence"
+)
+```
+
+# Tirage d'échantillons de taille variable
+
+A partir de cette population globale, construisez et conservez 3 échantillons (n = 10,40,120) par tirage aléatoire avec remise.
+
+```{r}
+echantillon_10 <- sample(population, size = 10, replace = TRUE)
+echantillon_40 <- sample(population, size = 40, replace = TRUE)
+echantillon_120 <- sample(population, size = 120, replace = TRUE)
+```
+
+# Estimations espérance et variance
+
+Choisissez un estimateur pour l'espérance et la variance. A partir de vos 3 échantillons, calculez et affichez ces 2 estimations.
+
+```{r}
+# Estimateurs choisis :
+# - Espérance : moyenne empirique
+# - Variance : variance empirique corrigée (division par n-1)
+
+# Estimations pour l'échantillon de taille 10
+m_hat_10 <- mean(echantillon_10)
+v_hat_10 <- var(echantillon_10)
+
+# Estimations pour l'échantillon de taille 40
+m_hat_40 <- mean(echantillon_40)
+v_hat_40 <- var(echantillon_40)
+
+# Estimations pour l'échantillon de taille 120
+m_hat_120 <- mean(echantillon_120)
+v_hat_120 <- var(echantillon_120)
+
+# Affichage des résultats
+cat("Données initiales\n")
+cat("Espérance vraie (m_true):", m_true, "\n")
+cat("Variance vraie (v_true):", v_true, "\n\n")
+
+cat("Estimations\n")
+cat("n=10 :\n")
+cat("Espérance estimée:", m_hat_10, "\n")
+cat("Variance estimée:", v_hat_10, "\n\n")
+
+cat("n=40 :\n")
+cat("Espérance estimée:", m_hat_40, "\n")
+cat("Variance estimée:", v_hat_40, "\n\n")
+
+cat("n=120 :\n")
+cat("Espérance estimée:", m_hat_120, "\n")
+cat("Variance estimée:", v_hat_120, "\n\n")
+```
+
+Nous avons étudié en TD différents estimateurs de la variance. Lequel est le plus adapté selon vous dans notre cas ? Justifiez en une ou deux phrases.
+
+L'estimateur le plus adapté est la **variance empirique corrigée** (division par n-1), que nous avons utilisé avec la fonction `var()`. Cet estimateur est plus précis que la variance empirique classique (division par n), ce qui signifie que son espérance mathématique est égale à la vraie variance de la population.
+
+# Estimation de la densité de probabilité avec a priori gaussien
+
+A partir des 3 échantillons, tracez sur un même graphique les 3 densités de probabilité estimées à l'aide des 3 différents couples d'estimation de l'espérance et de la variance. Sur ce même graphique, faites apparaître l'histogramme que vous avez précédemment affiché sur la population globale (n=1000), cette fois avec la proportion empirique du nombre d'éléments dans chaque classe. Tracez également la vraie densité de probabilité de la loi normale d'origine.
+
+Indication : fonction `dnorm` pour la densité de probabilité d'une gaussienne.
+
+```{r}
+# Définition de la plage de valeurs pour tracer les densités
+x_min <- min(population) - 2 * sqrt(v_true)
+x_max <- max(population) + 2 * sqrt(v_true)
+x_seq <- seq(x_min, x_max, length.out = 300)
+
+# Création de l'histogramme avec proportions empiriques
+hist(population, breaks = 30, freq = FALSE,
+     main = "Densités de probabilité estimées et vraie densité",
+     xlab = "Valeurs", ylab = "Densité de probabilité",
+     col = "lightgray", border = "white")
+
+# Ajout des densités estimées à partir des 3 échantillons
+# Échantillon n=10 (rouge)
+density_10 <- dnorm(x_seq, mean = m_hat_10, sd = sqrt(v_hat_10))
+lines(x_seq, density_10, col = "red", lwd = 2, lty = 1)
+
+# Échantillon n=40 (bleu)
+density_40 <- dnorm(x_seq, mean = m_hat_40, sd = sqrt(v_hat_40))
+lines(x_seq, density_40, col = "blue", lwd = 2, lty = 2)
+
+# Échantillon n=120 (vert)
+density_120 <- dnorm(x_seq, mean = m_hat_120, sd = sqrt(v_hat_120))
+lines(x_seq, density_120, col = "green", lwd = 2, lty = 3)
+
+# Ajout de la vraie densité de probabilité (noir)
+true_density <- dnorm(x_seq, mean = m_true, sd = sqrt(v_true))
+lines(x_seq, true_density, col = "black", lwd = 3, lty = 1)
+
+# Ajout de la légende
+legend("topright",
+  legend = c(
+    "Histogramme (n=1000)",
+    "Estimation n=10",
+    "Estimation n=40",
+    "Estimation n=120",
+    "Vraie densité"
+  ),
+  col = c("lightgray", "red", "blue", "green", "black")
+)
+```
+
+Commentez brièvement la figure obtenue.
+
+On observe que les estimations des densités de probabilité sont plus précises lorsque la taille de l'échantillon est plus grande.
+
+# Estimation de la densité avec méthode à noyau
+
+## Définition de la fonction générique
+
+Définissez une fonction permettant d'estimer une densité de probabilité par une méthode de noyau. Cette fonction prend en entrée :
+
+-   les valeurs pour lesquelles on souhaite estimer la densité
+-   les valeurs à partir desquelles on estime la densité (${X_1,\ldots,X_n}$)
+-   la fonction "noyau"
+
+Cette fonction renvoie les densités estimées (liste de même taille que le premier argument de la fonction).
+
+Indication : Utilisez le choix recommandé pour la constante `h` : $\sqrt{S^2_n} n^{-1/5}$.
+
+```{r}
+estimation_densite_noyau <- function(x_eval, echantillon, noyau) {
+  n <- length(echantillon)
+
+  S2_n <- var(echantillon)  # Variance empirique de l'échantillon
+  h <- sqrt(S2_n) * n^(-1 / 5)
+
+  densites_estimees <- numeric(length(x_eval))
+  for (i in seq_along(x_eval)) {
+    x <- x_eval[i]
+
+    somme_noyaux <- 0
+    for (j in 1:n) {
+      argument_noyau <- (x - echantillon[j]) / h
+      somme_noyaux <- somme_noyaux + noyau(argument_noyau)
+    }
+
+    densites_estimees[i] <- (1 / (n * h)) * somme_noyaux
+  }
+
+  densites_estimees
+}
+
+noyau_uniforme <- function(u) {
+  ifelse(abs(u) <= 1, 0.5, 0)
+}
+
+noyau_gaussien <- function(u) {
+  (1 / sqrt(2 * pi)) * exp(-u^2 / 2)
+}
+```
+
+## Application avec noyau uniforme (fenêtre mobile)
+
+Réaffichez le graphique précédent en remplaçant les 3 densités estimées avec la moyenne et variance empirique par les 3 densités estimées avec un noyau uniforme (fenêtre mobile).
+
+```{r}
+x_min <- min(population) - 2 * sqrt(v_true)
+x_max <- max(population) + 2 * sqrt(v_true)
+x_seq <- seq(x_min, x_max, length.out = 300)
+
+hist(
+  population,
+  breaks = 30,
+  freq = FALSE,
+  main = "Estimation de densité par noyau uniforme (fenêtre mobile)",
+  xlab = "Valeurs",
+  ylab = "Densité de probabilité",
+  col = "lightgray",
+  border = "white"
+)
+
+density_uniforme_10 <- estimation_densite_noyau(x_seq, echantillon_10, noyau_uniforme)
+lines(x_seq, density_uniforme_10, col = "red", lwd = 2, lty = 1)
+
+# Échantillon n=40 (bleu)
+density_uniforme_40 <- estimation_densite_noyau(x_seq, echantillon_40, noyau_uniforme)
+lines(x_seq, density_uniforme_40, col = "blue", lwd = 2, lty = 2)
+
+# Échantillon n=120 (vert)
+density_uniforme_120 <- estimation_densite_noyau(x_seq, echantillon_120, noyau_uniforme)
+lines(x_seq, density_uniforme_120, col = "green", lwd = 2, lty = 3)
+
+# Ajout de la vraie densité de probabilité (noir)
+true_density <- dnorm(x_seq, mean = m_true, sd = sqrt(v_true))
+lines(x_seq, true_density, col = "black", lwd = 3, lty = 1)
+
+# Ajout de la légende
+legend("topright",
+  legend = c(
+    "Histogramme (n=1000)",
+    "Noyau uniforme n=10",
+    "Noyau uniforme n=40",
+    "Noyau uniforme n=120",
+    "Vraie densité"
+  ),
+  col = c("lightgray", "red", "blue", "green", "black")
+)
+```
+
+Commentez le graphique obtenu.
+
+On observe que les estimations des densités de probabilité sont plus précises lorsque la taille de l'échantillon est plus grande comme précédemment. De plus les courbes ne sont pas lisses.
+
+## Application avec noyau gaussien
+
+Réaffichez le graphique précédent en utilisant cette fois un noyau gaussien pour l'estimation de la densité.
+
+```{r}
+x_min <- min(population) - 2 * sqrt(v_true)
+x_max <- max(population) + 2 * sqrt(v_true)
+x_seq <- seq(x_min, x_max, length.out = 300)
+
+hist(
+  population,
+  breaks = 30,
+  freq = FALSE,
+  main = "Estimation de densité par noyau gaussien",
+  xlab = "Valeurs",
+  ylab = "Densité de probabilité",
+  col = "lightgray",
+  border = "white"
+)
+
+# Estimation de densité avec noyau gaussien pour les 3 échantillons
+# Échantillon n=10 (rouge)
+density_gaussien_10 <- estimation_densite_noyau(x_seq, echantillon_10, noyau_gaussien)
+lines(x_seq, density_gaussien_10, col = "red", lwd = 2, lty = 1)
+
+# Échantillon n=40 (bleu)
+density_gaussien_40 <- estimation_densite_noyau(x_seq, echantillon_40, noyau_gaussien)
+lines(x_seq, density_gaussien_40, col = "blue", lwd = 2, lty = 2)
+
+# Échantillon n=120 (vert)
+density_gaussien_120 <- estimation_densite_noyau(x_seq, echantillon_120, noyau_gaussien)
+lines(x_seq, density_gaussien_120, col = "green", lwd = 2, lty = 3)
+
+# Ajout de la vraie densité de probabilité (noir)
+true_density <- dnorm(x_seq, mean = m_true, sd = sqrt(v_true))
+lines(x_seq, true_density, col = "black", lwd = 3, lty = 1)
+
+# Ajout de la légende
+legend("topright",
+  legend = c(
+    "Histogramme (n=1000)",
+    "Noyau gaussien n=10",
+    "Noyau gaussien n=40",
+    "Noyau gaussien n=120",
+    "Vraie densité"
+  ),
+  col = c("lightgray", "red", "blue", "green", "black")
+)
+```
+
+Commentez le graphique obtenu.
+
+On observe que les estimations des densités de probabilité sont plus précises lorsque la taille de l'échantillon est plus grande. Contrairement au noyau uniforme, le noyau gaussien produit des courbes lisses et continues, ce qui donne une estimation plus naturelle de la densité.
+
+# Test d'hypothèse
+
+Nous allons maintenant implémenter le test de Student (vu en cours) sur nos 3 échantillons afin de déterminer si l'espérance est significativement différente de 0 ou non (test sur la moyenne d'un échantillon gaussien avec variance inconnue).
+
+## Calcul des p-valeurs avec t.test
+
+Sur chacun des 3 échantillons, appliquez un test de Student de nullité de la moyenne (fonction `t.test`) ($H_0$ : $m=0$, $H_1$ : $m \neq 0$) et affichez la p-valeur retournée.
+
+```{r}
+# Test de Student pour l'échantillon de taille 10
+test_10 <- t.test(echantillon_10, mu = 0)
+cat("Échantillon n=10 :\n")
+cat("p-valeur:", test_10$p.value, "\n\n")
+
+# Test de Student pour l'échantillon de taille 40
+test_40 <- t.test(echantillon_40, mu = 0)
+cat("Échantillon n=40 :\n")
+cat("p-valeur:", test_40$p.value, "\n\n")
+
+# Test de Student pour l'échantillon de taille 120
+test_120 <- t.test(echantillon_120, mu = 0)
+cat("Échantillon n=120 :\n")
+cat("p-valeur:", test_120$p.value, "\n\n")
+```
+
+On choisit de prendre un seuil de significativité à 10% pour la p-valeur. Commentez alors les résultats obtenus.
+
+Les résultats des tests de Student permettent de déterminer si l'espérance de chaque échantillon est complètement différente de 0 :
+
+-   Si la p-valeur \< 0.10 : on rejette H0, la moyenne est complètement différente de 0
+-   Si la p-valeur ≥ 0.10 : on ne peut pas rejeter H0, on ne peut pas conclure que la moyenne est différente de 0
+
+Plus la taille de l'échantillon est grande, plus le test a de puissance pour détecter une différence réelle. Ainsi, même si la vraie espérance `m_true` est la même pour tous les échantillons, les conclusions du test peuvent varier selon la taille de l'échantillon et la valeur estimée de la moyenne.
+
+## Implémentation du calcul de la p-valeur
+
+A partir de votre cours, définissez une fonction qui prend en entrée un échantillon gaussien de variance inconnue et qui renvoie la p-valeur du test de nullité de la moyenne (test bilatéral).
+
+```{r}
+calcul_pvaleur_student <- function(echantillon) {
+  n <- length(echantillon)
+  moyenne <- mean(echantillon)
+  variance <- var(echantillon)
+
+  t_stat <- (moyenne - 0) / sqrt(variance / n)
+
+  p_value <- 2 * pt(-abs(t_stat), n - 1)
+
+  p_value
+}
+```
+
+Appliquez alors sur vos 3 échantillons et vérifiez que vous obtenez bien les mêmes p-valeurs que celles précédemment calculées avec `t.test`.
+
+```{r}
+# Calcul des p-valeurs avec notre fonction
+cat("Résultats avec notre fonction :\n")
+cat("Échantillon n=10, p-valeur:", calcul_pvaleur_student(echantillon_10), "\n")
+cat("Échantillon n=40, p-valeur:", calcul_pvaleur_student(echantillon_40), "\n")
+cat("Échantillon n=120, p-valeur:", calcul_pvaleur_student(echantillon_120), "\n\n")
+
+# Comparaison avec les résultats de t.test
+cat("Résultats avec t.test :\n")
+cat("Échantillon n=10, p-valeur:", t.test(echantillon_10, mu = 0)$p.value, "\n")
+cat("Échantillon n=40, p-valeur:", t.test(echantillon_40, mu = 0)$p.value, "\n")
+cat("Échantillon n=120, p-valeur:", t.test(echantillon_120, mu = 0)$p.value, "\n")
+```
