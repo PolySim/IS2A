@@ -9,6 +9,7 @@ bin
 cmake-build-debug
 .git
 package-lock.json
+*.class
 
 #OS
 .DS_Store
