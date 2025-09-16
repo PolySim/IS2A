@@ -1,0 +1,144 @@
+---
+title: "TP Régression linéaire"
+author: "Simon Desdevises"
+date: "16/09/2025"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Régression linéaire : étude de simulation.
+
+### 1. 
+Voici le code code R : 
+```{r, echo = TRUE}
+set.seed(1234)
+``` 
+
+### 2. 
+```{r, echo = TRUE}
+n=100
+x = rnorm(n, 3,1) # les points du design
+sigma2e =c(0.1, 0.5, 2, 6)
+b0 =1
+b1 =2
+
+y = matrix(0, ncol=4, nrow=n)
+for(i in 1:ncol(y))
+y[,i] = b0+b1*x + rnorm(n, 0, sqrt(sigma2e[i]))
+```
+
+### 3. 
+Voici aussi les 4 nuages de points :
+
+```{r, echo = TRUE}
+par(mfrow=c(2,2))
+for(i in 1:4)
+plot(x,y[,i], xlab = "x", ylab = "y", main = paste("sigma2e =", sigma2e[i]))
+title("Nuages de points", outer=TRUE, line=-1)
+```
+
+### 4.
+```{r, echo = TRUE, comment=""}
+#Creation des data frames
+d1 = data.frame(X=x, Y=y[,1])
+d2 = data.frame(X=x, Y=y[,2])
+d3 = data.frame(X=x, Y=y[,3])
+d4 = data.frame(X=x, Y=y[,4])
+
+# placons nous dans le 1er data frame, d1
+str(d1) # pour voir la structure du data frame
+head(d1) # pour avoir une vue des observations
+
+summary(d1) # stats descript univariés
+
+plot(d1) # croise toutes les variables entre elles (ici il n'y a que 2!)
+
+m1 = lm(Y~X, data=d1) # estime le modele linéaire Y  = b0+b1*X+espilon
+summary(m1)
+coef(m1)
+```
+On observe que **b0** est appellé *intercept* alors que **b1** est juste indiqué comme *coefficient* de la variable X.
+
+Comparez les estimations aux vrais valeurs b0=1 et b1=2!
+
+
+Tracons la fonction (ici droite) de régression : 
+
+```{r, echo = TRUE, comment=""}
+plot(d1$X, d1$Y, pch=16, xlab ="X", ylab = "Y")
+abline(coef(m1), col="red")
+```
+
+Le 3-eme modèle:
+```{r, echo = TRUE, comment=""}
+m3 = lm(Y~X, data=d3) # estime le modele linéaire Y  = b0+b1*X+espilon
+summary(m3)
+```
+
+
+### 7
+
+A vous de calculer le coefficient de correlation théorique $\rho(X,Y)$
+
+Les estimations fournies par les données sont :
+
+
+
+  - modèle 1 : 
+```{r, echo = TRUE, comment=""} 
+cor(d1) # calcule les correlations linéaires entre TOUTES les variables de d1.
+# equivalent :
+cor(d1$X, d1$Y)
+```
+
+  - modèle 2 : 
+```{r, echo = TRUE, comment=""} 
+cor(d2) # calcule les correlations linéaires entre TOUTES les variables de d1.
+# equivalent :
+cor(d2$X, d2$Y)
+```
+
+  - modèle 3 : 
+```{r, echo = TRUE, comment=""} 
+cor(d3) # calcule les correlations linéaires entre TOUTES les variables de d1.
+# equivalent :
+cor(d3$X, d3$Y)
+```
+
+  - modèle 4 : 
+```{r, echo = TRUE, comment=""} 
+cor(d4) # calcule les correlations linéaires entre TOUTES les variables de d1.
+# equivalent :
+cor(d4$X, d4$Y)
+```
+
+
+### 8. Les prédictions
+
+```{r, echo = TRUE, comment=""} 
+xnew = c(2.5, 3.5, 4.5)
+dnew = data.frame(X=xnew)
+
+#Predictions avec le modèle 3 : 
+pred1 =predict(m1, dnew, interval = "confidence")
+print(pred1)
+
+matplot(xnew, pred1, col = c("black", "blue", "red"), type="b", pch=16)
+
+legend("topleft", c("valeur prédite", "borne inf (95%)", "borne sup (95%)"), col=c("black", "blue", "blue"), pch=c(16,16,16))
+
+
+```
+
+```{r, echo = TRUE, comment=""} 
+
+matplot(d3$X, predict(m3, interval="confidence"), col = c("red", "blue", "green"), type="p", pch=16)
+
+legend("topleft", c("valeur prédite", "borne inf (95%)", "borne sup (95%)"), col=c("red", "blue", "green"), pch=c(16,16,16))
+      
+```
+
