@@ -31,4 +31,8 @@ public class TacheComposee extends Tache {
     }
     return sum;
   }
+
+  public String toString() {
+    return this.getId();
+  }
 }

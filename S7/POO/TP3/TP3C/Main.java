@@ -14,22 +14,22 @@ public class Main {
 
     Workflow workflow = new Workflow();
     try {
-      workflow.getTaches().ajouterTache(tache1);
+      workflow.ajouterTache(tache1);
     } catch (TacheDejaExistanteException e) {
       System.out.println(e.getMessage());
     }
     try {
-      workflow.getTaches().ajouterTache(tache2);
+      workflow.ajouterTache(tache2);
     } catch (TacheDejaExistanteException e) {
       System.out.println(e.getMessage());
     }
     try {
-      workflow.getTaches().ajouterTache(tache3);
+      workflow.ajouterTache(tache3);
     } catch (TacheDejaExistanteException e) {
       System.out.println(e.getMessage());
     }
     try {
-      workflow.getTaches().ajouterTache(tache4);
+      workflow.ajouterTache(tache4);
     } catch (TacheDejaExistanteException e) {
       System.out.println(e.getMessage());
     }

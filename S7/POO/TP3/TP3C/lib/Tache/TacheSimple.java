@@ -11,4 +11,8 @@ public class TacheSimple extends Tache {
   public int cout() {
     return this.COUT;
   }
+
+  public String toString() {
+    return this.getId();
+  }
 }
