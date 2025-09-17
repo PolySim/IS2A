@@ -11,26 +11,25 @@ public class Main {
     TacheSimple tache3 = new TacheSimple("2", 30, 300);
     TacheComposee tache4 = new TacheComposee("4", new TacheSimple[] {tache1, tache2, tache3});
     TacheSimple tache5 = new TacheSimple("5", 40, 400);
-    TacheSimple tache6 = new TacheSimple("6", 40, 400);
 
     Workflow workflow = new Workflow();
     try {
-      workflow.ajouterTache(tache1);
+      workflow.getTaches().ajouterTache(tache1);
     } catch (TacheDejaExistanteException e) {
       System.out.println(e.getMessage());
     }
     try {
-      workflow.ajouterTache(tache2);
+      workflow.getTaches().ajouterTache(tache2);
     } catch (TacheDejaExistanteException e) {
       System.out.println(e.getMessage());
     }
     try {
-      workflow.ajouterTache(tache3);
+      workflow.getTaches().ajouterTache(tache3);
     } catch (TacheDejaExistanteException e) {
       System.out.println(e.getMessage());
     }
     try {
-      workflow.ajouterTache(tache4);
+      workflow.getTaches().ajouterTache(tache4);
     } catch (TacheDejaExistanteException e) {
       System.out.println(e.getMessage());
     }

@@ -2,73 +2,32 @@ package lib.Workflow;
 
 import exceptions.ArcInvalideException;
 import exceptions.CycleDetecteException;
-import exceptions.TacheDejaExistanteException;
 import exceptions.TacheInconnueException;
 import lib.Arc.Arc;
 import lib.Tache.Tache;
+import lib.Tache.Taches;
 
 public class Workflow {
-  private Tache[] taches;
+  private Taches taches;
   private Arc[] arcs;
 
-  public Workflow(Tache[] taches, Arc[] arcs) {
-    this.setTaches(taches);
+  private Workflow(Taches taches, Arc[] arcs) {
+    this.setTaches(new Taches());
     this.setArcs(arcs);
   }
   
   public Workflow() {
-    this(new Tache[100], new Arc[100]);
+    this(new Taches(), new Arc[100]);
   }
 
-  public void setTaches(Tache[] taches) {
-    this.taches = taches;
-  }
-
-  public Tache[] getTaches() {
+  public Taches getTaches() {
     return this.taches;
   }
 
-  public void replaceTache(Tache t, int index) {
-    this.taches[index] = t;
+  public void setTaches(Taches taches) {
+    this.taches = taches;
   }
 
-  public int getTacheIndex(Tache t) {
-    int i = 0;
-    while (i < this.getLastTacheIndex() && !this.getTaches()[i].getId().equals(t.getId())) {
-      i++;
-    }
-    if (i == this.getLastTacheIndex()) {
-      return -1;
-    }
-    return i;
-  }
-
-  public void controleTache(Tache t) throws TacheDejaExistanteException {
-    int i = 0;
-    boolean found = false;
-    while (i < this.getLastTacheIndex() && !found) {
-      if (this.taches[i].getId().equals(t.getId())) {
-        found = true;
-      }
-      i++;
-    }
-    if (found) {
-      throw new TacheDejaExistanteException();
-    }
-  }
-
-  public int getLastTacheIndex() {
-    int i = 0;
-    while (i < this.taches.length && this.getTaches()[i] != null) {
-      i++;
-    }
-    return i;
-  }
-
-  public void ajouterTache(Tache t) throws TacheDejaExistanteException {
-    this.controleTache(t);
-    this.replaceTache(t, this.getLastTacheIndex());
-  }
 
   public void setArcs(Arc[] arcs) {
     this.arcs = arcs;
@@ -91,7 +50,7 @@ public class Workflow {
   }
 
   public void controleArc(Arc a) throws TacheInconnueException, ArcInvalideException, CycleDetecteException {
-    if (this.getTacheIndex(a.getFrom()) == -1 || this.getTacheIndex(a.getTo()) == -1) {
+    if (this.getTaches().getTacheIndex(a.getFrom()) == -1 || this.getTaches().getTacheIndex(a.getTo()) == -1) {
       throw new TacheInconnueException();
     }
     if (a.getFrom().getId().equals(a.getTo().getId())) {
@@ -183,10 +142,7 @@ public class Workflow {
     String result = "";
 
     result += "\nTaches :\n";
-    for (int i = 0; i < this.getLastTacheIndex(); i++) {
-      result += this.getTaches()[i].getId() + " ";
-    }
-    result += "\n";
+    result += this.getTaches().toString();
 
     result += "\nArcs :\n";
     for (int i = 0; i < this.getLastArcIndex(); i++) {
