@@ -1,0 +1,154 @@
+title: "TP2"
+author: "Simon Desdevises"
+date: "2025-09-19"
+output: html_document
+---
+
+# Question 1
+
+```{r load_data}
+data <- read.csv("/Users/simondesdevises/Documents/Polytech/IS2A/S7/stat_exploratoire/TP2/Temperatures.csv", header = TRUE) # nolint
+rownames(data) <- data$X
+data <- data[, -1]
+
+```
+
+# Question 2
+
+Les données représentent les températures sur les différents mois de l'année pour différentes villes. \
+On y retrouve en plus les données `"Moyenne","Amplitude","Latitude","Longitude","Region"`.
+
+# Question 3
+
+```{r normalize_data}
+data_formatted <- data[, 1:(ncol(data) - 5)]
+data_formatted <- scale(data_formatted, center = TRUE, scale = TRUE)
+data_formatted
+```
+
+# Question 4
+
+```{r variance_covariance}
+n <- nrow(data_formatted)
+var_cov_matrix <- (1 / (n - 1)) * t(data_formatted) %*% data_formatted
+var_cov_matrix
+```
+
+Nous avons une matrice diagonale.
+
+# Question 5
+
+```{r valeur_propre}
+eigen_result <- eigen(var_cov_matrix)
+
+cat("Valeurs propres :\n")
+eigen_result$values
+
+cat("\nVecteurs propres :\n")
+eigen_result$vectors
+```
+
+# Question 6
+
+title: "TP2"
+author: "Simon Desdevises"
+date: "2025-09-19"
+output: html_document
+---
+
+# Question 1
+
+```{r load_data}
+data <- read.csv("/Users/simondesdevises/Documents/Polytech/IS2A/S7/stat_exploratoire/TP2/Temperatures.csv", header = TRUE) # nolint
+rownames(data) <- data$X
+data <- data[, -1]
+
+```
+
+# Question 2
+
+Les données représentent les températures sur les différents mois de l'année pour différentes villes. \
+On y retrouve en plus les données `"Moyenne","Amplitude","Latitude","Longitude","Region"`.
+
+# Question 3
+
+```{r normalize_data}
+data_formatted <- data[, 1:(ncol(data) - 5)]
+data_formatted <- scale(data_formatted, center = TRUE, scale = TRUE)
+data_formatted
+```
+
+# Question 4
+
+```{r variance_covariance}
+n <- nrow(data_formatted)
+var_cov_matrix <- (1 / (n - 1)) * t(data_formatted) %*% data_formatted
+var_cov_matrix
+```
+
+Nous avons une matrice diagonale.
+
+# Question 5
+
+```{r valeur_propre}
+eigen_result <- eigen(var_cov_matrix)
+
+cat("Valeurs propres :\n")
+eigen_result$values
+
+cat("\nVecteurs propres :\n")
+eigen_result$vectors
+```
+
+# Question 6
+
+```{r contributions_relatives}
+valeurs_propres <- eigen_result$values
+contributions_relatives <- (valeurs_propres / sum(valeurs_propres))
+contributions_cumulees <- cumsum(contributions_relatives)
+
+cat("Contributions relatives de chaque axe (en %) :\n")
+for (i in seq_along(contributions_relatives)) {
+  cat("Axe", i, ":", round(contributions_relatives[i] * 100, 2), "%\n")
+}
+```
+
+```{r graphiques_valeurs_propres}
+# Création de graphiques pour l'analyse
+par(mfrow = c(2, 2))
+
+# 1. Coude
+barplot(contributions_relatives,
+        main = "Contributions relatives (%)",
+        xlab = "Composantes",
+        ylab = "Pourcentage de variance",
+        names.arg = paste("CP", seq_along(contributions_relatives)))
+
+# 2. Kaiser
+plot(seq_along(valeurs_propres), valeurs_propres,
+     type = "b",
+     main = "Scree Plot (Éboulis)",
+     xlab = "Composantes",
+     ylab = "Valeurs propres",
+     pch = 19,
+     col = "blue")
+abline(h = 1, col = "red", lty = 2, lwd = 2)
+
+# 3. Courbe des contributions cumulées
+plot(seq_along(contributions_cumulees), contributions_cumulees * 100,
+     type = "b",
+     main = "Contributions cumulées",
+     xlab = "Nombre de composantes",
+     ylab = "Pourcentage cumulé",
+     pch = 19,
+     col = "green",
+     ylim = c(0, 100))
+abline(h = 70, col = "red", lty = 2, lwd = 2)  # Seuil de 70%
+abline(h = 90, col = "orange", lty = 2, lwd = 2)  # Seuil de 90%
+
+par(mfrow = c(1, 1))
+```
+
+On garde les 2 premiers axes si on se base sur le coude ou kaiser.
+
+# Question 7
