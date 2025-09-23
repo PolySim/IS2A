@@ -1,0 +1,81 @@
+---
+title: "TP Régression linéaire"
+author: "Simon Desdevises"
+date: "23/09/2025"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Lecture des données
+```{r, echo = TRUE, comment=""}
+d <- read.table("/Users/simondesdevises/Documents/Polytech/IS2A/S7/RL/TP2/debitmetrie.csv", header = TRUE, sep = ";", row.names = 1, dec = ",") # nolint: line_length_linter.
+str(d)
+summary(d)
+```
+
+
+```{r exo }
+
+stat <- function(x) {
+  c(length(na.omit(x)),
+    length(x[is.na(x)]),
+    min(x, na.rm = TRUE),
+    max(x, na.rm = TRUE),
+    mean(x, na.rm = TRUE),
+    median(x, na.rm = TRUE),
+    sd(x, na.rm = TRUE))
+}
+
+res_stat_uni <- apply(d, 2, "stat")
+row.names(res_stat_uni) <- c("Nobs", "N_manq.", "Min", "Max", "Moyenne", "Mediane", "Ecart-type") # nolint: line_length_linter.
+
+knitr::kable(round(t(res_stat_uni), 3), format = "markdown", align = "r")
+
+hist(
+  d$resul,
+  xlab = "resul",
+  ylab = "fréquence",
+)
+```
+
+Calcul des corrélations : 
+
+```{r correlations}
+res_cor <- cor(d$resul, d[, -1], use = "pairwise.complete.obs")
+row.names(res_cor) <- "resul"
+res_cor
+```
+
+Les nuages de points : 
+
+```{r nuages_de_points}
+par(mfrow = c(2, 4))
+for (i in 2: ncol(d)) {
+  plot(
+    d[, i],
+    d[, 1],
+    xlab = names(d)[i],
+    ylab = "resul",
+    pch = 16,
+    main = paste("resul vs", names(d)[i])
+  )
+}
+par(mfrow = c(1, 1))
+```
+
+### Question 3
+
+```{r test_lm}
+
+m0 <- lm(resul ~ carg, data = d)
+summary(m0)
+
+qqnorm(m0$residuals)
+qqline(m0$residuals, col = "red")
+shapiro.test(m0$residuals)
+```

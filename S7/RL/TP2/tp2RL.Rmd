@@ -1,0 +1,297 @@
+---
+title: "TP2 régression linéaire"
+author: "C. Preda"
+date: "5/17/2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### Lecture des données
+```{r, echo = TRUE, comment=""}
+d = read.table("~/MAC_2014/Documents/debitmetrie.csv", header=TRUE, sep=";", row.names=1, dec=",")
+str(d)  # regarder bien le type de variables : ici toutes quantitatives (num)
+summary(d) #les stats de base univariées proposées par R 
+```
+
+### Statistiques univariées telles demandées par le "prof"
+On utilisera la fonction *apply*. D'abord, on va construire une variable qui nous renvoie les stats univariées demandées. Puis, on va l' appliquer à toutes les collones de la data-frame d. 
+
+  - Les statistiques univariés :
+  
+```{r, echo = TRUE, comment=""}
+
+stat_uni = function(x)
+{
+return(c(length(na.omit(x)),
+         length(x[is.na(x)]),      
+         min(x, na.rm=TRUE), 
+         max(x, na.rm=TRUE), 
+         mean(x, na.rm=TRUE),
+         median(x, na.rm=TRUE),
+         #quantile(x, 0.25, na.rm=TRUE),
+         #quantile(x,0.75, na.rm=TRUE),
+         sd(x, na.rm=TRUE)))
+}
+
+res_stat_uni = apply(d, 2, "stat_uni")
+row.names(res_stat_uni) = c("Nobs", "N_manq.", "Min", "Max", "Moyenne", "Mediane", "Ecart-type")
+
+#print(round(t(res_stat_uni),3))
+knitr::kable(round(t(res_stat_uni),3), format = "markdown", align = 'r')
+```
+  - Les histogrames des variables
+
+    - D'abord la variable réponse *resul* 
+
+```{r, echo = TRUE, comment=""}
+hist(d$resul, xlab = "resul", ylab = "fréquence", col="red", main = "resul")
+```
+ 
+    - Les variables *expliquatives* (fig, fid, ...etc) :
+    
+```{r, echo = TRUE, comment=""}
+par(mfrow=c(2,4))
+for(i in 2:ncol(d))
+ {
+ hist(d[,names(d)[i]], xlab = names(d)[i], ylab = "fréquence", col = "blue", main = names(d)[i])  
+ }
+
+```
+
+Et les boites à moustaches : 
+
+
+```{r, echo = TRUE, comment=""}
+par(mfrow=c(3,3))
+for(i in 1:ncol(d))
+ {
+ boxplot(d[,names(d)[i]], xlab = names(d)[i], ylab = names(d)[i], col = ifelse(i==1, "red","blue"))  
+ }
+title("Boites à moustaches", outer=TRUE, line=-1)
+```
+
+
+###  2. Corrélations et nuages de points entre *resul* et les paramètre de débitmétrie
+
+Calcul des corrélations : 
+
+```{r, echo = TRUE, comment=""}
+res_cor = cor(d$resul, d[,-1], use ="pairwise.complete.obs")
+row.names(res_cor)="resul"
+print(res_cor) # ou encore plus beau :
+knitr::kable(round(res_cor,3), format = "markdown", align = 'c')
+```
+
+Les nuages de points : 
+
+```{r, echo = TRUE, comment=""}
+par(mfrow=c(2,4))
+for(i in 2: ncol(d))
+{
+plot(d[,i], d[,1], xlab = names(d)[i], ylab = "resul", pch=16, main = paste("resul vs", names(d)[i]))
+legend("topleft", paste("r = ", round(res_cor[i-1], 3)))
+}
+```
+
+### Régression entre la variable *resul* et la variable *carg*.
+On a vu que le coef de corrélation entre *resul* et *carg* vaut 0.768 ce qui est 
+assez important pour essayer de tenter un modèle de régression. En fait, on a déjà une
+idée, on sait que r^2  = 59.01 %, donc *carg* explique 59.01 % de l'information 
+contenue dans *resul*.
+
+```{r, echo = TRUE, comment=""}
+
+m0 = lm(resul~carg, data=d)
+
+summary(m0)
+```
+
+Etudions la validité de ce modèle.
+
+#### Normalité des résidus.
+##### Analyse graphique:
+
+```{r, echo = TRUE, comment=""}
+qqnorm(m0$residuals)
+qqline(m0$residuals, col="red")
+```
+
+Et le test de Shapiro :
+
+```{r, echo = TRUE, comment=""}
+shapiro.test(m0$residuals)
+```
+
+##### Homoscédasticité:
+
+```{r, echo = TRUE, comment=""}
+plot(na.omit(d$carg), m0$residuals, xlab = "Carg", ylab = "Résidus ", main = "Homoscédasticité de m0")
+```
+
+Et le test pour homoscédasticité : Breuch-Pagan :
+
+```{r, echo = TRUE, comment="", warning=FALSE, message = FALSE}
+library(lmtest)
+bptest(m0)
+```
+
+##### Indéprendance des résidus
+
+Test de Durbin-Watson :
+
+```{r, echo = TRUE, comment="", warning=FALSE, message = FALSE}
+library(lmtest)
+dwtest(m0)
+```
+
+##### Etude de l'influence des observations
+
+On regarde les leviers $h_{ii}$ :
+
+```{r, echo = TRUE, comment=""}
+m0inf=lm.influence(m0)
+str(m0inf)
+
+plot(1:nrow(d), m0inf$hat, xlab="observations", ylab = "leviers", type="h", 
+main = "Observations influentes dans le modèle")
+abline(h=2/nrow(d), col="blue", lty=2)
+abline(h=3/nrow(d), col="red", lty=2)
+legend("topleft", c("2/n", "3/n"), lty=c(2,2), col=c("blue", "red"), title = "limite:")
+```
+
+Mais aussi les distances de Cook :
+
+```{r, echo = TRUE, comment=""}
+plot(1:nrow(d), cooks.distance(m0), xlab="observations", ylab = "Distance de Cook", type="h", 
+main = "Distance de Cook : observations influentes dans le modèle")
+
+```
+Aucune distance ne dépasse la valeur 1, donc pas d'individus influents selon ce critère.
+
+Une autre fonction R qui cherche l'influence des observatios : **influence.measures**
+
+```{r, echo = TRUE, comment=""}
+m0infplus = influence.measures(m0)
+print(m0infplus)
+print(m0infplus$is.inf)
+```
+
+
+### Calcul du PRESS pour un modèle linéaire
+```{r, echo = TRUE, comment=""}
+press = function(mod)
+{
+return(sum((residuals(mod)/(1-lm.influence(mod)$hat))^2))  
+}
+
+
+print(press(m0))
+# calcul du RMSEP aussi :
+print(sqrt((1/length(residuals(m0)))*press(m0)))
+
+```
+
+### Question 4. Régression multiple.
+
+#### Calcul a la main des coefficients
+
+On veut estimer un modele de regression qui explique RESUL en fonction de toutes les autres variables.
+
+$$ Y  = \beta_0 + \beta_1 X_1 +\ldots \beta_p X_p +\varepsilon$$
+```{r, echo = TRUE, comment=""}
+# calcul de la matrice de design
+# eliminer les individus ayant une donnéee manquante
+d_na = na.omit(d)
+dim(d)
+dim(d_na)
+X = as.matrix(cbind(rep(1, nrow(d_na)), d_na[, 2:9]))
+print(X)
+Y = as.vector(d_na$resul)
+
+#calcul a la main des coefficients de regression 
+
+beta = solve(t(X)%*%X)%*%t(X)%*%Y
+print(beta)
+
+```
+
+
+#### Calcul automatique : la fonction lm
+
+```{r, echo = TRUE, comment=""}
+m1 = lm(resul~., data = d)
+# equivalent :
+#m1 = lm(resul~fig+fid+fpg+fpd+tpg+tpd+carg+card, data = d)
+summary(m1)
+
+shapiro.test(residuals(m1))
+bptest(m1)
+dwtest(m1)
+
+print(round(cor(d, use = "complete.obs"),3))
+
+```
+
+### Choix du modèle : selection de variables
+
+#### Recherche exaustive (on explore tous les modeles possibles)
+
+```{r, echo = TRUE, comment=""}
+library(leaps)
+
+choix = regsubsets(resul~.,int=TRUE, nbest=1, nvmax = 8, method="exh", data=d )
+res =summary(choix)
+print(res)
+
+plot(choix, scale ="bic")
+plot(choix, scale ="adjr2")
+```
+
+### Selection de modèle avec les methodes pas-à-pas : 
+
+```{r, echo = TRUE, comment=""}
+m_null = lm(resul~1, data=d_na)
+m_full = lm(resul~., data=d_na)
+library(MASS)
+
+# selection ascendente 
+m_asc =stepAIC(m_null, direction= "forward", scope=list(upper=m_full, lower=m_null))
+
+summary(m_asc)
+
+m_dsc =stepAIC(m_full, direction= "backward", scope=list(upper=m_full, lower=m_null))
+
+summary(m_dsc)
+
+m_step =stepAIC(m_null, direction= "both", scope=list(upper=m_full, lower=m_null))
+
+summary(m_step)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
