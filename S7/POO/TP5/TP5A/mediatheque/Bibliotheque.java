@@ -8,16 +8,13 @@ import media.Livre;
 
 public class Bibliotheque {
     private ArrayList<Livre> livres;
-    private int nb;
 
-    public Bibliotheque(int nbMax) {
+    public Bibliotheque() {
         this.livres = new ArrayList<Livre>();
-        this.nb = 0;
     }
 
     public void add(Livre newLivre) {
         this.livres.add(newLivre);
-        nb = (nb + 1) % this.livres.size();
     }
 
     public int getSomme() {
