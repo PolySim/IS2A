@@ -1,0 +1,247 @@
+---
+title: "TP3 - Analyse en Composantes Principales"
+author: "Simon Desdevises"
+date: "2025-09-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Analyse descriptive du jeu de données
+
+```{r load_data, echo = FALSE}
+data <- read.csv(
+  "/Users/simondesdevises/Documents/Polytech/IS2A/S7/stat_exploratoire/TP3/data.csv", # nolint: line_length_linter.
+  header = TRUE
+)
+rownames(data) <- data$country
+data <- data[, -1]
+```
+
+Le jeu de données représente différentes informations sur la qualité de vie de tous les pays du monde. \
+On y retrouve : 
+
+- `child_mort` : Taux de mortalité infantile
+- `exports` : Exportations
+- `health` : Indice de santé
+- `imports` : Importations
+- `income` : Revenu par habitant
+- `inflation` : Taux d'inflation
+- `life_expec` : Espérance de vie
+- `total_fer` : Taux de fertilité
+- `gdpp` : PIB par habitant
+
+## A quoi sert l’argument scale.unit dans la fonction PCA ?
+
+L'argument `scale.unit` dans la fonction `PCA` permet de centrer et réduire les variables avant de les utiliser. \
+En effet, si une variable est exprimée en milliers et l'autre en millions, la variable en millions aura un poids plus important dans l'analyse. \
+Dans notre cas, nous avons des données qui ne représentent pas la même grandeur, donc nous devons centrer et réduire les variables.
+
+```{r scale_unit, echo = FALSE, fig.show='hide'}
+library(FactoMineR)
+pca <- PCA(data, scale.unit = TRUE)
+```
+
+## Axe à retenir ?
+
+```{r axe_a_retenir, echo = FALSE}
+library(factoextra)
+fviz_eig(pca)
+```
+
+Au vu de la courbe et du critère du coude, on peut retenir les 2 premiers axes. \
+Cependant si on prend le critère de Kaiser, on peut retenir `r sum(pca$eig[, 1] > 1)` axes. \
+Pour la suite, on retiendra les 2 premiers axes.
+
+## Individus les mieux représentés et les plus contributeurs 
+
+### Représentation graphique des individus
+
+```{r representation_individus, echo = FALSE, fig.width=10, fig.height=8}
+fviz_pca_ind(
+  pca,
+  axes = c(1, 2),
+  col.ind = "cos2",
+  gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+  repel = TRUE,
+  title = "Graphique des individus - ACP (Dim 1 & 2)"
+)
+```
+
+### Contribution des individus aux dimensions
+
+```{r contribution_individus, echo = FALSE, fig.width=12, fig.height=6}
+p1 <- fviz_contrib(
+  pca,
+  choice = "ind",
+  axes = 1,
+  top = 30,
+  title = "Contribution des individus à la Dimension 1"
+)
+
+p2 <- fviz_contrib(
+  pca,
+  choice = "ind",
+  axes = 2,
+  top = 30,
+  title = "Contribution des individus à la Dimension 2"
+)
+
+p3 <- fviz_contrib(
+  pca,
+  choice = "ind",
+  axes = 1:2,
+  top = 30,
+  title = "Contribution des individus aux Dimensions 1 & 2"
+)
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, ncol = 2)
+```
+
+On observe que certains pays sont bien représentés sur les deux dimensions, comme *Singapour*, *Luxembourg* ou *Malte*. \
+On remarque que ces pays sont de petit pays.
+
+### Qualité de représentation des individus (cos²)
+
+```{r qualite_representation, echo = FALSE, fig.width=12, fig.height=6}
+q1 <- fviz_cos2(
+  pca,
+  choice = "ind",
+  axes = 1,
+  top = 30,
+  title = "Qualité de représentation - Dimension 1"
+)
+
+q2 <- fviz_cos2(
+  pca,
+  choice = "ind",
+  axes = 2,
+  top = 30,
+  title = "Qualité de représentation - Dimension 2"
+)
+
+q3 <- fviz_cos2(
+  pca,
+  choice = "ind",
+  axes = 1:2,
+  top = 30,
+  title = "Qualité de représentation - Dimensions 1 & 2"
+)
+
+grid.arrange(q1, q2, q3, ncol = 2)
+```
+
+On observe que les qualités sont assez élévées et constantes entre les pays.
+
+## Variables les mieux représentés et les plus contributeurs 
+
+### Contribution des variables aux dimensions
+
+```{r contribution_variables, echo = FALSE, fig.width=12, fig.height=6}
+p1 <- fviz_contrib(
+  pca,
+  choice = "var",
+  axes = 1,
+  top = 40,
+  title = "Contribution des variables à la Dimension 1"
+)
+
+p2 <- fviz_contrib(
+  pca,
+  choice = "var",
+  axes = 2,
+  top = 40,
+  title = "Contribution des variables à la Dimension 2"
+)
+
+p3 <- fviz_contrib(
+  pca,
+  choice = "var",
+  axes = 1:2,
+  top = 40,
+  title = "Contribution des variables aux Dimensions 1 & 2"
+)
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, ncol = 2)
+```
+
+### Qualité de représentation des variables (cos²)
+
+```{r qualite_representation_variables, echo = FALSE, fig.width=12, fig.height=6}
+q1 <- fviz_cos2(
+  pca,
+  choice = "var",
+  axes = 1,
+  top = 40,
+  title = "Qualité de représentation - Dimension 1"
+)
+
+q2 <- fviz_cos2(
+  pca,
+  choice = "var",
+  axes = 2,
+  top = 40,
+  title = "Qualité de représentation - Dimension 2"
+)
+
+q3 <- fviz_cos2(
+  pca,
+  choice = "var",
+  axes = 1:2,
+  top = 40,
+  title = "Qualité de représentation - Dimensions 1 & 2"
+)
+
+grid.arrange(q1, q2, q3, ncol = 2)
+```
+
+### Que représentent la variables `child_mort` ? 
+
+On observe que la variable `child_mort` est bien représentée sur la dimensions 1 et quelle a une bonne qualité.
+C'est même la deuxième plus haute sur cet axe \
+Cependant sur la dimension 2, elle est moins bien représentée et a une qualité de représentation assez faible, largement en dessous de la moyenne.
+Cela est tout de même à mettre en relation avec le fait que `import` et `exports` sont les variables les plus représentées sur la dimension 2.
+
+### Que représentent la variables `total_fer` ? 
+
+Pour ce qui est de la variable `total_fer`, elle suit la même logique que la variable `child_mort`. \
+En effet, sur chaque dimension elle arrive juste derrière cette dernière. 
+
+## Interprétation des axes
+
+```{r interprétation_axes, echo = FALSE, fig.width=12, fig.height=6}
+
+fviz_pca_biplot(
+  pca,
+  axes = c(1, 2),
+  title = "Interprétation des axes",
+  repel = TRUE,
+  labelsize = 3,
+  select.ind = list(contrib = 40)
+)
+```
+
+On observe que les pays les plus à gauche sont des pays Africains. Soit des pays en développement. \
+A droite, nous avons des pays d'Europe occidentale et des pays d'Amérique du Nord. Soit des pays développés. \
+A gauche les pays restent principales sur l'axe central. Regardons plutôt la partie droite. \
+On voit que en haut il y a des pays considérés comme des paradis fiscaux tandis qu'en bas il y a les pays les plus stables et puissant. \
+
+## Si on ne centre pas les variables
+
+```{r scale_unit_false, echo = FALSE, fig.show='hide'}
+library(FactoMineR)
+pca2 <- PCA(data, scale.unit = FALSE)
+```
+
+```{r axe_a_retenir2, echo = FALSE}
+library(factoextra)
+fviz_eig(pca2)
+```
+
+Ici il y a donc encore 2 axes à retenir. Mais avec Kaiser on passe à `r sum(pca2$eig[, 1] > 1)` axes à retenir. \
+Cela change donc grandement les résultats. \
+Cela vient du fait que les varibles `income` et `gdpp` sont largement plus grandes que les autres variables et prennent donc beaucoup plus de poids dans l'analyse. \
