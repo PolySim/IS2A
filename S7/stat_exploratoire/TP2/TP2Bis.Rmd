@@ -1,0 +1,150 @@
+title: "TP2"
+author: "Simon Desdevises"
+date: "2025-09-22"
+output: html_document
+---
+
+# Question 1
+
+```{r load_data}
+data <- read.csv("/Users/simondesdevises/Documents/Polytech/IS2A/S7/stat_exploratoire/TP2/Temperatures.csv", header = TRUE) # nolint
+rownames(data) <- data$X
+data <- data[, -1]
+```
+
+# Question 2
+
+Les données représentent les températures sur les différents mois de l'année pour différentes villes. \
+On y retrouve en plus les données `"Moyenne","Amplitude","Latitude","Longitude","Region"`.
+
+# Question 3
+
+```{r normalize_data}
+data_formatted <- data[, 1:(ncol(data) - 5)]
+data_formatted <- scale(data_formatted)
+data_formatted[1:2, 1:6]
+```
+
+# Question 4
+
+```{r variance_covariance}
+number_realisations <- nrow(data_formatted)
+matrix_cov_var <- (1 / (number_realisations - 1)) * t(data_formatted) %*% data_formatted # nolint: line_length_linter.
+matrix_cov_var[1:3, 1:6]
+```
+
+# Question 5
+
+```{r valeur_propre}
+res_eigen <- eigen(matrix_cov_var)
+valeur_propre <- res_eigen$values
+vecteur_propre <- res_eigen$vectors
+valeur_propre[1:3]
+vecteur_propre[1:3, 1:3]
+```
+
+# Question 6
+
+```{r contributions_relatives}
+sum_valeur_propre <- sum(valeur_propre)
+contributions_relatives <- valeur_propre / sum_valeur_propre
+contributions_relatives[1:3]
+```
+
+```{r graphiques_valeurs_propres}
+# 1 Coude
+barplot(valeur_propre,
+  main = "Valeurs propres",
+  xlab = "Composantes",
+  ylab = "Valeurs propres",
+)
+
+# 2 Kaiser
+plot(seq_along(valeur_propre), valeur_propre,
+     type = "b",
+     main = "Méthode de Kaiser",
+     xlab = "Composantes",
+     ylab = "Valeurs propres",
+     col = "blue")
+abline(h = 1, col = "red")
+```
+
+# Question 7
+
+```{r coordonnees_indiv}
+coordonnees_indiv <- data_formatted %*% vecteur_propre
+coordonnees_indiv[1:3, 1:3]
+```
+
+```{r plans_factoriels_base}
+par(mfrow = c(1, 3))
+
+plot(
+  coordonnees_indiv[, 1],
+  coordonnees_indiv[, 2],
+  xlab = "CP1",
+  ylab = "CP2",
+  main = "CP1 vs CP2"
+)
+abline(h = 0, v = 0, lty = 2, col = "gray")
+text(
+  coordonnees_indiv[, 1],
+  coordonnees_indiv[, 2],
+  labels = rownames(data_formatted),
+  cex = 0.7,
+  pos = 3
+)
+
+plot(
+  coordonnees_indiv[, 1],
+  coordonnees_indiv[, 3],
+  xlab = "CP1",
+  ylab = "CP3",
+  main = "CP1 vs CP3"
+)
+abline(h = 0, v = 0, lty = 2, col = "gray")
+text(
+  coordonnees_indiv[, 1],
+  coordonnees_indiv[, 2],
+  labels = rownames(data_formatted),
+  cex = 0.7,
+  pos = 3
+)
+
+plot(
+  coordonnees_indiv[, 2],
+  coordonnees_indiv[, 3],
+  xlab = "CP2",
+  ylab = "CP3",
+  main = "CP2 vs CP3"
+)
+abline(h = 0, v = 0, lty = 2, col = "gray")
+text(
+  coordonnees_indiv[, 1],
+  coordonnees_indiv[, 2],
+  labels = rownames(data_formatted),
+  cex = 0.7,
+  pos = 3
+)
+
+par(mfrow = c(1, 1))
+```
+
+# Question 8 
+
+```{r contributions_individus}
+contributions <- matrix(0, nrow = nrow(coordonnees_indiv), ncol = 3)
+for (i in 1:3) {
+  contributions[, i] <- (coordonnees_indiv[, i]^2 / (valeur_propre[i] * (number_realisations - 1))) # nolint: line_length_linter.
+}
+colSums(contributions)
+```
+
+```{r qualite_contributions_individus}
+distances_carrees <- rowSums(coordonnees_individus^2)
+cos2_individus <- matrix(0, nrow = nrow(coordonnees_indiv), ncol = 3)
+for (i in 1:3) {
+  cos2_individus[, i] <- coordonnees_indiv[, i]^2 / distances_carrees
+}
+rowSums(cos2_individus)
+```
