@@ -1,0 +1,62 @@
+---
+title: "TP4 - Analyse Factorielle des Correspondances"
+author: "Simon Desdevises"
+date: "2025-09-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Analyse descriptive du jeu de données
+
+Les données représentent le résultat des élection européennes en France réparties par région et DOM TOM. \
+
+```{r load_data, echo = FALSE}
+data <- read.csv(
+  "/Users/simondesdevises/Documents/Polytech/IS2A/S7/stat_exploratoire/TP4/data.csv", # nolint: line_length_linter.
+  header = TRUE
+)
+rownames(data) <- data[, 1]
+data <- data[, -1]
+head(data)
+```
+
+```{r contingency_table, echo = FALSE}
+cont_table <- xtabs(Voix ~ Region + Liste, data = data)
+```
+
+## Test du χ2 d'indépendance
+
+Le test du χ2 vérifie si deux variables qualitatives sont indépendantes.
+
+- Hypothèses: H0 (indépendance), H1 (dépendance).
+- Statistique: somme des (observé − attendu)² / attendu ~ χ2 avec (r−1)(c−1) ddl.
+- Décision via la p-value.
+
+```{r chi2_test, echo = FALSE}
+chi2 <- chisq.test(cont_table)
+```
+
+```{r chi2_decision, echo = FALSE, results='asis'}
+alpha <- 0.05
+decision <- if (chi2$p.value < alpha) {
+  "On rejette H0 : dépendance entre Region et Liste."
+} else {
+  "On ne rejette pas H0 : pas d'évidence de dépendance."
+}
+cat(sprintf("p-value = %.3g ; %s", chi2$p.value, decision))
+```
+
+## Analyse Factorielle des Correspondances (AFC)
+
+```{r afc_fm, echo = FALSE}
+library(FactoMineR)
+
+afc <- CA(cont_table, graph = FALSE)
+```
+
+```{r afc_plot, echo = FALSE}
+plot(afc, repel = TRUE, cex = 0.8, cex.lab = 0.7)
+```
