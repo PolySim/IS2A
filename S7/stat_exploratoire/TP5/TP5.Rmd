@@ -1,0 +1,110 @@
+---
+title: "TP5 - Analyse des Correspondances Multiples"
+author: "Simon Desdevises"
+date: "2025-09-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Analyse descriptive
+
+```{r load_data, echo = FALSE,}
+data <- read.csv("/Users/simondesdevises/Documents/Polytech/IS2A/S7/stat_exploratoire/TP5/data.csv", header = TRUE) # nolint
+rownames(data) <- data[, 1]
+data <- data[, -1]
+```
+
+Les données représentent les informations sur la vie professionnelles des personnes interrogées. \
+On y retrouve : 
+
+- `"GenderSelect"` : Sexe
+- `"Age"` : Age
+- `"EmploymentStatus"` : Statut professionnel
+- `"FormalEducation"` : Formation formelle
+- `"EmployerIndustry"` : Industrie de l'employeur
+- `"LanguageRecommendationSelect"` : Language de programmation recommandée
+- `"MajorSelect"` : Spécialité
+
+# ACM et valeurs propres
+
+```{r class_data, echo = FALSE}
+data$Age <- cut(
+  data$Age,
+  breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100),
+  include.lowest = TRUE
+)
+```
+
+```{r acm, echo = FALSE,}
+library(FactoMineR)
+acm <- MCA(data, ncp = 8)
+```
+
+```{r eigenvalues, echo = FALSE}
+valeurs_propres <- acm$eig[, 1]
+
+barplot(
+  valeurs_propres,
+  type = "b",
+  xlab = "Axe",
+  ylab = "Valeur propre",
+  main = "Valeurs propres"
+)
+```
+
+# Correction de Benzecri
+
+```{r correction_benzecri, echo = FALSE}
+p <- 7
+valeurs_superior <- valeurs_propres[valeurs_propres > (1 / p)]
+valeurs_propres_corrigees <- ((p / (p - 1)) * (valeurs_superior  - (1 / p))) ^ 2
+barplot(
+  valeurs_propres_corrigees,
+  type = "b",
+  xlab = "Axe",
+  ylab = "Valeur propre corrigées",
+  main = "Valeurs propres corrigées"
+)
+```
+
+Au vu de ce graphique nous pouvons appliquer le critère du coude pour retenir 3 axes.
+
+# Graphe des modalités
+
+```{r graph_modalites, echo = FALSE}
+color <- c("red", "blue", "green", "yellow", "purple", "orange", "brown")
+number_distinct_values <- c()
+for (i in 1:7) {
+  number_distinct_values[i] <- length(unique(data[, i]))
+}
+colors <- c()
+for (i in 1:7) {
+  for (j in 1:number_distinct_values[i]) {
+    colors <- c(colors, color[i])
+  }
+}
+plot(acm$var$coord, pch = 19, col = colors)
+text(acm$var$coord, labels = rownames(acm$var$coord))
+```
+
+On observe que la plupart des modalités sont regroupées sur les 2 premiers axes. \
+Cependant les âges extrêmes sont très éloignés des autres modalités. Cela peut être dû au fait que les âges extrêmes sont peu représentés dans la base de données.
+
+# Rapport de corrélation
+
+```{r rapport_correlation, echo = FALSE}
+library(factoextra)
+fviz_mca_ind(
+  acm,
+  axes = c(1, 2),
+  geom.ind = "point",
+  repel = FALSE,
+  palette = NULL,
+  addEllipses = TRUE,
+  col.ind = "blue",
+  map = "symmetric",
+)
+```
