@@ -245,3 +245,6 @@ fviz_eig(pca2)
 Ici il y a donc encore 2 axes à retenir. Mais avec Kaiser on passe à `r sum(pca2$eig[, 1] > 1)` axes à retenir. \
 Cela change donc grandement les résultats. \
 Cela vient du fait que les varibles `income` et `gdpp` sont largement plus grandes que les autres variables et prennent donc beaucoup plus de poids dans l'analyse. \
+
+
+# Fonction explor dans la package explor
