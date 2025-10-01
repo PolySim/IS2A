@@ -58,5 +58,336 @@ afc <- CA(cont_table, graph = FALSE)
 ```
 
 ```{r afc_plot, echo = FALSE}
-plot(afc, repel = TRUE, cex = 0.8, cex.lab = 0.7)
+barplot(afc$eig[, 1])
+```
+
+Via le critère du coude, on peut retenir 3 axes.
+
+```{r afc_plot_2, echo = FALSE}
+plot(afc$row$coord[, 1], afc$row$coord[, 2],
+     cex = 0.8, cex.lab = 0.7,
+     xlab = "Axe 1", ylab = "Axe 2",
+     main = "Projection des régions sur les axes 1 et 2")
+text(afc$row$coord[, 1], afc$row$coord[, 2],
+     labels = rownames(afc$row$coord),
+     pos = 3, cex = 0.7)
+
+plot(afc$col$coord[, 1], afc$col$coord[, 2],
+     cex = 0.8, cex.lab = 0.7,
+     xlab = "Axe 1", ylab = "Axe 2",
+     main = "Projection des listes sur les axes 1 et 2")
+text(afc$col$coord[, 1], afc$col$coord[, 2],
+     labels = rownames(afc$col$coord),
+     pos = 3, cex = 0.7)
+```
+
+## 6. Analyse des contributions des régions
+
+Les contributions indiquent la part de chaque région dans la construction des axes factoriels.
+
+```{r regions_contrib, echo = FALSE}
+# Contributions des régions aux axes 1 et 2
+contrib_regions <- afc$row$contrib[, 1:2]
+colnames(contrib_regions) <- c("Axe 1", "Axe 2")
+
+# Affichage des contributions les plus importantes (> moyenne)
+seuil_contrib <- 100 / nrow(contrib_regions)  # Contribution moyenne
+cat("Seuil de contribution moyenne :", round(seuil_contrib, 2), "%\n\n")
+
+cat("Contributions des régions à l'axe 1 (> seuil) :\n")
+contrib_axe1 <- contrib_regions[contrib_regions[, 1] > seuil_contrib, 1, drop = FALSE]
+print(round(contrib_axe1[order(contrib_axe1[, 1], decreasing = TRUE), , drop = FALSE], 2))
+
+cat("\nContributions des régions à l'axe 2 (> seuil) :\n")
+contrib_axe2 <- contrib_regions[contrib_regions[, 2] > seuil_contrib, 2, drop = FALSE]
+print(round(contrib_axe2[order(contrib_axe2[, 1], decreasing = TRUE), , drop = FALSE], 2))
+```
+
+```{r regions_contrib_plot, echo = FALSE}
+# Graphique des contributions des régions
+par(mfrow = c(1, 2))
+barplot(sort(contrib_regions[, 1], decreasing = TRUE), 
+        main = "Contributions des régions - Axe 1",
+        las = 2, cex.names = 0.7)
+abline(h = seuil_contrib, col = "red", lty = 2)
+
+barplot(sort(contrib_regions[, 2], decreasing = TRUE), 
+        main = "Contributions des régions - Axe 2",
+        las = 2, cex.names = 0.7)
+abline(h = seuil_contrib, col = "red", lty = 2)
+par(mfrow = c(1, 1))
+```
+
+## 7. Analyse des contributions des listes
+
+```{r lists_contrib, echo = FALSE}
+# Contributions des listes aux axes 1 et 2
+contrib_listes <- afc$col$contrib[, 1:2]
+colnames(contrib_listes) <- c("Axe 1", "Axe 2")
+
+# Affichage des contributions les plus importantes (> moyenne)
+seuil_contrib_listes <- 100 / nrow(contrib_listes)  # Contribution moyenne
+cat("Seuil de contribution moyenne :", round(seuil_contrib_listes, 2), "%\n\n")
+
+cat("Contributions des listes à l'axe 1 (> seuil) :\n")
+contrib_listes_axe1 <- contrib_listes[contrib_listes[, 1] > seuil_contrib_listes, 1, drop = FALSE]
+print(round(contrib_listes_axe1[order(contrib_listes_axe1[, 1], decreasing = TRUE), , drop = FALSE], 2))
+
+cat("\nContributions des listes à l'axe 2 (> seuil) :\n")
+contrib_listes_axe2 <- contrib_listes[contrib_listes[, 2] > seuil_contrib_listes, 2, drop = FALSE]
+print(round(contrib_listes_axe2[order(contrib_listes_axe2[, 1], decreasing = TRUE), , drop = FALSE], 2))
+```
+
+```{r lists_contrib_plot, echo = FALSE}
+# Graphique des contributions des listes
+par(mfrow = c(1, 2))
+barplot(sort(contrib_listes[, 1], decreasing = TRUE),
+        main = "Contributions des listes - Axe 1",
+        las = 2, cex.names = 0.7)
+abline(h = seuil_contrib_listes, col = "red", lty = 2)
+
+barplot(sort(contrib_listes[, 2], decreasing = TRUE),
+        main = "Contributions des listes - Axe 2",
+        las = 2, cex.names = 0.7)
+abline(h = seuil_contrib_listes, col = "red", lty = 2)
+par(mfrow = c(1, 1))
+```
+
+## 8. Représentation dans les plans factoriels
+
+```{r biplot_afc, echo = FALSE}
+# Biplot : représentation simultanée des régions et des listes
+plot(afc$row$coord[, 1], afc$row$coord[, 2],
+     col = "blue", pch = 16, cex = 0.8,
+     xlim = range(c(afc$row$coord[, 1], afc$col$coord[, 1])),
+     ylim = range(c(afc$row$coord[, 2], afc$col$coord[, 2])),
+     xlab = paste("Axe 1 (", round(afc$eig[1, 2], 1), "%)"),
+     ylab = paste("Axe 2 (", round(afc$eig[2, 2], 1), "%)"),
+     main = "Biplot AFC - Plan factoriel 1-2")
+
+# Ajout des listes en rouge
+points(afc$col$coord[, 1], afc$col$coord[, 2],
+       col = "red", pch = 17, cex = 0.8)
+
+# Ajout des étiquettes
+text(afc$row$coord[, 1], afc$row$coord[, 2],
+     labels = rownames(afc$row$coord),
+     pos = 3, cex = 0.6, col = "blue")
+text(afc$col$coord[, 1], afc$col$coord[, 2],
+     labels = rownames(afc$col$coord),
+     pos = 3, cex = 0.6, col = "red")
+
+# Ajout des axes
+abline(h = 0, v = 0, col = "gray", lty = 2)
+
+# Légende
+legend("topright",
+       legend = c("Régions", "Listes"),
+       col = c("blue", "red"),
+       pch = c(16, 17),
+       cex = 0.8)
+```
+
+```{r quality_representation, echo = FALSE}
+# Qualité de représentation (cos²)
+cat("Qualité de représentation des régions sur les axes 1-2 :\n")
+cos2_regions <- afc$row$cos2[, 1:2]
+qualite_regions <- rowSums(cos2_regions)
+print(round(sort(qualite_regions, decreasing = TRUE), 3))
+
+cat("\nQualité de représentation des listes sur les axes 1-2 :\n")
+cos2_listes <- afc$col$cos2[, 1:2]
+qualite_listes <- rowSums(cos2_listes)
+print(round(sort(qualite_listes, decreasing = TRUE), 3))
+```
+
+## 9. Interprétation des axes factoriels
+
+### Méthodologie d'interprétation
+
+L'interprétation des axes factoriels se base sur :
+
+1. **Les contributions** : modalités qui construisent l'axe (contrib > moyenne)
+2. **Les coordonnées** : position des modalités (signe et amplitude)
+3. **La qualité de représentation** : fiabilité de la projection (cos²)
+
+```{r interpretation_axe1, echo = FALSE}
+cat("═══════════════════════════════════════════════\n")
+cat("INTERPRÉTATION DE L'AXE 1\n")
+cat("═══════════════════════════════════════════════\n\n")
+
+cat("Inertie expliquée :", round(afc$eig[1, 2], 2), "%\n\n")
+
+# Régions importantes pour l'axe 1
+cat("--- RÉGIONS structurant l'axe 1 ---\n\n")
+contrib_axe1_regions <- afc$row$contrib[, 1]
+regions_importantes <- names(contrib_axe1_regions[contrib_axe1_regions > (100/nrow(afc$row$coord))])
+
+for (region in regions_importantes[order(-contrib_axe1_regions[regions_importantes])]) {
+  coord <- afc$row$coord[region, 1]
+  contrib <- contrib_axe1_regions[region]
+  cos2 <- afc$row$cos2[region, 1]
+
+  cat(sprintf("• %s : coord = %.3f | contrib = %.1f%% | cos² = %.3f\n", 
+              region, coord, contrib, cos2))
+}
+
+cat("\n--- LISTES structurant l'axe 1 ---\n\n")
+contrib_axe1_listes <- afc$col$contrib[, 1]
+listes_importantes <- names(contrib_axe1_listes[contrib_axe1_listes > (100/nrow(afc$col$coord))])
+
+for (liste in listes_importantes[order(-contrib_axe1_listes[listes_importantes])]) {
+  coord <- afc$col$coord[liste, 1]
+  contrib <- contrib_axe1_listes[liste]
+  cos2 <- afc$col$cos2[liste, 1]
+  
+  cat(sprintf("• %s : coord = %.3f | contrib = %.1f%% | cos² = %.3f\n", 
+              liste, coord, contrib, cos2))
+}
+
+cat("\n--- INTERPRÉTATION ---\n\n")
+
+# Identifier les oppositions
+coord_listes_axe1 <- afc$col$coord[, 1]
+listes_positives <- names(coord_listes_axe1[coord_listes_axe1 > 0 & 
+                          names(coord_listes_axe1) %in% listes_importantes])
+listes_negatives <- names(coord_listes_axe1[coord_listes_axe1 < 0 & 
+                          names(coord_listes_axe1) %in% listes_importantes])
+
+if (length(listes_positives) > 0) {
+  cat("Côté POSITIF (droite du graphique) :\n")
+  cat(paste("  - Listes :", paste(listes_positives, collapse = ", ")), "\n")
+  
+  coord_regions_axe1 <- afc$row$coord[, 1]
+  regions_positives <- names(coord_regions_axe1[coord_regions_axe1 > 0 & 
+                             names(coord_regions_axe1) %in% regions_importantes])
+  if (length(regions_positives) > 0) {
+    cat(paste("  - Régions :", paste(regions_positives, collapse = ", ")), "\n")
+  }
+  cat("\n")
+}
+
+if (length(listes_negatives) > 0) {
+  cat("Côté NÉGATIF (gauche du graphique) :\n")
+  cat(paste("  - Listes :", paste(listes_negatives, collapse = ", ")), "\n")
+  
+  coord_regions_axe1 <- afc$row$coord[, 1]
+  regions_negatives <- names(coord_regions_axe1[coord_regions_axe1 < 0 & 
+                             names(coord_regions_axe1) %in% regions_importantes])
+  if (length(regions_negatives) > 0) {
+    cat(paste("  - Régions :", paste(regions_negatives, collapse = ", ")), "\n")
+  }
+  cat("\n")
+}
+
+cat("➜ L'axe 1 oppose des profils électoraux géographiques distincts.\n")
+cat("  Il capture les différences principales de vote entre régions.\n")
+```
+
+```{r interpretation_axe2, echo = FALSE}
+cat("\n═══════════════════════════════════════════════\n")
+cat("INTERPRÉTATION DE L'AXE 2\n")
+cat("═══════════════════════════════════════════════\n\n")
+
+cat("Inertie expliquée :", round(afc$eig[2, 2], 2), "%\n\n")
+
+# Régions importantes pour l'axe 2
+cat("--- RÉGIONS structurant l'axe 2 ---\n\n")
+contrib_axe2_regions <- afc$row$contrib[, 2]
+regions_importantes_2 <- names(contrib_axe2_regions[contrib_axe2_regions > (100/nrow(afc$row$coord))])
+
+for (region in regions_importantes_2[order(-contrib_axe2_regions[regions_importantes_2])]) {
+  coord <- afc$row$coord[region, 2]
+  contrib <- contrib_axe2_regions[region]
+  cos2 <- afc$row$cos2[region, 2]
+  
+  cat(sprintf("• %s : coord = %.3f | contrib = %.1f%% | cos² = %.3f\n", 
+              region, coord, contrib, cos2))
+}
+
+cat("\n--- LISTES structurant l'axe 2 ---\n\n")
+contrib_axe2_listes <- afc$col$contrib[, 2]
+listes_importantes_2 <- names(contrib_axe2_listes[contrib_axe2_listes > (100/nrow(afc$col$coord))])
+
+for (liste in listes_importantes_2[order(-contrib_axe2_listes[listes_importantes_2])]) {
+  coord <- afc$col$coord[liste, 2]
+  contrib <- contrib_axe2_listes[liste]
+  cos2 <- afc$col$cos2[liste, 2]
+  
+  cat(sprintf("• %s : coord = %.3f | contrib = %.1f%% | cos² = %.3f\n", 
+              liste, coord, contrib, cos2))
+}
+
+cat("\n--- INTERPRÉTATION ---\n\n")
+
+# Identifier les oppositions
+coord_listes_axe2 <- afc$col$coord[, 2]
+listes_positives_2 <- names(coord_listes_axe2[coord_listes_axe2 > 0 & 
+                            names(coord_listes_axe2) %in% listes_importantes_2])
+listes_negatives_2 <- names(coord_listes_axe2[coord_listes_axe2 < 0 & 
+                            names(coord_listes_axe2) %in% listes_importantes_2])
+
+if (length(listes_positives_2) > 0) {
+  cat("Côté POSITIF (haut du graphique) :\n")
+  cat(paste("  - Listes :", paste(listes_positives_2, collapse = ", ")), "\n")
+  
+  coord_regions_axe2 <- afc$row$coord[, 2]
+  regions_positives_2 <- names(coord_regions_axe2[coord_regions_axe2 > 0 & 
+                               names(coord_regions_axe2) %in% regions_importantes_2])
+  if (length(regions_positives_2) > 0) {
+    cat(paste("  - Régions :", paste(regions_positives_2, collapse = ", ")), "\n")
+  }
+  cat("\n")
+}
+
+if (length(listes_negatives_2) > 0) {
+  cat("Côté NÉGATIF (bas du graphique) :\n")
+  cat(paste("  - Listes :", paste(listes_negatives_2, collapse = ", ")), "\n")
+  
+  coord_regions_axe2 <- afc$row$coord[, 2]
+  regions_negatives_2 <- names(coord_regions_axe2[coord_regions_axe2 < 0 & 
+                               names(coord_regions_axe2) %in% regions_importantes_2])
+  if (length(regions_negatives_2) > 0) {
+    cat(paste("  - Régions :", paste(regions_negatives_2, collapse = ", ")), "\n")
+  }
+  cat("\n")
+}
+
+cat("➜ L'axe 2 capture une dimension secondaire des comportements électoraux,\n")
+cat("  orthogonale à l'axe 1, révélant d'autres spécificités régionales.\n")
+```
+
+```{r interpretation_synthese, echo = FALSE}
+cat("\n═══════════════════════════════════════════════\n")
+cat("SYNTHÈSE DE L'INTERPRÉTATION\n")
+cat("═══════════════════════════════════════════════\n\n")
+
+cat("Variance totale expliquée par les axes 1-2 :", 
+    round(sum(afc$eig[1:2, 2]), 2), "%\n\n")
+
+cat("POINTS CLÉS :\n\n")
+
+cat("1. STRUCTURE PRINCIPALE (Axe 1) :\n")
+cat("   - Représente", round(afc$eig[1, 2], 1), "% de l'information\n")
+cat("   - Oppose des orientations politiques géographiquement marquées\n\n")
+
+cat("2. STRUCTURE SECONDAIRE (Axe 2) :\n")
+cat("   - Représente", round(afc$eig[2, 2], 1), "% de l'information\n")
+cat("   - Révèle des nuances complémentaires dans les comportements électoraux\n\n")
+
+cat("3. ASSOCIATIONS REMARQUABLES :\n")
+cat("   - Les régions et listes proches sur le graphique partagent des profils similaires\n")
+cat("   - Les régions centrales (près de l'origine) ont un profil électoral moyen\n")
+cat("   - Les régions/listes éloignées de l'origine ont des profils spécifiques\n\n")
+
+cat("4. QUALITÉ DE L'ANALYSE :\n")
+inertie_totale_12 <- sum(afc$eig[1:2, 2])
+if (inertie_totale_12 > 70) {
+  cat("   - Excellente : les 2 premiers axes résument très bien les données\n")
+} else if (inertie_totale_12 > 50) {
+  cat("   - Bonne : les 2 premiers axes capturent la majeure partie de l'information\n")
+} else {
+  cat("   - Moyenne : une partie importante de l'information n'est pas représentée\n")
+  cat("   - Envisager l'analyse de l'axe 3\n")
+}
 ```
