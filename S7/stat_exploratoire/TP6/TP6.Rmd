@@ -1,0 +1,232 @@
+---
+title: "TP6 - Classification Ascendante Hiérarchique"
+author: "Simon Desdevises"
+date: "2025-10-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Lecture des données
+
+```{r load_data, echo = FALSE}
+data <- read.csv("/Users/simondesdevises/Documents/Polytech/IS2A/S7/stat_exploratoire/TP6/data.csv", header = TRUE) # nolint
+rownames(data) <- data[, 2]
+data <- data[, c(3: 11)]
+```
+
+On retrouve les informations énergétiques de différents fromages.
+
+Ce sont les suivants :
+
+- `"calories"` : Calories
+- `"sodium"` : Sodium
+- `"calcium"` : Calcium
+- `"lipides"` : Lipides
+- `"retinol"` : Retinol
+- `"folates"` : Folates
+- `"proteines"` : Protéines
+- `"cholesterol"` : Cholestérol
+- `"magnesium"` : Magnésium 
+
+# ACP
+
+```{r acp, echo = FALSE}
+library(FactoMineR)
+library(factoextra)
+pca <- PCA(data, scale.unit = TRUE, graph = FALSE)
+```
+
+## Valeurs propres et variance expliquée
+
+```{r eigen, echo = FALSE}
+# Graphique des valeurs propres (scree plot)
+fviz_eig(
+  pca,
+  addlabels = TRUE,
+  main = "Pourcentage de variance expliquée par dimension"
+)
+```
+
+Les 2 premiers axes expliquent 76.6% de la variance. C'est donc un bon indicateur de la qualité de l'ACP.
+
+## Premier plan factoriel
+
+### Graphique des individus
+
+```{r individus, echo = FALSE, fig.width=10, fig.height=8}
+# Graphique des individus sur le premier plan factoriel (axes 1 et 2)
+fviz_pca_ind(
+  pca,
+  col.ind = "cos2", # Coloration selon la qualité de représentation
+  gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+  repel = TRUE,
+  title = "Premier plan factoriel - Individus (fromages)",
+  labelsize = 3
+)
+```
+
+### Graphique des variables
+
+```{r variables, echo = FALSE, fig.width=10, fig.height=8}
+# Graphique des variables sur le premier plan factoriel (axes 1 et 2)
+fviz_pca_var(
+  pca,
+  col.var = "contrib",
+  gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+  repel = TRUE,
+  title = "Premier plan factoriel - Variables"
+)
+```
+
+### Biplot (individus et variables)
+
+```{r biplot, echo = FALSE, fig.width=12, fig.height=10}
+# Biplot combinant individus et variables
+fviz_pca_biplot(
+  pca,
+  repel = TRUE,
+  col.var = "#2E9FDF", # Couleur des variables
+  col.ind = "#696969",  # Couleur des individus
+  title = "Biplot - Premier plan factoriel",
+  labelsize = 3
+)
+```
+
+# Groupe d'individus
+
+On observe déjà plusieurs groupes distincts. :
+
+- Les fromages industriels comme `Petitsuisse40` ou `Fr.frais20nat`. Ils sont regroupé tout à gauche du graphique des individus.
+- Les autres fromages sont plutôt regroupés il faudra donc poursuivre l'analyse.
+
+# Realisation de la CAH
+
+```{r distance, echo = FALSE}
+dist <- dist(data, method = "euclidean")
+hc <- hclust(dist, method = "ward.D2")
+plot(
+  hc,
+  main = "Dendrogramme de la CAH",
+  xlab = "Fromages",
+  ylab = "Distance"
+)
+```
+
+```{r inertie, echo = FALSE}
+clusters <- cutree(hc, k = 1:10)
+
+inertie_inter <- function(data, partition) {
+  # Centre de gravité global
+  g_global <- colMeans(data)
+
+  inertie <- 0
+  classes <- unique(partition)
+
+  for (k in classes) {
+    # Individus de la classe k
+    indices_k <- which(partition == k)
+    data_k <- data[indices_k, , drop = FALSE]
+    # Nombre d'individus et centre de gravité de la classe k
+    n_k <- nrow(data_k)
+    g_k <- colMeans(data_k)
+    # Distance au carré entre g_k et g_global
+    distance_sq <- sum((g_k - g_global)^2)
+    # Contribution à l'inertie inter
+    inertie <- inertie + n_k * distance_sq
+  }
+  inertie
+}
+
+# Calcul de l'inertie totale
+inertie_totale <- sum(scale(data, scale = FALSE)^2)
+
+# Calcul pour chaque partition stockée dans clusters
+resultats <- data.frame(
+  nb_classes = 1:10,
+  inertie_inter = numeric(10),
+  pourcentage = numeric(10)
+)
+
+for (k in 1:10) {
+  # Utilisation de la colonne k de la matrice clusters
+  partition <- clusters[, k]
+  inertie <- inertie_inter(data, partition)
+  pct <- (inertie / inertie_totale) * 100
+  resultats$inertie_inter[k] <- inertie
+  resultats$pourcentage[k] <- pct
+}
+
+# Graphique du pourcentage d'inertie expliquée
+plot(resultats$nb_classes, resultats$pourcentage,
+     type = "b", pch = 19, col = "darkgreen",
+     xlab = "Nombre de classes",
+     ylab = "% d'inertie totale",
+     main = "Pourcentage d'inertie expliquée par la partition",
+     ylim = c(0, 100))
+abline(h = 70, col = "orange")
+abline(h = 80, col = "red")
+```
+
+Pour expliquer 70% de l'inertie totale, on peut prendre 3 classes et pour 80%, on peut prendre 5 classes. \
+On va donc prendre entre les 2 et donc choisir 4 classes.
+
+```{r distance_groupe, echo = FALSE}
+plot(
+  hc,
+  main = "Dendrogramme de la CAH",
+  xlab = "Fromages",
+  ylab = "Distance"
+)
+rect.hclust(hc, k = 4, border = "red")
+```
+
+# Analyse des groupes
+
+Comme vu précédemment on a bien un groupe de fromages frais industriels. \
+Ensuite nous avons un groupe de fromage que l'on peut définir comme fort avec entre autre le `Camembert`, `bleu` ou encore le `Maroilles`. \
+Pour les deux derniers groupes la différences est moins évidentes, surement que des connaisseurs pourront mieux les différencier. 
+Peut être une différence entre pâte dur et pâte molle.
+
+# De même avec le critère d’aggrégation du lien simple 
+
+```{r distance_simple, echo = FALSE}
+hc <- hclust(dist, method = "single")
+clusters <- cutree(hc, k = 1:10)
+
+inertie_totale <- sum(scale(data, scale = FALSE)^2)
+
+# Calcul pour chaque partition stockée dans clusters
+resultats <- data.frame(
+  nb_classes = 1:10,
+  inertie_inter = numeric(10),
+  pourcentage = numeric(10)
+)
+
+for (k in 1:10) {
+  # Utilisation de la colonne k de la matrice clusters
+  partition <- clusters[, k]
+  inertie <- inertie_inter(data, partition)
+  pct <- (inertie / inertie_totale) * 100
+  resultats$inertie_inter[k] <- inertie
+  resultats$pourcentage[k] <- pct
+}
+
+barplot(resultats$pourcentage)
+```
+
+En utilisant le critère du coude on retient 2 classes.
+
+```{r distance_groupe_single, echo = FALSE}
+plot(
+  hc,
+  main = "Dendrogramme de la CAH",
+  xlab = "Fromages",
+  ylab = "Distance"
+)
+rect.hclust(hc, k = 2, border = "red")
+```
+
+Nous avons donc un groupe de fromages frais industriels et un groupe de 'vrais' fromages.
