@@ -1,0 +1,243 @@
+---
+title: "TP Régression linéaire"
+author: "Simon Desdevises"
+date: "03/10/2025"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_data}
+data <- read.csv(
+  "/Users/simondesdevises/Documents/Polytech/IS2A/S7/RL/TP3/data.csv",
+  header = TRUE
+)
+rownames(data) <- data$Y
+```
+
+## 1.1 Statistiques descriptives univariées
+
+### Statistiques descriptives de toutes les variables
+
+```{r stats_univariees}
+# Statistiques descriptives complètes
+knitr::kable(summary(data[, 1:7]))
+```
+
+## 1.2 Statistiques descriptives bivariées
+
+### Matrice de corrélation
+
+```{r correlation}
+# Matrice de corrélation
+cor_matrix <- cor(data)
+print("Matrice de corrélation :")
+print(round(cor_matrix, 3))
+
+# Corrélations de Y avec les autres variables
+print("Corrélations de Y avec les variables explicatives :")
+cor_y <- cor(data)[, "Y"]
+print(sort(cor_y, decreasing = TRUE))
+```
+
+### Analyse détaillée des relations bivariées
+
+```{r analyse_bivariee}
+cat("\n=== ANALYSE BIVARIÉE DÉTAILLÉE ===\n\n")
+for (i in seq_len(ncol(data[, 1:7]))) {
+  var_name <- colnames(data)[i]
+  cat("\n--- Variable:", var_name, "---\n")
+
+  cor_val <- cor(data[, i], data$Y)
+  cat("Corrélation avec Y:", round(cor_val, 4), "\n")
+
+  model <- lm(Y ~ data[, i], data = data)
+  cat("R² de la régression simple:", round(summary(model)$r.squared, 4), "\n")
+  cat("p-value:", format.pval(summary(model)$coefficients[2, 4]), "\n")
+}
+```
+
+## 2. Régression linéaire multiple
+
+### Modèle complet avec toutes les variables
+
+```{r regression_multiple}
+# Régression linéaire multiple : Y en fonction de toutes les variables X1 à X7
+model_complet <- lm(Y ~ X1 + X2 + X3 + X4 + X5 + X6 + X7, data = data)
+
+# Affichage du résumé du modèle
+cat("\n=== MODÈLE DE RÉGRESSION LINÉAIRE MULTIPLE ===\n\n")
+print(summary(model_complet))
+
+# Coefficients du modèle
+cat("\n=== COEFFICIENTS DU MODÈLE ===\n")
+print(round(coef(model_complet), 4))
+
+# Qualité de l'ajustement
+cat("\n=== QUALITÉ DE L'AJUSTEMENT ===\n")
+cat("R² :", round(summary(model_complet)$r.squared, 4), "\n")
+cat("R² ajusté :", round(summary(model_complet)$adj.r.squared, 4), "\n")
+cat("Erreur résiduelle :", round(summary(model_complet)$sigma, 4), "\n")
+cat("Nombre d'observations :", nobs(model_complet), "\n")
+cat("Degrés de liberté :", summary(model_complet)$df[2], "\n")
+```
+
+On observe que X7 ne peut pas être estimé. Cela est logique car il est corrélé avec les autres variables `X7 = 1 - (X1 + X2 + X3 + X4 + X5 + X6)`.
+
+### Constatations
+
+```{r constatations}
+cat("\n=== ANALYSE DES RÉSULTATS ===\n\n")
+
+# 1. Analyse de la significativité globale du modèle
+f_stat <- summary(model_complet)$fstatistic
+p_value_global <- pf(f_stat[1], f_stat[2], f_stat[3], lower.tail = FALSE)
+cat("1. SIGNIFICATIVITÉ GLOBALE DU MODÈLE\n")
+cat("   F-statistic:", round(f_stat[1], 4), "\n")
+cat("   p-value:", format.pval(p_value_global), "\n")
+if (p_value_global < 0.05) {
+  cat("Le modèle est globalement significatif (p < 0.05)\n")
+} else {
+  cat("Le modèle n'est pas significatif (p >= 0.05)\n")
+}
+
+# 2. Analyse des coefficients individuels
+cat("\n2. SIGNIFICATIVITÉ DES VARIABLES INDIVIDUELLES\n")
+coef_summary <- summary(model_complet)$coefficients
+for (i in 2:nrow(coef_summary)) {
+  var_name <- rownames(coef_summary)[i]
+  p_val <- coef_summary[i, 4]
+  cat("   ", var_name, ":")
+  if (p_val < 0.05) {
+    cat(" SIGNIFICATIF (p =", format.pval(p_val), ")\n")
+  } else {
+    cat(" NON significatif (p =", format.pval(p_val), ")\n")
+  }
+}
+```
+
+Le modèle en lui même est significatif cependant les Variables individuelles ne sont pas significatives. Cela est logique car les variables sont corrélées entre elles.
+
+## 3. Vérification de la multi-colinéarité
+
+### Vérification de la somme des composantes
+
+```{r verification_multicolinearite}
+# Les variables X's représentent les taux de chaque composante dans l'essence
+# La somme sur chaque ligne doit faire 100% (ou 1)
+cat("=== VÉRIFICATION DE LA SOMME DES COMPOSANTES ===\n\n")
+
+# Calculer la somme de X1 à X7 pour chaque ligne
+sommes <- apply(data[, 1:7], 1, sum)
+cat("Somme X1 + X2 + ... + X7 pour chaque observation :\n")
+print(round(sommes, 4))
+
+cat("\nToutes les sommes sont égales à 1 :", all(round(sommes, 10) == 1), "\n")
+```
+
+### Calcul du déterminant de X^T X
+
+```{r determinant_XTX}
+cat("\n=== DÉTERMINANT DE LA MATRICE X^T X ===\n\n")
+
+X <- as.matrix(data[, 1:7])
+XTX <- t(X) %*% X
+
+cat("Déterminant de X^T X :", det(XTX), "\n")
+
+if (abs(det(XTX)) < 1e-10) {
+  cat("\n→ Le déterminant est nul \n")
+  cat("Cela confirme la multi-colinéarité\n")
+}
+
+cat("\n=== CONCLUSION ===\n")
+cat("On n'a pas besoin des 7 variables puisque 6 suffisent !\n")
+cat("La 7ème variable est automatiquement déterminée par les 6 autres.\n")
+```
+  
+## 4 Choix des variables
+
+```{r choix_variables}
+library(leaps)
+choix <- regsubsets(
+  Y ~ .,
+  int = TRUE,
+  nbest = 1,
+  nvmax = 7,
+  method = "exh",
+  data = data
+)
+res <- summary(choix)
+print(res)
+#choix du meilleur modèle selon le critère BIC
+plot(choix, scale = "bic")
+```
+
+### 4-A Identification du meilleur modèle
+
+```{r identification_meilleur_modele}
+# Identifier le modèle avec le BIC minimum
+cat("=== IDENTIFICATION DU MEILLEUR MODÈLE ===\n\n")
+
+# Trouver le nombre de variables optimal selon BIC
+bic_values <- res$bic
+meilleur_idx <- which.min(bic_values)
+cat("Nombre de variables du meilleur modèle :", meilleur_idx, "\n")
+cat("Valeur du BIC minimum :", round(bic_values[meilleur_idx], 4), "\n\n")
+
+# Afficher les variables sélectionnées
+cat("Variables incluses dans le meilleur modèle :\n")
+variables_selectionnees <- names(which(res$which[meilleur_idx, ]))
+variables_selectionnees <- variables_selectionnees[variables_selectionnees != "(Intercept)"]
+print(variables_selectionnees)
+```
+
+**Réponse :** Le meilleur modèle selon le critère BIC contient **`r meilleur_idx` variables** : `r paste(variables_selectionnees, collapse = ", ")`.
+
+#### Estimation du meilleur modèle
+
+```{r estimation_meilleur_modele}
+m2 <- lm(Y ~ X1 + X4 + X6, data = data)
+summary(m2)
+```
+
+```{r constatations_m2}
+cat("\n=== ANALYSE DES RÉSULTATS DU MODÈLE 2 ===\n\n")
+
+f_stat <- summary(m2)$fstatistic
+p_value_global <- pf(f_stat[1], f_stat[2], f_stat[3], lower.tail = FALSE)
+cat("1. SIGNIFICATIVITÉ GLOBALE DU MODÈLE\n")
+cat("   F-statistic:", round(f_stat[1], 4), "\n")
+cat("   p-value:", format.pval(p_value_global), "\n")
+if (p_value_global < 0.05) {
+  cat("Le modèle est globalement significatif (p < 0.05)\n")
+} else {
+  cat("Le modèle n'est pas significatif (p >= 0.05)\n")
+}
+
+cat("\n2. SIGNIFICATIVITÉ DES VARIABLES INDIVIDUELLES\n")
+coef_summary <- summary(m2)$coefficients
+for (i in 2:nrow(coef_summary)) {
+  var_name <- rownames(coef_summary)[i]
+  p_val <- coef_summary[i, 4]
+  cat("   ", var_name, ":")
+  if (p_val < 0.05) {
+    cat(" SIGNIFICATIF (p =", format.pval(p_val), ")\n")
+  } else {
+    cat(" NON significatif (p =", format.pval(p_val), ")\n")
+  }
+}
+```
+
+Contrariément au modèle complet, les variables individuelles sont cette fois significatives.
+
+### 4-B Modèle avec 2 variables
+
+```{r choix_var_2}
+variables_selectionnees <- names(which(res$which[2, ]))
+variables_selectionnees <- variables_selectionnees[variables_selectionnees != "(Intercept)"]
+print(variables_selectionnees)
+```
