@@ -1,0 +1,192 @@
+---
+title: "TP3"
+author: "Ehoarn Surace"
+date: "2025-09-24"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(FactoMineR)
+library(factoextra)
+library(knitr)
+data <- read.csv("~/2A/Analyse Explo/Country-data.csv")
+```
+## 1. Chargez les données et proposez une brève analyse descriptive des variables
+
+Voici le sommaire des différentes variables : 
+
+```{r, echo=F}
+data<-as.data.frame(data)
+kable(summary(data))
+```
+On voit donc qu'il y a 10 variables dont 9 quantitative et 1 qualitative. Il y a 167 observations dans ce jeu de données. Ce jeu de données décrit différentes critères par pays. Parmi ces critères nous retrouvons notamment : 
+
+- la mort des enfants en dessous de 5 ans pour 1000 naissance
+- L'export de bien et services par pourcentage de l'âge par rapport au PIB.
+- Dépenses totales de santé en pourcentage du PIB total.
+- Importations de biens et services exprimées en pourcentage du PIB total.
+- Revenu net par personne
+- La mesure du taux de croissance annuel du PIB total
+- Le nombre moyen d'années qu'un nouveau-né vivrait si les tendances actuelles en matière de mortalité devaient se maintenir. 
+- Le nombre d'enfants que chaque femme aurait si les taux de fécondité actuels restaient inchangés.
+- Le PIB par habitant. Calculé en divisant le PIB total par la population totale.
+
+Il n'y a pas de valeurs manquantes. Nous allons pouvoir appliquer une ACP sur les 9 variables quantitatives. 
+
+```{r, echo=F, warning=F, error=F}
+rownames(data)<-data$country
+data<-data[,-1]
+```
+
+## 2. On propose de réaliser l’ACP centrée-réduite de ce jeu de données à l’aide des packages FactoMineR et factoextra. A quoi sert l’argument scale.unit dans la fonction PCA ?
+
+L'argument scale.unit sert à réduire notre ACP. Si nous mettons le paramètre à True, l'ACP sera centrée et réduite, dans le cas contraire elle sera seulement centrée. le paramètre par défaut est TRUE. 
+
+## 3. Déterminez le nombre d’axes retenir. Indication : Vous pouvez utiliser la fonction fviz_eig pour représenter la part d’intertie de chaque axe
+
+Je vais réaliser l'ACP à l'aide de la fonction PCA et afficher les valeurs propres des composantes correspondantes : 
+
+```{r, echo=F, warning=F}
+acp<-PCA(data, scale.unit = TRUE, graph = FALSE)
+kable(acp$eig)
+fviz_eig(acp, addlabels = TRUE, ylim = c(0, 50)) +
+  geom_hline(yintercept = 1, linetype = 2, color = "red") +
+  ggtitle("Critère de Kaiser") +
+  theme_minimal()
+```
+
+Afin de déterminer le nombre d'axe à retenir nous allons nous fier à plusieurs critères afin de détermier le nombre de composantes que nous allons conserver. 
+Dans un premier temps, si nous analysons le critère du coude, nous pouvons voir que nous sélectionnons uniquement les 2 premières composantes, avec une inertie de 63 %.
+Selon le critère de Kaiser, nous conservons uniquement les composantes supérieurs à 1, donc les 3 premières composantes pour une inertie totale de 76 %.
+Si nous voulons avoir au moins 80 % de l'inertie, il nous faudra prendre les 4 premières composantes pour avoir 87 %. 
+Nous allons conserver uniquement les 2 premières composantes à l'aide du critère du coude afin de simplifier l'analyse et l'interprétation future. 
+## 4. Déterminez les individus les mieux représentés et les plus contributeurs aux dimensions que vous avez retenus. Indication : Vous pouvez utiliser les fonctions fviz_pca_ind, fviz_contrib et fviz_cos2.
+
+
+```{r, echo=F}
+fviz_pca_ind(acp,
+             axes = c(1,2),          
+             col.ind = "cos2",       
+             gradient.cols = c("grey", "blue"),
+             repel = TRUE)   
+```
+
+Les individus les mieux représentées sont ceux qui sont le plus foncé sur le graphique ci dessus. Au vu du nombre d'individus, ce graphique n'est pas très lisible, nous allons tenter d'extraire les 6 les mieux représentées. 
+
+```{r, echo=F}
+ind_cos2 <- acp$ind$cos2[,1:2]
+kable(head(ind_cos2[order(rowSums(ind_cos2), decreasing = TRUE), ]))
+```
+
+Les mieux représentées sur les 2 premiers axes sont Singapoure, l'Espagne, l'Italie, le Ghana, le Brésil et la Guinée. 
+
+```{r, echo=F}
+fviz_contrib(acp, choice = "ind", axes = 1, top = 10)  
+fviz_contrib(acp, choice = "ind", axes = 2, top = 10)
+```
+
+Concernant les contributions, nous allons différencier les 2 dimensions.
+Pour la première dimension, on peut voir que le Luxembourg, SIngapoure et le Nigéria sont les plus contributeurs avec une contribution supérieure à 3 % et une contribution cumullée de 15 %.
+Concernant le deuxième axe de notre analyse, les pays les plus contributeurs sont Singapoure, le Luxembourg et Malte avec une contribution cumulée de 
+35 % environ. 
+
+## 6. Que pouvez-vous dire de l’information portée par les variables child_mort et total_fer ?
+
+```{r, echo=F}
+var_cos2 <- acp$var$cos2[, 1:2]
+kable(var_cos2[c("child_mort", "total_fer"), ])
+```
+
+
+```{r, echo=F}
+var_contrib <- acp$var$contrib[, 1:2]
+kable(var_contrib[c("child_mort", "total_fer"), ])
+```
+
+```{r, echo=F}
+fviz_pca_var(acp, 
+             col.var = "cos2", 
+             gradient.cols = c("grey", "blue"))
+```
+
+Les variables child_mort et total_fer sont fortement positivement corrélées. De plus, elles sont très bien représentées sur le premier axe factoriel et très mal sur le deuxième. On peut voir aussi qu'elles sont très contributrices à la formation du premier axe et très peu sur le deuxième. Il y a donc un haut taux de natatilité, mais beaucoup de ces enfants meurent avant l'age de 5 ans. 
+
+## 7. A l’aide des questions précédantes et de la fonction fviz_pca_biplot, interprétez les axes.
+
+```{r, echo=F}
+ind_cos2 <- acp$ind$cos2[, 1:2]
+total_cos2 <- rowSums(ind_cos2)
+top20_idx <- order(total_cos2, decreasing = TRUE)[1:20]
+top20_ind <- rownames(acp$ind$coord)[top20_idx]
+fviz_pca_biplot(acp,
+                axes = c(1, 2),
+                col.var = "blue",             
+                col.ind = "grey",               
+                repel = TRUE,
+                select.ind = list(name = top20_ind),  
+                addEllipses = FALSE)
+```
+
+On peut voir que les pays représentées sur le quart gauche du graphique sont des pays africains, qui sont en général plus pauvre. Les variables représentées sur la même partie du plan représentent le taux de natalité et le taux de mortalité des enfants de moins de 5 ans. Ces variables sont fortement corrélées positivement. 
+Concernant la partie droite du plan, nous pouvons voir des pays bien plus développé comme Malte, Singapoure et le Royaume Uni. Les variables présentent dans cette partie du plan représentent l'espérance de vie, le revenu et le PIB par habitant. 
+Cela nous laisserait donc penser que le premier axe oppose des pays plus pauvre avec un haut taux de naissance et de mortalité des enfants, à des pays plus riche qui ont un niveau de vie plus elevée. 
+
+Concernant le deuxième axe, il oppose Malte et Singapoure lié aux variables imports et exports au Japon, Brésil et Espagne. Les variables d'import et d'export sont décorrélées à celle de la santé. Nous pouvons donc en conclure que le deuxième axe oppose des pays avec un commerce international très developpé, qui donc importent et exportent beaucoup, par rapport à des pays plus locaux. 
+
+## 8. On propose de faire à nouveau l’ACP des mêmes données mais en utlisant scale.unit=FALSE. Que remarquez-vous sur cette ACP, pour quelle·s raison·s observez-vous ces différences ? Indication : On pourra utiliser la fonction explor du package éponyme pour analyser les résultats de l’ACP.
+
+```{r, echo=F, warning=F}
+acp_no_scale <- PCA(data, scale.unit = FALSE, graph = FALSE)
+fviz_eig(acp_no_scale, addlabels = TRUE)
+```
+
+Si l'on ne réduit pas l'ACP, seulement 2 valeurs propres sont représentées, donc il y a seulement 2 dimensions. La première dimension explique 94.8 % de l'information totale. 
+
+```{r, echo=F}
+ind_cos2 <- acp_no_scale$ind$cos2[, 1:2]
+total_cos2 <- rowSums(ind_cos2)
+top20_idx <- order(total_cos2, decreasing = TRUE)[1:20]
+top20_ind <- rownames(acp_no_scale$ind$coord)[top20_idx]
+fviz_pca_biplot(acp_no_scale,
+                axes = c(1, 2),
+                col.var = "blue",             
+                col.ind = "grey",               
+                repel = TRUE,
+                select.ind = list(name = top20_ind),  
+                addEllipses = FALSE)
+```
+
+Les variables gdpp et income sont bien plus importante et donc contrubitrice dans notre plan factoriel. Il serait donc plus intéressant de les enlever dans un premier temps pour réaliser notre analyse. C'est ce que nous allons faire dans la question suviante. 
+
+## 9. L’ACP n’étant qu’une histoire de projections, il est possible de construire l’espace des composantes principales sans certaines variables/individus puis de les projeter après coup, qu’on appelle variables/individus supplémentaires. La fonction PCA permet de faire cela avec les arguments ind.sup et quanti.sup. Réalisez une ACP non-normée avec les variables gdpp et income en variables supplémentaires.
+
+Voici l'ACP non normée avec les variables gdpp et income en supplément. 
+
+```{r, echo=F}
+vars_sup <- c("gdpp", "income")
+acp_sup <- PCA(data,
+               scale.unit = FALSE,      
+               quanti.sup = which(colnames(data) %in% vars_sup),  
+               graph = FALSE)
+fviz_pca_biplot(acp_sup,
+                col.var = "blue",
+                col.ind = "grey",
+                col.quanti.sup = "red",  
+                repel = TRUE)
+```
+
+Si l'on enlève les variables les plus contributrices, nous voyons qu'il n'y a plus de valeurs négatives sur l'axe 1. 
+Au vu de l'inertie de chaque axe, de la différence entre les variables et de la qualité de représentation de l'ensemble des individus, toute conclusion serait plutôt mal venue. Une ACP normée serait à privilégier dans notre situation. 
+
+## 10. En suivant le déroulé habituel de l’ACP, proposez une analyse des structures latentes des données.
+
+L'analyse en composantes principales révèle deux axes majeurs qui caractérisent les nations en fonction de leur niveau de développement et de leur activité économique. Le premier axe (Dim1, 46 % de variance) réunit les variables se rapportant à l'économie et à la santé, telles que le revenu, le PIB par habitant, l'espérance de vie et la qualité de la santé : les pays prospères et en bonne santé (Singapour, Malte…) occupent la partie supérieure de cet axe, alors que les pays moins développés (Mozambique, Malawi, Tanzanie…) se positionnent en bas. Dim1 est négativement corrélé avec les variables démographiques telles que la mortalité infantile et la fécondité, ce qui accentue la différence entre les pays moins développés. 
+Le second axe (Dim2) est majoritairement lié au commerce international, comme l'indiquent les échanges import-export : les nations qui ont un commerce extérieur florissant se positionnent à des valeurs hautes de Dim2, alors que celles ayant un commerce restreint se retrouvent à des valeurs basses. Les associations entre les variables sont logiques : les variables parallèles présentent une corrélation positive (income, gdpp, life_expec, health), alors que celles en opposition affichent des corrélations négatives (child_mort et total_fer par rapport à income et gdpp). En somme, cette Analyse en Composantes Principales (ACP) résume les liens entre les variables et positionne les pays selon deux dimensions latentes essentielles : un axe développement/santé (Dim1) et une direction commerciale (Dim2).
+
+
+

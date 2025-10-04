@@ -1,0 +1,190 @@
+---
+title: "TP5"
+author: "Ehoarn Surace"
+date: "2025-09-29"
+output: pdf_document
+---
+<style>
+p {
+  text-align: justify;
+}
+</style>
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = F)
+library(knitr)
+library(ggplot2)
+library(factoextra)
+library(FactoMineR)
+data<-read.csv("~/2A/Analyse Explo/data_questionnaire.csv")
+rownames(data)<-data$X
+data<-data[,-1]
+summary(data)
+table(data$LanguageRecommendationSelect)
+data$Age<-as.numeric(data$Age)
+```
+## 1) Description des variables : 
+Ce jeu de données représente le choix de langage de programmation d'un individu classé selon plusieurs de ses critères personnels. Le jeu de données contient `r nrow(data)` lignes et `r ncol(data)` colonnes. Chaque ligne représente un individu qui a répondu au questionnaire. 
+La première colonne représente le sexe de la personne. Il y a 3 possibilités.
+La seconde représente l'âge de la personne. 
+La troisième colonne représente le statut de l'employé. 
+La quatrième variable représente les études.
+La cinquième variable représente le secteur d'activité de sa profession. 
+La sixième variable représente le choix de l'individu au questionnaire : Matlab, Python, R ou SAS. 
+La dernière variable représente le domaine d'activité de la personne. 
+
+Des personnes ont 0 an. Nous décidons de ne pas conserver ces individus dans notre analyse car elle pourrait la fausser. Au vu du nombre de réponses à notre questionnaire, cela n'aura que très peu d'impact. 
+
+```{r}
+data_filtre <- subset(data, Age > 0)
+ggplot(data_filtre, aes(x = Age)) +
+  geom_histogram(binwidth = 5, fill = "skyblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Histogramme des âges (>0 ans)", x = "Age", y = "Nombre d'individus")
+```
+
+
+## Réalisation de l'ACM
+
+On créé des classes d'âges pour la variable âge 
+
+```{r}
+data_filtre$Age <- cut(
+  data_filtre$Age,
+  breaks = seq(0, 100, by = 10),
+  right = FALSE,          # la borne droite n'est pas incluse
+  labels = paste(seq(0, 90, by = 10), seq(9, 99, by = 10), sep = "-")
+)
+```
+
+
+```{r}
+acm <- MCA(data_filtre, graph = TRUE)
+```
+## Représentation des valeurs propres : 
+
+```{r, warning=F}
+fviz_eig(acm, addlabels = TRUE, main="Représentation des valeurs propres", ylim=c(0,20))
+acm$eig
+```
+
+## Application de Benzécri :
+
+```{r}
+p <- ncol(data_filtre)
+seuil <- 1/p
+lambda<-acm$eig[,1]
+lamda<-lambda[lambda > seuil]
+eig_benzecri <- ((p / (p - 1)) * (lamda - 1/p))**2
+eig_benzecri<-eig_benzecri/sum(eig_benzecri)
+barplot(eig_benzecri)
+```
+Il faut sélectionner 3 dimensions. 
+
+```{r}
+library(ggsci)
+fviz_mca_var(acm,
+             repel = TRUE,             
+             col.var = "contrib")
+```
+
+Dimension 1 (5.6% de variance) 
+Cet axe oppose deux profils professionnels et éducatifs :
+Côté gauche (valeurs négatives) :
+
+Secteurs techniques et spécialisés : Technology, Telecommunications, Hospitality/Entertainment
+Formation : Bachelor's degree
+Domaines : Computer Science, Internet-based
+
+Côté droit (valeurs positives) :
+
+Secteurs tertiaires diversifiés : Healthcare, Finance, Government, Insurance, Retail
+Niveaux d'éducation variés : Master's degree, Doctoral degree
+Domaines académiques divers : Mathematics/Statistics, autres disciplines
+
+Dimension 2 (4.7% de variance) - Axe vertical
+Cet axe structure l'échelle d'éducation et de qualification :
+Partie supérieure (valeurs positives) :
+
+Éducation incomplète ou partielle : "Some college/university study without earning a bachelor's degree"
+Âge jeune : 10-19 ans
+Statut : Employed part-time
+
+Partie inférieure (valeurs négatives) :
+
+Secteurs spécialisés : Pharmaceutical, SAS, Insurance, CRM/Marketing
+Disciplines avancées : Mathematics/Statistics
+
+Groupes de profils identifiables
+
+Profil technique-technologique (gauche) : jeunes professionnels en tech avec Bachelor's degree
+Profil académique avancé (droite-haut) : hautes qualifications (Master's/Doctoral) dans des secteurs variés
+Profil en formation (haut-centre) : étudiants en cours d'études, emploi partiel
+Profil spécialisé (bas) : secteurs nécessitant expertise pointue (pharma, finance, statistiques)
+
+# Analyse des corrélations :
+
+```{r}
+fviz_mca_ind(acm,
+             habillage = "FormalEducation",   
+             addEllipses = TRUE,       
+             repel = TRUE,
+             palette = "Set1",
+             title = "Individus MCA colorés par Age")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+plotellipses(acm, keepvar = "Age", 
+             label = "quali",
+             title = "Ellipses de concentration par Âge")
+
+plotellipses(acm, keepvar = "Education",
+             label = "quali",
+             title = "Ellipses de concentration par Éducation")
+
+plotellipses(acm, keepvar = "Industry",
+             label = "quali",
+             title = "Ellipses de concentration par Secteur")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

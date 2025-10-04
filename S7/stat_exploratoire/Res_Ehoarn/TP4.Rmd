@@ -1,0 +1,177 @@
+---
+title: "TP4"
+author: "Ehoarn Surace"
+date: "2025-09-26"
+output: pdf_document
+---
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = F)
+library(knitr)
+library(ggplot2)
+library(factoextra)
+library(FactoMineR)
+data<-read.csv("~/2A/Analyse Explo/data_elections.csv")
+```
+
+## Analyse descriptive du jeu de données
+
+```{r}
+data<-as.data.frame(data)
+data<-data[-1]
+data$Voix<-as.numeric(data$Voix)
+```
+
+Ce jeu de données représente les élections européènnes de l'année passée. Le jeu de données contient `r nrow(data)` lignes et `r ncol(data)` colonnes. Chaque ligne représente un parti français pour les élections européènnes dans une région française. 
+La première colonne représente la région où les votes ont été effectuées. 
+La seconde représente la liste pour laquelle les votes ont été fais. 
+La dernière colonne représente les votes que la liste ont obtenu pour la région correspondante. 
+Nous avons donc 2 variables qualitatives et 1 variable quantitative.
+Concernant la variable des Voix, le minimum est de 0 et le maximum de voix est de 950 000. Voici le tableau correspondant : 
+
+```{r}
+summary(data$Voix)
+```
+
+
+Pour les variables qualitatives, nous avons les modalités suivantes : 
+
+```{r}
+vars_qual <- data[, sapply(data, function(x) is.factor(x) | is.character(x))]
+nb_modalites <- sapply(vars_qual, function(x) length(unique(x)))
+tableau_modalites <- data.frame(
+  Variable = names(nb_modalites),
+  Nb_modalites = as.vector(nb_modalites)
+)
+kable(tableau_modalites)
+```
+
+
+## Construction du tableau de contingence et analyse du chi 2:
+
+```{r}
+tabCont <- xtabs(Voix ~ Region + Liste, data = data)
+```
+
+Le test du $\chi^2$ d’indépendance permet de vérifier s’il existe une relation entre deux variables qualitatives. L'objectif est de savoir si le choix des listes varie selon les régions ou si les votes sont indépendants de la région. Les hypothèses sont les suivantes :
+- H0 (hypothèse nulle) : Les variables sont indépendantes : le vote pour une liste ne dépend pas de la région.
+- H1 (hypothèse alternative) : Les variables sont associées : certaines listes sont favorisées dans certaines régions.
+
+```{r, warning=F}
+chi_res <- chisq.test(tabCont)
+chi_res
+```
+
+A l'aide des résultats du test du $\chi^2$, nous pouvons voir que la p-value est inférieure à 0.05, le seuil que nous gardons en général afin de valider notre hypothèse. Nous ne pouvons donc pas rejetter l'hypothèse nulle. Il existe donc une certaine association entre la région et la liste électorale. 
+
+## Application de l'AFC sur le jeu de données :
+
+Nous réalisons ici l'AFC sur le jeu de données. Nous allons déterminer le nombre d'axes à conserver :
+
+```{r}
+afc<-CA(tabCont, graph = F)
+```
+
+```{r, warning=F}
+fviz_eig(afc, addlabels = TRUE, main="Représentation des valeurs propres")
+```
+
+Il existe plusieurs techniques pour choisir le nombre d'axes à conserver. Il y a par exemple la technique du coude ou la technique de Kaiser. Ici nous allons priviligier la technique de Kaiser qui possède plus de 80 % de l'inertie total. En effet, l'ajout d'une 3ème composante n'ajouterait que 6.5 %, ce qui est très faible par rapport au travail d'analyse correspondant. Nous allons donc conserver uniquement les 2 premiers axes factorielles qui représentent 80 % de l'inertie totale. Nous acceptons de perdre 20 % de l'information pour faciliter notre analyse par la suite. 
+
+## Analyse des contributions de la variable Région : 
+
+Voici le tableau des 5 plus gros contributeurs de chaque axe en terme de régions : 
+
+```{r}
+contrib_regions <- afc$row$contrib
+top5_axe1 <- sort(contrib_regions[,1], decreasing = TRUE)[1:5]
+cat("Les 5 plus gros contributeurs pour l'axe 1\n")
+kable(top5_axe1)
+top5_axe2 <- sort(contrib_regions[,2], decreasing = TRUE)[1:5]
+cat("Les 5 plus gros contributeurs pour l'axe 2\n")
+kable(top5_axe2)
+```
+
+Concernant l'axe 1, ce sont les régions les plus peuplées qui sont les plus contributrices avec nottament l île de france, les hauts de france et le Grand Est. La contribution est très disparate sur cet axe avec une très grande part de contribution de l'île de France avec plus de 65 %. 
+L'axe 1 est donc très influencé par le profil de vote de cette région. 
+Concernant le deuxième axe, les contributeurs sont plus porches avec une étendue inférieure à 10 % dans le top 5 des plus contributeurs. Cela montre notamment une nuance parmi les régions concernant leurs préférences de vote. 
+Les régions hors hexagone ne sont pas représentées parmi les plus contributeurs. 
+
+## Analyse des contributions de la variable Liste : 
+
+```{r}
+contrib_listes <- afc$col$contrib
+top5_axe1 <- sort(contrib_listes[,1], decreasing = TRUE)[1:5]
+cat("Les 5 plus gros contributeurs pour l'axe 1\n")
+kable(top5_axe1)
+top5_axe2 <- sort(contrib_listes[,2], decreasing = TRUE)[1:5]
+cat("Les 5 plus gros contributeurs pour l'axe 2\n")
+kable(top5_axe2)
+```
+
+L’axe 1 est dominé par La FRANCE REVIENT et LFI, qui représentent ensemble plus de 77 % de la contribution.
+Cela signifie que cet axe capture principalement la différence de vote entre ces deux listes très plébiscitées et les autres listes.
+Les listes plus petites (AR, Europe Écologie, Réveil EUR) ont un impact moindre sur la définition de l’axe 1.
+Comme l’axe 1 est fortement influencé par l’Île-de-France côté région, on peut conclure que cet axe représente les votes majoritaires dans les régions très peuplées.
+
+L’axe 2 est plus équilibré, aucune liste ne domine complètement.
+LFI et REVEIL EUR sont les plus contributives, ce qui montre que cet axe met en évidence des différences régionales spécifiques pour ces listes.
+Les votes pour ces listes sont plus variables selon les régions (Bretagne, Nouvelle-Aquitaine, PACA, Hauts-de-France, Pays de la Loire).
+
+Donc l'axe 1 représente une distinction entre les listes majoritaires alors que l'axe 2, plutôt des différences régionales avec des listes plus variées. 
+
+## Représentation des modalités sur le plan factoriel : 
+
+```{r}
+fviz_ca_biplot(afc, 
+               axes = c(1, 2),
+               repel = TRUE,        
+               col.row = "blue",    
+               col.col = "red",      
+               title = "AFC : Répartition des régions et listes sur le plan factoriel")
+```
+
+Le graphique ci dessus représente la projection des 2 variables sur le plan factoriel. Nous allons nous pencher sur les meilleurs qualités de représentation afin d'y voir plus clair. 
+
+```{r}
+contrib_rows <- afc$row$contrib
+contrib_cols <- afc$col$contrib
+
+top10_rows_axis1 <- names(sort(contrib_rows[,1], decreasing = TRUE))[1:5]
+top10_rows_axis2 <- names(sort(contrib_rows[,2], decreasing = TRUE))[1:5]
+top10_cols_axis1 <- names(sort(contrib_cols[,1], decreasing = TRUE))[1:5]
+top10_cols_axis2 <- names(sort(contrib_cols[,2], decreasing = TRUE))[1:5]
+
+top_rows <- unique(c(top10_rows_axis1, top10_rows_axis2))
+top_cols <- unique(c(top10_cols_axis1, top10_cols_axis2))
+
+fviz_ca_biplot(afc,
+               axes = c(1, 2),
+               select.row = list(name = top_rows),
+               select.col = list(name = top_cols),
+               repel = TRUE,
+               col.row = "blue",
+               col.col = "red",
+               title = "AFC : top contributeurs (régions et listes) sur les axes 1 et 2")
+```
+
+Axe 1 : reflète les votes liés aux régions très peuplées et listes majoritaires (La FRANCE REVIENT, LFI - UP).
+Axe 2 : reflète des variations régionales spécifiques, associées à des listes minoritaires ou localement populaires (REVEIL EUR, EUROPE ÉCOLOGIE…).
+Le graphique montre clairement les profils électoraux régionaux et les préférences pour certaines listes, facilitant l’analyse des votes européens en France.
+
+## Synthèse : 
+
+D'après les résultats de l'AFC présentés, l'axe 1 (Dim1), qui explique 60 % de l’inertie, oppose  deux groupes de listes et régions. D’un côté, on trouve des listes comme REVEIL EUR, EUROPE ÉCOLOGIE et BESOIN D'EUROPE, associées à des région comme la Bretagne, la Nouvelle-Aquitaine et les Pays de la Loire, qui contribuent positivement à cet axe. De l’autre côté, la liste LFI - UP ainsi que des régions comme les Hauts-de-France, Provence-Alpes-Côte d’Azur, le Grand Est et l’Île-de-France s’opposent le long de ce premier axe, suggérant des différences importantes dans les comportements électoraux. L’axe 2 semble moins marqué, mais on observe que la Bourgogne-Franche-Comté se situe près de l’origine, indiquant un profil plus neutre. Cette analyse révèle ainsi une structuration géographique et politique nette, où le territoire et la préférence de vote sont très lié. 
+
+
+
+
+
+
+
+

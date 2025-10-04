@@ -1,0 +1,196 @@
+---
+title: "TP2"
+author: "Ehoarn Surace"
+date: "2025-09-19"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+data <- read.csv("~/2A/Analyse Explo/Temperatures.csv")
+data<-as.data.frame(data)
+summary(data)
+```
+# Q2 : rapide analyse du jeu de données :
+
+Le jeu de données température contient 18 variables pour 35 observations. Chaque observation correspond à une ville muni de ses températures sur les différents mois de l'année ainsi que ses données géographiques. 
+
+# Q3 : je centre et je réduis les données
+
+```{r}
+data<-data[,1:13]
+rownames(data)<-data$X
+data<-data[,-1]
+dataCR<-scale(data)
+```
+
+# Q4 : matrice var covar
+
+```{r}
+n <- nrow(dataCR)
+mat_varcov <- (t(dataCR) %*% dataCR) / (n - 1)
+mat_varcov
+```
+
+Nous pouvons principalement voir que les mois qui se suivent dans l'années ont corrélations plus élevée. Dans le cas contraire, plus les mois sont éloignées (modulo 12) plus la corrélation est faible.
+Pour donner un exemple on peut voir que Janvier et Décembre sont très corrélées (0.994) alors que Février et Juillet sont peu corrélées (0.62).
+
+# Q5 : détermination des valeurs propres à l'aide de la matrice de variance covariance
+
+```{r}
+vp<-eigen(mat_varcov)
+vp
+```
+
+
+Nous avons déterminé ici 12 valeurs propres accompagnées de leurs vecteurs propres (logique car nous avons 12 colonnes pour 12 mois de l'année).
+
+
+
+# Q6 : détermination de la contribution relative sur chaque axe
+
+```{r}
+valeurs_propres <- vp$values
+barplot(valeurs_propres,
+     xlab = "Composantes principales",
+     ylab = "Valeur propre",
+     main = "Valeurs propres")
+abline(h = 1, col = "red", lty = 2)
+legend("right", "Critère de Kaiser", lty=2, col = "red",
+       cex = 1+(-1:2)/8, trace = TRUE)
+```
+
+
+Selon la méthode de Kaiser, nous sélectionnons uniquemement les 2 premères composantes. Selon la méthode du coude, nous conservons aussi uniquement les 2 premières composantes.
+
+```{r}
+contrib_rel <- valeurs_propres / sum(valeurs_propres)
+contrib_cum <- cumsum(contrib_rel)
+barplot(contrib_rel,
+        ylab = "Proportion de variance expliquée",
+        xlab = "Axes",
+        main = "Contributions des axes",
+        col = "skyblue")
+
+```
+Selon la dernière méthode qui consiste à conserver uniquement les axes qui nous permettent d'avoir 80 % de l'information, nous garderions que la première composante.
+
+Pour conclure sur ces 3 méthodes, je sélectionne les 2 premiers axes. 2 des 3 méthodes étudiées optaient pour cette option. De plus, la dernière méthode qui ne prenait qu'1 axe était plus contraignante, elle ne nous permettait pas de projetter sur 2 dimensions les données. 
+
+# Q7 : Déterminer les coo des indiv dans dans les composantes principales et les représenter : 
+
+```{r}
+coord_indiv <- dataCR %*% vp$vectors
+coord_indiv <- as.data.frame(coord_indiv)
+head(coord_indiv)
+```
+
+```{r}
+plot(coord_indiv[,1], coord_indiv[,2],
+     xlab = "Axe 1", ylab = "Axe 2",
+     main = "Plan factoriel 1-2",
+     col = "orange")
+text(coord_indiv[,1], coord_indiv[,2], labels = rownames(data))
+```
+
+```{r}
+plot(coord_indiv[,1], coord_indiv[,3],
+     xlab = "Axe 1", ylab = "Axe 3",
+     main = "Plan factoriel 1-3",
+     col = "blue")
+text(coord_indiv[,1], coord_indiv[,3], labels = rownames(data))
+```
+
+```{r}
+plot(coord_indiv[,2], coord_indiv[,3],
+     xlab = "Axe 2", ylab = "Axe 3",
+     main = "Plan factoriel 2-3",
+     col = "green")
+text(coord_indiv[,2], coord_indiv[,3], labels = rownames(data))
+```
+
+# Q8 : Contribution et qualité de représentation (que sur les axes et 1 et 2) : 
+
+```{r}
+n <- nrow(coord_indiv)
+valeurs_propres <- vp$values
+contrib <- sweep(coord_indiv^2, 2, n * valeurs_propres, FUN = "/") * 100
+cos2 <- coord_indiv^2 / rowSums(coord_indiv^2)
+contrib
+cos2
+plot(coord_indiv[,1], coord_indiv[,2],
+     xlab = "Axe 1", ylab = "Axe 2",
+     main = "Plan factoriel 1-2",
+     col = "orange")
+text(coord_indiv[,1], coord_indiv[,2], labels = rownames(data))
+```
+
+Sur l'axe 1, les plus fortes contributions sont les villes Athènes Seville et Palerme du côté négatif, opposé à Moscou, Helsinki, Reykjavik et St.Petersbourg du côté positif. 
+Sur l'axe 2, les plus contributeurs sont Reykjavik Dublin et Edimbourg du côté négatif, opposé à Budapest Kiev et Moscou du côté positif.
+On peut donc voir que certains individus ont beaucoup de poids sur les 2 axes comme Moscou St. Petersbourg et Reykjavik. 
+
+# Q9 : Déterminer les coordonées des variables : 
+
+```{r}
+valeurs_propres <- vp$values
+vecteurs_propres <- vp$vectors
+coord_var <- sweep(vecteurs_propres, 2, sqrt(valeurs_propres), FUN = "*")
+coord_var <- as.data.frame(coord_var)
+coord_var
+```
+
+```{r}
+plot(coord_var[,1], coord_var[,2],
+     xlim=c(-1,1), ylim=c(-1,1),
+     xlab="Axe 1", ylab="Axe 2",
+     main="Cercle des corrélations",
+     pch=NA, asp=1)  
+symbols(0, 0, circles=1, inches=FALSE, add=TRUE, lty=2)
+arrows(0, 0, coord_var[,1], coord_var[,2],
+       length=0.1, col="blue")
+text(coord_var[,1], coord_var[,2],
+     labels=rownames(coord_var), cex=1.5)
+```
+
+# Q10 : contribution et qualité de représentation des individus 
+
+Concernant le premier axe factoriel, les données sont très bien représentées car elles sont toutes très proche de -1 (proche du bord du cercle).
+Sur le deuxième plan, les données sont assez mal représentées (entre abs(0.5) et 0).
+
+```{r}
+
+cos2 <- coord_var^2
+contrib <- sweep(cos2, 2, vp$values, FUN="/") 
+contrib
+cos2
+```
+
+Nous pouvons noter que les mois ont une contribution plutôt équivalentes et proche de 0. Chaque mois a donc un pods plus ou moins équivalent sur l'ensemble de l'analyse. La qualité de représentation est plutôt élevée concernant le premier axe. Concernant le deuxième axe, la qualité est moins élevée, ce qui est normal étant donné que la valeur propre associé est plus faible. 
+
+
+# Q12 : Interpretation globale
+
+A travers cette ACP, nous avons pu mettre en avant la représentation des différentes température dans différentes villes au cours d'une année calendaire. Cette représentation a mis en avant une différence entre les villes plutôt chaude tout au long de l'année et plutôt froide. 
+Nous avons de plus pu voir que les contributions et les qualités de représentation des différents mois étaient plutôt similaire. Ce n'est pas le cas pour les individus car certains ont plus de poids de part leur différence de température élevé avec le reste du groupe. 
+
+L'axe 2 représente la température des différents mois. 
+L'axe 2 du plan des individus oppose les variations de température alors que l'axe 1 oppose les températures tout au long de l'année. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,122 @@
+---
+title: "Rapport TP1"
+author: "Ehoarn Surace"
+date: "2025-09-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Analyse descirptive
+
+Le jeu de données mtcars implémenté sur R correspond à des voitures avec leurs caractéristiques. Il comprend `r nrow(mtcars)` lignes et `r ncol(mtcars)` colonnes. Ci dessous on peut voir les différentes moyennes des variables. 
+Le jeu de données est contitué de différentes variables décrites ci-dessous : 
+
+- la consommation en miles/gallon
+- le nombre de cylindres
+- le déplacement
+- la puissance brute
+- le rapport de pont arrière
+- le poids
+- le temps pour 1/4 de mile
+- le type de moteur
+- la transmission
+- le nombre de vitesse avant
+
+```{r}
+mtcars
+summary(mtcars)
+```
+
+```{r, echo=F, fig.width=10}
+plot(mtcars$hp, mtcars$mpg,
+     main = "Consommation de carburant en fonction de la puissance",
+     xlab = "Puissance (hp)",
+     ylab = "Consommation (mpg)")
+```
+Nombre de voiture ayant 8 cylindes
+```{r, eval=F}
+sum(mtcars$cyl == 8)
+```
+
+# Analyse de corrélation linéaires
+
+## Corélation entre mpg et wt : 
+
+```{r, echo=F}
+cor(x = mtcars$mpg, mtcars$wt)
+plot(mtcars$mpg, mtcars$wt)
+```
+
+La correlation est de `r cor(x = mtcars$mpg, mtcars$wt)`. Les variables sont donc négativement corrélées.
+Cela signifie que plus la voiture est lourde, moins nous ferons de miles avec 1 gallon. 
+
+```{r}
+cor.test(x = mtcars$mpg, mtcars$wt)
+```
+La valeur t est très grande en valeur absolue, indiquant une forte évidence contre $H_0$.
+La p-value est nettement inférieure à 0,05 donc nous pouvons dire que $H_1$ est meilleur donc les variables sont négativement corrélées.
+
+```{r}
+cor(mtcars)
+```
+
+C'est un tableau permettant d'avoir les corrélations entre les différentes variables. La lisibilité est possible mais pourrait être optimisé dans un rapport d'analyse.
+
+```{r}
+library(corrplot)
+M <- cor(mtcars)
+corrplot(M)
+```
+C'est une matrice symétrique avec une diagonale de 1. C'est normal car une variable est positivement corrélée avec elle-même. 
+Plus le cercle est gros et foncé, plus la corrélation entre les 2 variables est grande. Au plus la couleur tire vers le bleu, au plus la corrélation est postive. Au plus la couleur tire vers le rouge, au plus la corrélation est négative. 
+
+```{r}
+install.packages("psych")
+library(psych)
+cor.matrix <- corr.test(mtcars)
+corrplot(cor.matrix$r, p.mat = cor.matrix$p, insig = "p-value", order = "AOE")
+```
+Lorsque la corrélation n'est pas significative, on inscrit la p-value dans la case correspondante. 
+
+# Regression linéaire
+
+```{r}
+modele <- lm(mpg ~ wt + hp + drat, data = mtcars)
+summary(modele)
+
+mpg_pred <- predict(modele)
+
+# Graphique Observé vs Prédit
+plot(mtcars$mpg, mpg_pred,
+     xlab = "mpg observé",
+     ylab = "mpg prédit",
+     main = "Observé vs Prédit pour le modèle linéaire multiple",)
+abline(lm(mpg_pred ~ mtcars$mpg), col = "light blue", lwd = 2)
+```
+La p-valeur est inférieur à 0.05 donc on peut conserver ce modèle. Le $R²$ est de 0.8369, cela signifie que la consommation est exliquée à prêt de 84 % par le poids, la puissance et le rapport de pont. 
+On peut voir sur le graphique la regession entre les valeurs prédites (calculez à partir de la régression en comptant les 3 paramètres)et les valeurs observées. 
+Concernant l'équation, nous pouvons la voir dans le résumé du modèle lm. Voici l'équation : -3.23*wt -0.03*hp+1.162*drat+29.39.
+Les coefficients sont associés au x pour donner plus ou moins de poids sur la prédiction. 
+
+```{r}
+summary(modele)$r.squared       
+summary(modele)$adj.r.squared
+```
+
+Comme indiqué auparavant, le $R²$ est de prêt de 84. Celui ajusté est de 82 % qui est une valeur très proche. 
+Selon le modèle ajusté, cela signifie que 82 % des variations de y (mpg) sont expliquées par x (wt + hp + drat). 
+Nous pouvons en conclure que le modèle utilisé semble bien correspondre au vue du haut pourcentage d'explication (>80 %).
+
+```{r}
+modele1<- lm(mpg ~ wt + hp + drat, data = mtcars)
+summary(modele1)
+```
+Pour wt : on rejette $H_0$ : wt a un effet significatif négatif sur mpg
+Pour hp : on rejette $H_0$ : hp a un effet significatif négatif sur mpg
+Pour drat : on conserve $H_0$ : hp n'a pas vraiment d'effet sur mpg
+
+La varaible wt semble avoir un impact le plus significatif car la p-value est la plus faible
+De plus, la variable wt à le plus gros coefficient de corrélation avec mpg. 

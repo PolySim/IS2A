@@ -22,7 +22,7 @@ On y retrouve en plus les données `"Moyenne","Amplitude","Latitude","Longitude"
 ```{r normalize_data}
 data_formatted <- data[, 1:(ncol(data) - 5)]
 data_formatted <- scale(data_formatted)
-data_formatted[1:2, 1:6]
+knitr::kable(head(data_formatted))
 ```
 
 # Question 4
@@ -30,7 +30,7 @@ data_formatted[1:2, 1:6]
 ```{r variance_covariance}
 number_realisations <- nrow(data_formatted)
 matrix_cov_var <- (1 / (number_realisations - 1)) * t(data_formatted) %*% data_formatted # nolint: line_length_linter.
-matrix_cov_var[1:3, 1:6]
+knitr::kable(head(matrix_cov_var))
 ```
 
 # Question 5
@@ -39,8 +39,8 @@ matrix_cov_var[1:3, 1:6]
 res_eigen <- eigen(matrix_cov_var)
 valeur_propre <- res_eigen$values
 vecteur_propre <- res_eigen$vectors
-valeur_propre[1:3]
-vecteur_propre[1:3, 1:3]
+knitr::kable(head(valeur_propre))
+knitr::kable(head(vecteur_propre))
 ```
 
 # Question 6
@@ -48,7 +48,7 @@ vecteur_propre[1:3, 1:3]
 ```{r contributions_relatives}
 sum_valeur_propre <- sum(valeur_propre)
 contributions_relatives <- valeur_propre / sum_valeur_propre
-contributions_relatives[1:3]
+knitr::kable(head(contributions_relatives))
 ```
 
 ```{r graphiques_valeurs_propres}
@@ -73,7 +73,7 @@ abline(h = 1, col = "red")
 
 ```{r coordonnees_indiv}
 coordonnees_indiv <- data_formatted %*% vecteur_propre
-coordonnees_indiv[1:3, 1:3]
+knitr::kable(head(coordonnees_indiv))
 ```
 
 ```{r plans_factoriels_base}
