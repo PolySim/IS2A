@@ -1,0 +1,192 @@
+---
+title: "TP7 - Annal"
+author: "Simon Desdevises"
+date: "2025-10-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Lecture des données
+
+```{r load_data, echo = FALSE}
+data <- readRDS(file = "/home/s/d/sdesdevi/IS2A/S7/stat_exploratoire/TP7/Soils.RDS")
+knitr::kable(head(data))
+```
+
+Les données représentent différentes caractéristiques sur les sols. \
+Il y a 11 variables avec parmis elle 2 qualitatives : 
+
+- `Contour`: Représentant l'endroit du prélèvement.
+- `Depth` : Représentant une classe vis à vis de la profondeur du prélèvement.
+
+Toutes les autres sont quantitative.
+
+On retrouve : 
+
+- `pH`: ph du sol
+- `N`: azote total en %
+- `Dens`: densité apparente en g/cm3
+- `P`: phosphore total en ppm
+- `Ca`: calcium en meq/100 g.
+- `Mg`: magnésium en meq/100 g
+- `K`: potassium en meq/100 g
+- `Na`: sodium en meq/100 g
+- `Conduc`: conductivité
+
+```{r data_aberrantes, echo = FALSE}
+boxplot(data[, 3:11])
+```
+
+Tout d'abord on voit qu'il n'y a aucune données manquante cependant les valeurs du phospore ont un poids bien supérieur aux autres.
+Essayons de les normaliser
+
+```{r data_aberrantes_normal, echo = FALSE}
+boxplot(scale(data[, 3:11]))
+```
+
+Une fois normalisé elles sont cohérente.
+
+## Méthode utilisé
+
+Au vu des différentes données sous allons partir sur l'utilisation de l'ACM. Pour se faire nous allons regrouper les différentes données quantitative en classe.
+
+```{r generate_classe, echo = FALSE}
+data_norm = scale(data[, 3:11])
+vect_break <- seq(-3, 3, by = 0.4)
+data_class <- data
+for (i in 3:11) {
+  data_class[, i] <- cut(
+    data_norm[, i - 2],
+    breaks = vect_break,
+    include.lowest = TRUE,
+    right = TRUE
+  )
+}
+```
+
+Voici comment sont désormais nos données : 
+
+```{r view_data, echo = FALSE}
+knitr::kable(head(data_class))
+```
+
+## Réalisation de l'ACM
+
+```{r acm, echo = FALSE, fig.show = 'hide'}
+library(FactoMineR)
+acm <- MCA(data_class, ncp = 8)
+```
+
+```{r correction_benzecri, echo = FALSE}
+p <- 11
+valeurs_propres <- acm$eig[, 1]
+valeurs_superior <- valeurs_propres[valeurs_propres > (1 / p)]
+valeurs_propres_corrigees <- ((p / (p - 1)) * (valeurs_superior  - (1 / p))) ^ 2
+barplot(
+  valeurs_propres_corrigees,
+  type = "b",
+  xlab = "Axe",
+  ylab = "Valeur propre corrigées",
+  main = "Valeurs propres corrigées"
+)
+```
+
+Au vu du critère du coude nous pouvons garder les 2 premières dimension.
+
+```{r rapport_correlation_2, echo = FALSE, fig.width=5, fig.height=5}
+library(factoextra)
+fviz_mca_ind(
+  acm,
+  axes = c(1, 2),
+  geom.ind = "point",
+  palette = NULL,
+  addEllipses = TRUE,
+  col.ind = "blue",
+  map = "symmetric",
+)
+```
+
+Au vu des différentes coordonnées on peut repérer 3 groupes d'individu.
+
+## Realisation de la Classification Ascendante Hiérarchique
+
+```{r rapport_correlation, echo = FALSE}
+data_cah <- data_norm
+dist <- dist(data_cah, method = "euclidean")
+hc <- hclust(dist, method = "ward.D2")
+plot(
+  hc,
+  main = "Dendrogramme de la CAH",
+  xlab = "Fromages",
+  ylab = "Distance"
+)
+```
+
+```{r inertie, echo = FALSE}
+clusters <- cutree(hc, k = 1:10)
+
+inertie_inter <- function(data, partition) {
+  # Centre de gravité global
+  g_global <- colMeans(data)
+
+  inertie <- 0
+  classes <- unique(partition)
+
+  for (k in classes) {
+    # Individus de la classe k
+    indices_k <- which(partition == k)
+    data_k <- data[indices_k, , drop = FALSE]
+    # Nombre d'individus et centre de gravité de la classe k
+    n_k <- nrow(data_k)
+    g_k <- colMeans(data_k)
+    # Distance au carré entre g_k et g_global
+    distance_sq <- sum((g_k - g_global)^2)
+    # Contribution à l'inertie inter
+    inertie <- inertie + n_k * distance_sq
+  }
+  inertie
+}
+
+# Calcul de l'inertie totale
+inertie_totale <- sum(scale(data_cah, scale = FALSE)^2)
+
+# Calcul pour chaque partition stockée dans clusters
+resultats <- data.frame(
+  nb_classes = 1:10,
+  inertie_inter = numeric(10),
+  pourcentage = numeric(10)
+)
+
+for (k in 1:10) {
+  # Utilisation de la colonne k de la matrice clusters
+  partition <- clusters[, k]
+  inertie <- inertie_inter(data_cah, partition)
+  pct <- (inertie / inertie_totale) * 100
+  resultats$inertie_inter[k] <- inertie
+  resultats$pourcentage[k] <- pct
+}
+
+# Graphique du pourcentage d'inertie expliquée
+plot(resultats$nb_classes, resultats$pourcentage,
+     type = "b", pch = 19, col = "darkgreen",
+     xlab = "Nombre de classes",
+     ylab = "% d'inertie totale",
+     main = "Pourcentage d'inertie expliquée par la partition",
+     ylim = c(0, 100))
+abline(h = 70, col = "orange")
+```
+
+Pour expliquer 70% de l'inertie totale, on peut prendre 3 groupes. Cela est cohérents vis à vis du notre première annalyse. 
+
+```{r distance_groupe, echo = FALSE}
+plot(
+  hc,
+  main = "Dendrogramme de la CAH",
+  xlab = "Fromages",
+  ylab = "Distance"
+)
+rect.hclust(hc, k = 3, border = "red")
+```
