@@ -1,7 +1,9 @@
 package lib;
 
-import java.util.*;
-import exceptions.*;
+import java.util.Random;
+
+import exceptions.LoseException;
+import exceptions.WinException;
 
 public class Guess {
     static Random ran = new Random();
@@ -14,7 +16,7 @@ public class Guess {
         this.boundMin = boundMin;
         this.boundMax = boundMax;
         this.nbGuess = nbGuess;
-        this.good = ran.nextInt(this.boundMax - this.boundMin -1 ) + this.boundMin + 1;
+        this.good = ran.nextInt(this.boundMax - this.boundMin - 1) + this.boundMin + 1;
     }
 
     public int getBoundMin() {
@@ -54,14 +56,11 @@ public class Guess {
     }
 
     public String completeString() {
-        return this.boundMin + " < "+this.good+" < " + this.boundMax;
+        return this.boundMin + " < " + this.good + " < " + this.boundMax;
     }
 
     public int getSolution() {
         return this.good;
     }
-
-
-
 
 }

@@ -15,7 +15,7 @@ library(knitr)
 library(ggplot2)
 library(factoextra)
 library(FactoMineR)
-data<-read.csv("~/2A/Analyse Explo/data_questionnaire.csv")
+data<-read.csv("/home/s/d/sdesdevi/IS2A/S7/stat_exploratoire/TP5/data.csv")
 rownames(data)<-data$X
 data<-data[,-1]
 summary(data)
