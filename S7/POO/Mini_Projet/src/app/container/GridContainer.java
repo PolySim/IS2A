@@ -27,4 +27,9 @@ public class GridContainer extends JPanel {
               });
         });
   }
+
+  public static boolean isWin() {
+    return GridContainer.cellContainers.keySet().stream()
+        .allMatch(cell -> cell.getStatus() != Cell.Status.VIERGE || cell.getNbBombe() != 0);
+  }
 }

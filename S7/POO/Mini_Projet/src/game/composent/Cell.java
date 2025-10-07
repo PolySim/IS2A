@@ -20,14 +20,12 @@ public class Cell {
 
   private static int nbBombeGlobal = 0;
   private static int flagGlobal = 0;
-  private static int emptyCellGlobal = 0;
 
   Cell(boolean isBombe) {
     this.voisins = new ArrayList<>();
     this.status = Status.VIERGE;
     this.nbBombe = isBombe ? 1 : 0;
     Cell.nbBombeGlobal += this.nbBombe;
-    Cell.emptyCellGlobal += this.nbBombe == 0 ? 1 : 0;
   }
 
   private void add(Cell cell) {
@@ -66,10 +64,11 @@ public class Cell {
     this.status = status;
   }
 
-  public List<Cell> getVoisinsEmptys() {
+  public Set<Cell> getVoisinsEmptys() {
     Set<Cell> visited = new HashSet<>();
     Queue<Cell> queue = new LinkedList<>();
-    List<Cell> result = new ArrayList<>();
+    List<Cell> resultParcours = new ArrayList<>();
+    Set<Cell> result = new HashSet<>();
 
     // Ajouter les voisins vides directs
     for (Cell voisin : this.voisins) {
@@ -82,7 +81,7 @@ public class Cell {
     // Parcours en largeur
     while (!queue.isEmpty()) {
       Cell current = queue.poll();
-      result.add(current);
+      resultParcours.add(current);
 
       // Ajouter les voisins non visités
       for (Cell voisin : current.voisins) {
@@ -95,6 +94,13 @@ public class Cell {
       }
     }
 
+    result.addAll(resultParcours);
+
+    resultParcours.stream()
+        .forEach(c -> {
+          result.addAll(c.voisins);
+        });
+
     return result;
   }
 
@@ -106,18 +112,9 @@ public class Cell {
     return Cell.flagGlobal;
   }
 
-  public static int getEmptyCellGlobal() {
-    return Cell.emptyCellGlobal;
-  }
-
-  public static void decrementEmptyCellGlobal() {
-    Cell.emptyCellGlobal -= 1;
-  }
-
   public static void reset() {
     Cell.nbBombeGlobal = 0;
     Cell.flagGlobal = 0;
-    Cell.emptyCellGlobal = 0;
   }
 
   public String toString() {

@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -52,38 +52,40 @@ public class CellContainer extends JPanel {
       label.setText("💣");
       GameContainer.endGame(HomeContainer.Status.LOSE);
     } else {
-      Cell.decrementEmptyCellGlobal();
-      if (Cell.getEmptyCellGlobal() == 0) {
-        GameContainer.endGame(HomeContainer.Status.WIN);
-      }
-      switch (this.cell.getNbBombeVoisins()) {
-        case 1:
-          label.setForeground(Color.BLUE);
-          break;
-        case 2:
-          label.setForeground(Color.GREEN);
-          break;
-        case 3:
-          label.setForeground(Color.YELLOW);
-          break;
-        case 4:
-          label.setForeground(Color.ORANGE);
-          break;
-        default:
-          label.setForeground(Color.RED);
-          break;
-      }
+      label.setForeground(getColorFromNbBombe(this.cell.getNbBombeVoisins()));
       if (this.cell.getNbBombeVoisins() > 0) {
         label.setText(String.valueOf(this.cell.getNbBombeVoisins()));
       } else {
-        List<Cell> voisinsEmptys = this.cell.getVoisinsEmptys();
+        Set<Cell> voisinsEmptys = this.cell.getVoisinsEmptys();
         voisinsEmptys.forEach(c -> {
           c.setStatus(Cell.Status.CLICK);
           GridContainer.cellContainers.get(c).label.setBackground(Color.WHITE);
+          if (c.getNbBombeVoisins() > 0) {
+            GridContainer.cellContainers.get(c).label.setForeground(getColorFromNbBombe(c.getNbBombeVoisins()));
+            GridContainer.cellContainers.get(c).label.setText(String.valueOf(c.getNbBombeVoisins()));
+          }
         });
       }
       label.setBackground(Color.WHITE);
       this.cell.setStatus(Cell.Status.CLICK);
+      if (GridContainer.isWin()) {
+        GameContainer.endGame(HomeContainer.Status.WIN);
+      }
+    }
+  }
+
+  private Color getColorFromNbBombe(int nbBombe) {
+    switch (nbBombe) {
+      case 1:
+        return Color.BLUE;
+      case 2:
+        return Color.GREEN;
+      case 3:
+        return Color.YELLOW;
+      case 4:
+        return Color.ORANGE;
+      default:
+        return Color.RED;
     }
   }
 
