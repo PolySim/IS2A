@@ -21,7 +21,7 @@ public class Cell {
   private static int nbBombeGlobal = 0;
   private static int flagGlobal = 0;
 
-  Cell(boolean isBombe) {
+  public Cell(boolean isBombe) {
     this.voisins = new ArrayList<>();
     this.status = Status.VIERGE;
     this.nbBombe = isBombe ? 1 : 0;
