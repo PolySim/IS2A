@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 ```{r load_data}
@@ -240,4 +240,108 @@ Contrariément au modèle complet, les variables individuelles sont cette fois s
 variables_selectionnees <- names(which(res$which[2, ]))
 variables_selectionnees <- variables_selectionnees[variables_selectionnees != "(Intercept)"]
 print(variables_selectionnees)
+```
+
+## 5 Changement de critère
+
+### Critère Cp de Mallows
+
+```{r meilleur_modele_cp}
+cat("\n=== MEILLEUR MODÈLE SELON LE CRITÈRE Cp ===\n\n")
+
+# Identifier le modèle avec le Cp minimum
+cp_values <- res$cp
+meilleur_idx_cp <- which.min(cp_values)
+cat("Nombre de variables du meilleur modèle :", meilleur_idx_cp, "\n")
+cat("Valeur du Cp minimum :", round(cp_values[meilleur_idx_cp], 4), "\n\n")
+
+# Afficher les variables sélectionnées
+cat("Variables incluses dans le meilleur modèle :\n")
+variables_cp <- names(which(res$which[meilleur_idx_cp, ]))
+variables_cp <- variables_cp[variables_cp != "(Intercept)"]
+print(variables_cp)
+
+# Plot spécifique pour Cp
+plot(choix, scale = "Cp", main = "Sélection de variables selon Cp")
+```
+
+**Réponse Cp :** Le meilleur modèle selon le critère Cp de Mallows contient **`r meilleur_idx_cp` variables** : `r paste(variables_cp, collapse = ", ")`.
+
+### Critère R² ajusté
+
+```{r meilleur_modele_adjr2}
+cat("\n=== MEILLEUR MODÈLE SELON LE CRITÈRE R² AJUSTÉ ===\n\n")
+
+# Identifier le modèle avec le R² ajusté maximum
+adjr2_values <- res$adjr2
+meilleur_idx_adjr2 <- which.max(adjr2_values)
+cat("Nombre de variables du meilleur modèle :", meilleur_idx_adjr2, "\n")
+cat("Valeur du R² ajusté maximum :", round(adjr2_values[meilleur_idx_adjr2], 4), "\n\n")
+
+# Afficher les variables sélectionnées
+cat("Variables incluses dans le meilleur modèle :\n")
+variables_adjr2 <- names(which(res$which[meilleur_idx_adjr2, ]))
+variables_adjr2 <- variables_adjr2[variables_adjr2 != "(Intercept)"]
+print(variables_adjr2)
+
+# Plot spécifique pour R² ajusté
+plot(choix, scale = "adjr2", main = "Sélection de variables selon R² ajusté")
+```
+
+**Réponse R² ajusté :** Le meilleur modèle selon le critère R² ajusté contient **`r meilleur_idx_adjr2` variables** : `r paste(variables_adjr2, collapse = ", ")`.
+
+### Critère R²
+
+```{r meilleur_modele_r2}
+cat("\n=== MEILLEUR MODÈLE SELON LE CRITÈRE R² ===\n\n")
+
+# Identifier le modèle avec le R² maximum
+r2_values <- res$rsq
+meilleur_idx_r2 <- which.max(r2_values)
+cat("Nombre de variables du meilleur modèle :", meilleur_idx_r2, "\n")
+cat("Valeur du R² maximum :", round(r2_values[meilleur_idx_r2], 4), "\n\n")
+
+# Afficher les variables sélectionnées
+cat("Variables incluses dans le meilleur modèle :\n")
+variables_r2 <- names(which(res$which[meilleur_idx_r2, ]))
+variables_r2 <- variables_r2[variables_r2 != "(Intercept)"]
+print(variables_r2)
+
+# Plot spécifique pour R²
+plot(choix, scale = "r2", main = "Sélection de variables selon R²")
+```
+
+**Réponse R² :** Le meilleur modèle selon le critère R² contient **`r meilleur_idx_r2` variables** : `r paste(variables_r2, collapse = ", ")`.
+
+### Synthèse comparative
+
+```{r synthese_criteres}
+cat("\n=== SYNTHÈSE DES CRITÈRES DE SÉLECTION ===\n\n")
+
+synthese <- data.frame(
+  Critere = c("BIC", "Cp de Mallows", "R² ajusté", "R²"),
+  Nombre_Variables = c(
+    meilleur_idx,
+    meilleur_idx_cp,
+    meilleur_idx_adjr2,
+    meilleur_idx_r2
+  ),
+  Variables = c(
+    paste(variables_selectionnees, collapse = ", "),
+    paste(variables_cp, collapse = ", "),
+    paste(variables_adjr2, collapse = ", "),
+    paste(variables_r2, collapse = ", ")
+  ),
+  Valeur = c(
+    round(res$bic[meilleur_idx], 4),
+    round(res$cp[meilleur_idx_cp], 4),
+    round(res$adjr2[meilleur_idx_adjr2], 4),
+    round(res$rsq[meilleur_idx_r2], 4)
+  )
+)
+
+knitr::kable(
+  synthese,
+  col.names = c("Critère", "Nb Variables", "Variables sélectionnées", "Valeur")
+)
 ```

@@ -1,0 +1,414 @@
+```{r, imports}
+library(FactoMineR)
+library(factoextra)
+library(corrplot)
+```
+
+```{r, OUVRIR UN FICHIER CSV}
+# Méthode la plus simple
+donnees <- read.csv("fichier.csv")
+
+# Spécifier le séparateur (si point-virgule)
+donnees <- read.csv("fichier.csv", sep = ";")
+
+# Spécifier la virgule comme séparateur décimal (format européen)
+donnees <- read.csv("fichier.csv", sep = ";", dec = ",")
+
+# Lecture avec plus d'options
+donnees <- read.csv("fichier.csv", 
+                   header = TRUE,      # Première ligne = noms variables
+                   row.names = 2,      # La colonne 2 devient le titre des lignes
+                   sep = ";",          # Séparateur de colonnes
+                   dec = ",",          # Séparateur décimal
+                   encoding = "UTF-8", # Encodage des caractères
+                   stringsAsFactors = TRUE) # Convertir textes en facteurs
+```
+
+```{r, ORGANISER LE FICHIER EN VUE DE LE TRAITER}
+donnees <- as.data.frame(donnees)
+
+# Supprimer une colonne inutile pour l'analyse
+donnees <- subset(donnees, select = -country)  # Supprime la colonne "country"
+
+# Supprimer plusieurs colonnes
+donnees <- subset(donnees, select = -c(country, city, region))
+
+# Garder seulement certaines colonnes
+donnees <- subset(donnees, select = c(age, salary, education))
+```
+
+```{r, ACP}
+# Sélectionner seulement les variables quantitatives
+donnees_quant <- donnees[, sapply(donnees, is.numeric)]
+
+# Vérifier qu'il n'y a pas de NA
+sum(is.na(donnees_quant))
+
+# Supprimer les lignes avec des NA si nécessaire
+donnees_quant <- na.omit(donnees_quant)
+
+# Standardisation des données (TRÈS IMPORTANT)
+donnees_standard <- scale(donnees_quant)
+
+# ACP avec standardisation
+acp <- PCA(donnees_standard, graph = FALSE)
+
+# ACP sans standardisation (si données déjà comparables)
+acp <- PCA(donnees_quant, scale.unit = FALSE, graph = FALSE)
+
+```
+
+```{r, ACP: ANALYSE DES RESULTATS}
+# Tableau des valeurs propres
+acp$eig
+
+# pourcentage des valeurs propre expliqué
+fviz_eig(pca, addlabels = TRUE, ylim = c(0, 50))
+
+# Variance cumulée
+acp$eig[,3] # 3ème colonne = variance cumulée %
+
+# Contributions des variables aux axes
+fviz_contrib(acp, choice = "var", axes = 1, top = 10)
+fviz_contrib(acp, choice = "var", axes = 2, top = 10) 
+fviz_contrib(acp, choice = "var", axes = 3, top = 10)
+
+# Cos2 des variables
+cos2_var <- acp$var$cos2[,1:3]
+print(round(cos2_var, 2))
+
+# Graphiques cos2
+fviz_cos2(acp, choice = "var", axes = 1, top = 10)
+fviz_cos2(acp, choice = "var", axes = 2, top = 10)
+fviz_cos2(acp, choice = "var", axes = 3, top = 10)
+
+# Coordonnées sur les 3 axes
+coord_var <- acp$var$coord[,1:3]
+print(round(coord_var, 3))
+
+
+# Contributions individus
+contrib_ind <- acp$ind$contrib[,1:3]
+print(head(round(contrib_ind, 2)))
+
+# Graphiques contributions
+fviz_contrib(acp, choice = "ind", axes = 1, top = 20)
+fviz_contrib(acp, choice = "ind", axes = 2, top = 20)
+fviz_contrib(acp, choice = "ind", axes = 3, top = 20)
+
+# Cos2 individus
+cos2_ind <- acp$ind$cos2[,1:3]
+print(head(round(cos2_ind, 2)))
+
+fviz_cos2(acp, choice = "ind", axes = 1, top = 20)
+
+# Cos2 individus
+cos2_ind <- acp$ind$cos2[,1:3]
+print(head(round(cos2_ind, 2)))
+
+fviz_cos2(acp, choice = "ind", axes = 1, top = 20)
+
+coord_ind <- acp$ind$coord[,1:3]
+print(head(round(coord_ind, 3)))
+
+# Plan 1-2
+fviz_pca_var(acp, axes = c(1,2), repel = TRUE)
+
+# Plan 1-3  
+fviz_pca_var(acp, axes = c(1,3), repel = TRUE)
+
+# Plan 2-3
+fviz_pca_var(acp, axes = c(2,3), repel = TRUE)
+
+# Plan 1-2
+fviz_pca_ind(acp, axes = c(1,2), repel = TRUE) # select.ind = list(contrib = 10) : 10 + contributeur
+
+# Plan 1-3
+fviz_pca_ind(acp, axes = c(1,3), repel = TRUE)
+
+# Plan 2-3
+fviz_pca_ind(acp, axes = c(2,3), repel = TRUE)
+
+# Variables contribuant le plus aux 3 axes
+variables_importantes <- apply(contrib_var, 1, mean)
+head(sort(variables_importantes, decreasing = TRUE), 10)
+
+# Individus avec coordonnées extrêmes
+ind_extremes_axe1 <- head(coord_ind[order(abs(coord_ind[,1]), decreasing = TRUE),], 10)
+print(ind_extremes_axe1)
+
+```
+
+```{r, ACM}
+# ACM sur toutes les variables qualitatives
+acm <- MCA(donnees_qualitatives, graph = FALSE)
+
+# Ou sur un sous-ensemble de variables
+acm <- MCA(donnees, quali.sup = c(1,2), graph = FALSE) # Variables 1 et 2 supplémentaires
+```
+
+```{r, ACM: ANALYSE DES RESULTATS}
+# Top 10 modalités les plus contributives (axe 1)
+fviz_mca_ind(acm,
+             select.ind = list(contrib = 10),
+             repel = TRUE)
+
+# Top 10 modalités les plus contributives (axe 2)
+fviz_mca_ind(acm,
+             select.ind = list(contrib = 10),
+             axes = c(1,2),
+             repel = TRUE)
+
+# Top 10 modalités avec meilleure qualité de représentation
+fviz_mca_ind(acm,
+             select.ind = list(cos2 = 10),
+             repel = TRUE)
+
+# Top 5 par contributions ET top 5 par cos2
+fviz_mca_ind(acm,
+             select.ind = list(contrib = 5, cos2 = 5),
+             repel = TRUE)
+
+# Top 10 variables les plus contributives
+fviz_mca_var(acm,
+             select.var = list(contrib = 10),
+             repel = TRUE)
+
+# Par cos2
+fviz_mca_var(acm,
+             select.var = list(cos2 = 10),
+             repel = TRUE)
+
+# Plan 1-2 avec top contributeurs
+fviz_mca_ind(acm,
+             select.ind = list(contrib = 8),
+             axes = c(1,2),
+             repel = TRUE)
+
+# Plan 1-3 avec top contributeurs
+fviz_mca_ind(acm,
+             select.ind = list(contrib = 8),
+             axes = c(1,3),
+             repel = TRUE)
+
+# Plan 2-3
+fviz_mca_ind(acm,
+             select.ind = list(contrib = 8),
+             axes = c(2,3),
+             repel = TRUE)
+```
+
+```{r, AFC}
+# L'AFC nécessite un TABLEAU DE CONTINGENCE
+# À partir de 2 variables qualitatives :
+table_contingence <- table(var1, var2)
+
+# Ou depuis une matrice existante :
+table_contingence <- as.matrix(donnees_afc)
+
+# AFC sur tableau de contingence
+afc <- CA(table_contingence, graph = FALSE)
+```
+
+```{r, AFC: ANALYSE DES RESULTATS}
+# Profils lignes (lignes divisées par total ligne)
+afc$row$coord  # Coordonnées des lignes
+
+# Profils colonnes (colonnes divisées par total colonne)  
+afc$col$coord  # Coordonnées des colonnes
+
+# Contributions des lignes et colonnes
+afc$row$contrib  # Contributions des lignes
+afc$col$contrib  # Contributions des colonnes
+
+# Test du Chi2 et résidus
+afc$call$X       # Tableau observé
+afc$call$row.w   # Poids des lignes
+afc$call$col.w   # Poids des colonnes
+
+# Lignes et colonnes sur même échelle
+fviz_ca_biplot(afc, repel = TRUE)
+
+# Pour mieux voir une structure particulière
+fviz_ca_biplot(afc, map = "rowprincipal", repel = TRUE)  # Privilégie lignes
+fviz_ca_biplot(afc, map = "colprincipal", repel = TRUE)  # Privilégie colonnes
+
+# Lignes seulement
+fviz_ca_row(afc, repel = TRUE)
+
+# Colonnes seulement  
+fviz_ca_col(afc, repel = TRUE)
+
+# Inertie totale
+afc$eig[1,2]  # Première valeur propre = inertie axe 1
+
+# Pourcentage d'inertie
+inertie_percent <- afc$eig[,2]
+print(inertie_percent)
+
+# Qualité représentation lignes
+afc$row$cos2
+
+# Qualité représentation colonnes
+afc$col$cos2
+
+# Lignes avec forte contribution
+head(sort(afc$row$contrib[,1], decreasing = TRUE), 10)
+
+# Colonnes avec forte contribution  
+head(sort(afc$col$contrib[,1], decreasing = TRUE), 10)
+
+# Lignes éloignées du centre (associations fortes)
+distances_lignes <- sqrt(rowSums(afc$row$coord^2))
+head(sort(distances_lignes, decreasing = TRUE), 10)
+
+# Top 10 lignes contributives
+fviz_ca_row(afc, select.row = list(contrib = 10), repel = TRUE)
+
+# Top 10 colonnes contributives
+fviz_ca_col(afc, select.col = list(contrib = 10), repel = TRUE)
+
+```
+
+```{r, CAH}
+# À partir des coordonnées ACP (recommandé)
+donnees_cah <- acp$ind$coord[,1:3]  # 3 premiers axes ACP
+
+# Ou directement sur données standardisées
+donnees_cah <- scale(donnees_quantitatives)
+
+# Matrice de distances
+matrice_dist <- dist(donnees_cah, method = "euclidean")
+```
+
+```{r, CAH: ANALYSE DES RESULTATS}
+# Méthode de Ward (la plus utilisée)
+cah_ward <- hclust(matrice_dist, method = "ward.D2")
+
+# Autres méthodes
+cah_complete <- hclust(matrice_dist, method = "complete")  # Diamètre
+cah_average <- hclust(matrice_dist, method = "average")    # Moyenne
+cah_single <- hclust(matrice_dist, method = "single")      # Lien simple
+
+# Dendrogramme de base
+plot(cah_ward, main = "Dendrogramme CAH - Méthode Ward", 
+     xlab = "Individus", ylab = "Hauteur", hang = -1)
+
+# Avec labels
+plot(cah_ward, labels = rownames(donnees_cah), cex = 0.6, hang = -1)
+
+# Couper à une hauteur spécifique
+plot(cah_ward)
+abline(h = 10, col = "red", lty = 2)  # Ligne de coupure
+
+# Découpage en k classes
+k <- 4
+groupes <- cutree(cah_ward, k = k)
+
+# Voir la répartition
+table(groupes)
+
+# Ajouter les groupes aux données
+donnees_avec_groupes <- cbind(donnees, Groupe_CAH = groupes)
+
+# Caractérisation des classes
+cah_facto$desc.var  # Variables qui caractérisent les classes
+cah_facto$desc.ind  # Individus typiques de chaque classe
+
+# Profils des classes
+cah_facto$data.clust  # Données avec affectation clusters
+
+# Statistiques par classe
+library(dplyr)
+donnees_avec_groupes %>%
+  group_by(Groupe_CAH) %>%
+  summarise(Effectif = n(),
+            across(where(is.numeric), mean))
+
+# Inertie inter-classe
+inertie <- cah_ward$height
+plot(inertie, type = "s", main = "Inertie inter-classe")
+
+# Règle du coude pour choisir k
+plot(rev(cah_ward$height)[1:10], type = "b", 
+     xlab = "Nombre de classes", ylab = "Inertie")
+```
+
+################################
+################################
+
+```{r, CLASSIFICATION}
+# HCPC sur les résultats ACP
+hcpc_result <- HCPC(acp, nb.clust = -1, graph = FALSE)  # -1 = nombre auto, sinon = nbr d'axe
+
+# Dendrogramme
+plot(hcpc_result, choice = "tree")
+
+# Carte factorielle avec clusters
+plot(hcpc_result, choice = "map")
+
+# 3D si vous avez gardé assez d'axes
+plot(hcpc_result, choice = "3D.map")
+
+# K-means direct (moins bon)
+kmeans_direct <- kmeans(donnees_standard, centers = 3)
+
+# HCPC après ACP (meilleur)
+hcpc_apres_acp <- HCPC(acp, nb.clust = 3, graph = FALSE)
+
+# Visualisation comparée
+fviz_cluster(list(data = donnees_standard, cluster = kmeans_direct$cluster))
+fviz_cluster(hcpc_apres_acp, palette = "jco")
+
+```
+
+```{r, CRITERE DE BENZECRI}
+library(FactoMineR)
+
+# ACM
+acm <- MCA(donnees_qualitatives, graph = FALSE)
+
+# Critère de Benzécri corrigé
+propres <- acm$eig[,1]
+Q <- ncol(donnees_qualitatives)
+
+Benzecri <- ((propres - 1/Q) * Q / (Q - 1))^2
+Benzecri[Benzecri < 0] <- 0
+variance_benzecri <- Benzecri / sum(Benzecri) * 100
+
+# Résultats
+resultats <- data.frame(
+  Axe = 1:length(propres),
+  VP_Brute = round(propres, 4),
+  VP_Benzecri = round(Benzecri, 4),
+  Variance_Benzecri = round(variance_benzecri, 1)
+)
+
+print(resultats)
+
+# Axes à retenir (variance Benzécri > 5%)
+axes_a_retenir <- which(variance_benzecri > 5)
+print(paste("Axes significatifs (Benzécri):", paste(axes_a_retenir, collapse = ", ")))
+
+# Comparaison valeurs propres brutes vs Benzécri
+plot(propres, type = "b", col = "blue", ylim = c(0, max(propres)), 
+     main = "Valeurs propres brutes vs Benzécri corrigé",
+     xlab = "Axe", ylab = "Valeur")
+lines(Benzecri, type = "b", col = "red")
+legend("topright", legend = c("Brutes", "Benzécri"), col = c("blue", "red"), lty = 1)
+```
+
+```{r, MATRICE VARIANCE COVARIANCE}
+# À partir des données quantitatives
+matrice_cov <- cov(donnees_quantitatives)
+
+# Avec les données standardisées (corrélation)
+matrice_cor <- cor(donnees_quantitatives)
+
+# Afficher la matrice
+print(round(matrice_cov, 2))
+print(round(matrice_cor, 2))
+
+corrplot(matrice_cor, method = "color", type = "upper")
+```
+
