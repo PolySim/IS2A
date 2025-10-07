@@ -17,15 +17,19 @@ public class Cell {
 
   private List<Cell> voisins;
   private Status status;
-  private final int nb_bombe;
+  private final int nbBombe;
+
+  private static int nbBombeGlobal = 0;
+  private static int flagGlobal = 0;
 
   private final static int MAX_BOMBE = 1;
-  private final static double PROBA_BOMBE = 0.05;
+  private final static double PROBA_BOMBE = 0.1;
 
   Cell() {
     this.voisins = new ArrayList<>();
     this.status = Status.VIERGE;
-    this.nb_bombe = generate_bombe();
+    this.nbBombe = generate_bombe();
+    Cell.nbBombeGlobal += this.nbBombe;
   }
 
   private int generate_bombe() {
@@ -47,7 +51,7 @@ public class Cell {
   }
 
   public int getNbBombe() {
-    return this.nb_bombe;
+    return this.nbBombe;
   }
 
   public int getNbBombeVoisins() {
@@ -65,6 +69,11 @@ public class Cell {
   }
 
   public void setStatus(Status status) {
+    if (status == Status.FLAG) {
+      Cell.flagGlobal += 1;
+    } else if (this.status == Status.FLAG) {
+      Cell.flagGlobal -= 1;
+    }
     this.status = status;
   }
 
@@ -100,8 +109,16 @@ public class Cell {
     return result;
   }
 
+  public static int getNbBombeGlobal() {
+    return Cell.nbBombeGlobal;
+  }
+
+  public static int getFlagGlobal() {
+    return Cell.flagGlobal;
+  }
+
   public String toString() {
-    return "Cell [status=" + status + ", nb_bombe=" + nb_bombe + "]";
+    return "Cell [status=" + status + ", nb_bombe=" + nbBombe + "]";
   }
 
 }

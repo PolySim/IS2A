@@ -6,8 +6,8 @@ import java.awt.GridLayout;
 import javax.swing.JFrame;
 
 public class GameContainer extends JFrame {
-  HeaderContainer headerContainer = new HeaderContainer();
   GridContainer gridContainer = new GridContainer();
+  HeaderContainer headerContainer = new HeaderContainer();
 
   public GameContainer() {
     super();

@@ -86,11 +86,13 @@ public class CellContainer extends JPanel {
     if (cell.getStatus() == Cell.Status.FLAG) {
       cell.setStatus(Cell.Status.VIERGE);
       label.setText("");
+      HeaderContainer.updateInstance();
       return;
     }
     if (cell.getStatus() == Cell.Status.VIERGE) {
       cell.setStatus(Cell.Status.FLAG);
       label.setText("🚩");
+      HeaderContainer.updateInstance();
     }
   }
 }
