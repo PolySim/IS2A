@@ -2,22 +2,25 @@ package game.composent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Grid {
   private List<List<Cell>> cells;
 
-  public final static int SIZE = 10;
+  public static int SIZE;
 
-  public Grid() {
+  public Grid(int size, int nbBombe) {
+    Grid.SIZE = size;
     this.cells = new ArrayList<>();
-    this.initGrid();
+    this.initGrid(nbBombe);
   }
 
-  private void initGrid() {
-    for (int i = 0; i < SIZE; i++) {
+  private void initGrid(int nbBombe) {
+    List<int[]> bombePositions = this.generateBombePositions(nbBombe);
+    for (int i = 0; i < Grid.SIZE; i++) {
       List<Cell> row = new ArrayList<>();
-      for (int j = 0; j < SIZE; j++) {
-        row.add(new Cell());
+      for (int j = 0; j < Grid.SIZE; j++) {
+        row.add(new Cell(this.contains(bombePositions, i, j)));
         if (j > 0) {
           row.get(j).addVoisin(row.get(j - 1));
         }
@@ -26,13 +29,33 @@ public class Grid {
           if (j > 0) {
             row.get(j).addVoisin(this.cells.get(i - 1).get(j - 1));
           }
-          if (j < SIZE - 1) {
+          if (j < Grid.SIZE - 1) {
             row.get(j).addVoisin(this.cells.get(i - 1).get(j + 1));
           }
         }
       }
       this.cells.add(row);
     }
+  }
+
+  private boolean contains(List<int[]> positions, int x, int y) {
+    return positions.stream()
+        .anyMatch(position -> position[0] == x && position[1] == y);
+  }
+
+  private List<int[]> generateBombePositions(int nbBombe) {
+    List<int[]> positions = new ArrayList<>();
+    Random random = new Random();
+
+    while (positions.size() < nbBombe) {
+      int x = random.nextInt(Grid.SIZE);
+      int y = random.nextInt(Grid.SIZE);
+      if (!positions.contains(new int[] { x, y })) {
+        positions.add(new int[] { x, y });
+      }
+    }
+
+    return positions;
   }
 
   public List<List<Cell>> getCells() {

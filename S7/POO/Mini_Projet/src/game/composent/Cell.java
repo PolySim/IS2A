@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Random;
 import java.util.Set;
 
 public class Cell {
@@ -22,23 +21,11 @@ public class Cell {
   private static int nbBombeGlobal = 0;
   private static int flagGlobal = 0;
 
-  private final static int MAX_BOMBE = 1;
-  private final static double PROBA_BOMBE = 0.1;
-
-  Cell() {
+  Cell(boolean isBombe) {
     this.voisins = new ArrayList<>();
     this.status = Status.VIERGE;
-    this.nbBombe = generate_bombe();
+    this.nbBombe = isBombe ? 1 : 0;
     Cell.nbBombeGlobal += this.nbBombe;
-  }
-
-  private int generate_bombe() {
-    int nb_bombe = 0;
-    Random random = new Random();
-    for (int i = 0; i < MAX_BOMBE; i++) {
-      nb_bombe += random.nextDouble() < PROBA_BOMBE ? 1 : 0;
-    }
-    return nb_bombe;
   }
 
   private void add(Cell cell) {

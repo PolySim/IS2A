@@ -9,12 +9,13 @@ import game.composent.Cell;
 import game.composent.Grid;
 
 public class GridContainer extends JPanel {
-  Grid grid = new Grid();
+  Grid grid;
   static HashMap<Cell, CellContainer> cellContainers = new HashMap<>();
 
-  public GridContainer() {
+  public GridContainer(int gridSize, int nbBombe) {
     super();
-    this.setLayout(new GridLayout(Grid.SIZE, Grid.SIZE));
+    this.grid = new Grid(gridSize, nbBombe);
+    this.setLayout(new GridLayout(gridSize, gridSize));
 
     this.grid.getCells().stream()
         .forEach(row -> {
