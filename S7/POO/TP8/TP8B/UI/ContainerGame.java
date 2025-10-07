@@ -37,18 +37,18 @@ public class ContainerGame extends JFrame {
     this.add(this.globalTitle);
 
     this.numberField = new JTextField(String.valueOf(this.value));
-    this.numberField.addActionListener(_ -> onTextFieldChange(this.numberField.getText()));
+    this.numberField.addActionListener(e -> onTextFieldChange(this.numberField.getText()));
     cp.add(this.numberField);
 
     this.slider = new JSlider();
     this.slider.setMinimum(this.g.getBoundMin());
     this.slider.setMaximum(this.g.getBoundMax());
     this.slider.setValue(this.value);
-    this.slider.addChangeListener(_ -> onSliderChange(this.slider.getValue()));
+    this.slider.addChangeListener(e -> onSliderChange(this.slider.getValue()));
     cp.add(this.slider);
 
     this.validButton = new JButton("Nouvel essai");
-    this.validButton.addActionListener(_ -> onValidButtonClick());
+    this.validButton.addActionListener(e -> onValidButtonClick());
     cp.add(this.validButton);
 
     this.resJLabel = new JLabel("Il te reste " + this.g.getNbGuess() + " essai(s)");
