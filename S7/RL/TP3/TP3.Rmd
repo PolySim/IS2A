@@ -2,8 +2,7 @@
 title: "TP Régression linéaire"
 author: "Simon Desdevises"
 date: "03/10/2025"
-output:
-  html_document: default
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
