@@ -35,6 +35,7 @@ public class GameContainer extends JFrame {
   public static void endGame(HomeContainer.Status status) {
     Container cp = GameContainer.instance.getContentPane();
     cp.removeAll();
+    cp.setLayout(new GridLayout(1, 1));
     cp.add(new HomeContainer(status));
 
     cp.revalidate();

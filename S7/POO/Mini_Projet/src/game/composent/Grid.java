@@ -51,7 +51,7 @@ public class Grid {
     while (positions.size() < nbBombe) {
       int x = random.nextInt(Grid.SIZE);
       int y = random.nextInt(Grid.SIZE);
-      if (!positions.contains(new int[] { x, y })) {
+      if (!this.contains(positions, x, y)) {
         positions.add(new int[] { x, y });
       }
     }
