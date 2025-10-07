@@ -16,6 +16,7 @@ public class Grid {
   }
 
   private void initGrid(int nbBombe) {
+    Cell.reset();
     List<int[]> bombePositions = this.generateBombePositions(nbBombe);
     for (int i = 0; i < Grid.SIZE; i++) {
       List<Cell> row = new ArrayList<>();

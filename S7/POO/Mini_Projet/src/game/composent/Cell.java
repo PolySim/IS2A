@@ -20,12 +20,14 @@ public class Cell {
 
   private static int nbBombeGlobal = 0;
   private static int flagGlobal = 0;
+  private static int emptyCellGlobal = 0;
 
   Cell(boolean isBombe) {
     this.voisins = new ArrayList<>();
     this.status = Status.VIERGE;
     this.nbBombe = isBombe ? 1 : 0;
     Cell.nbBombeGlobal += this.nbBombe;
+    Cell.emptyCellGlobal += this.nbBombe == 0 ? 1 : 0;
   }
 
   private void add(Cell cell) {
@@ -102,6 +104,20 @@ public class Cell {
 
   public static int getFlagGlobal() {
     return Cell.flagGlobal;
+  }
+
+  public static int getEmptyCellGlobal() {
+    return Cell.emptyCellGlobal;
+  }
+
+  public static void decrementEmptyCellGlobal() {
+    Cell.emptyCellGlobal -= 1;
+  }
+
+  public static void reset() {
+    Cell.nbBombeGlobal = 0;
+    Cell.flagGlobal = 0;
+    Cell.emptyCellGlobal = 0;
   }
 
   public String toString() {

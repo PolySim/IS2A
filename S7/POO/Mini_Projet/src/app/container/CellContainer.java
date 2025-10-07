@@ -50,7 +50,12 @@ public class CellContainer extends JPanel {
     if (this.cell.getNbBombe() > 0) {
       label.setBackground(Color.RED);
       label.setText("💣");
+      GameContainer.endGame(HomeContainer.Status.LOSE);
     } else {
+      Cell.decrementEmptyCellGlobal();
+      if (Cell.getEmptyCellGlobal() == 0) {
+        GameContainer.endGame(HomeContainer.Status.WIN);
+      }
       switch (this.cell.getNbBombeVoisins()) {
         case 1:
           label.setForeground(Color.BLUE);

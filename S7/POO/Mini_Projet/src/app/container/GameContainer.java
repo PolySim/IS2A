@@ -31,4 +31,13 @@ public class GameContainer extends JFrame {
     cp.revalidate();
     cp.repaint();
   }
+
+  public static void endGame(HomeContainer.Status status) {
+    Container cp = GameContainer.instance.getContentPane();
+    cp.removeAll();
+    cp.add(new HomeContainer(status));
+
+    cp.revalidate();
+    cp.repaint();
+  }
 }
