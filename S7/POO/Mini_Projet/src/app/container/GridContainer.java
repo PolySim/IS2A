@@ -10,7 +10,7 @@ import game.composent.Grid;
 
 public class GridContainer extends JPanel {
   Grid grid = new Grid();
-  HashMap<Cell, CellContainer> cellContainers = new HashMap<>();
+  static HashMap<Cell, CellContainer> cellContainers = new HashMap<>();
 
   public GridContainer() {
     super();
@@ -21,7 +21,7 @@ public class GridContainer extends JPanel {
           row.stream()
               .forEach(cell -> {
                 CellContainer cellContainer = new CellContainer(cell);
-                this.cellContainers.put(cell, cellContainer);
+                GridContainer.cellContainers.put(cell, cellContainer);
                 this.add(cellContainer);
               });
         });

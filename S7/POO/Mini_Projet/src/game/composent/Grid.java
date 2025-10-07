@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Grid {
-  public final static int SIZE = 5;
+  public final static int SIZE = 10;
   private List<List<Cell>> cells;
 
   public Grid() {

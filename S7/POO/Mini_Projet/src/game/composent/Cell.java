@@ -1,11 +1,15 @@
 package game.composent;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
+import java.util.Set;
 
 public class Cell {
-  enum Status {
+  public enum Status {
     VIERGE,
     CLICK,
     FLAG
@@ -16,7 +20,7 @@ public class Cell {
   private final int nb_bombe;
 
   private final static int MAX_BOMBE = 1;
-  private final static double PROBA_BOMBE = 0.2;
+  private final static double PROBA_BOMBE = 0.05;
 
   Cell() {
     this.voisins = new ArrayList<>();
@@ -54,6 +58,46 @@ public class Cell {
 
   public int getNbVoisins() {
     return this.voisins.size();
+  }
+
+  public Status getStatus() {
+    return this.status;
+  }
+
+  public void setStatus(Status status) {
+    this.status = status;
+  }
+
+  public List<Cell> getVoisinsEmptys() {
+    Set<Cell> visited = new HashSet<>();
+    Queue<Cell> queue = new LinkedList<>();
+    List<Cell> result = new ArrayList<>();
+
+    // Ajouter les voisins vides directs
+    for (Cell voisin : this.voisins) {
+      if (voisin.getStatus() == Status.VIERGE && voisin.getNbBombeVoisins() == 0) {
+        queue.add(voisin);
+        visited.add(voisin);
+      }
+    }
+
+    // Parcours en largeur
+    while (!queue.isEmpty()) {
+      Cell current = queue.poll();
+      result.add(current);
+
+      // Ajouter les voisins non visités
+      for (Cell voisin : current.voisins) {
+        if (!visited.contains(voisin) &&
+            voisin.getStatus() == Status.VIERGE &&
+            voisin.getNbBombeVoisins() == 0) {
+          queue.add(voisin);
+          visited.add(voisin);
+        }
+      }
+    }
+
+    return result;
   }
 
   public String toString() {
