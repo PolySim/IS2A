@@ -966,6 +966,427 @@ knitr::kable(
 </table>
 </div>
 </div>
+<div id="sélection-de-variables-pas-à-pas" class="section level2">
+<h2>6 Sélection de variables pas-à-pas</h2>
+<p>Les recherches précédentes étaient exhaustives. Cela pose un problème
+lorsque le nombre de variables est grand. Faisons une sélection de
+variables pas-à-pas.</p>
+<div id="définition-de-la-fonction-press" class="section level3">
+<h3>Définition de la fonction PRESS</h3>
+<pre class="r"><code>press &lt;- function(fit) {
+  h &lt;- lm.influence(fit)$hat
+  sqrt(mean((residuals(fit) / (1 - h))^2))
+}</code></pre>
+</div>
+<div id="sélection-backward-pas-à-pas-descendante" class="section level3">
+<h3>Sélection backward (pas-à-pas descendante)</h3>
+<pre class="r"><code>library(MASS)
+
+# Modèle sans aucune variable explicative
+m_0 &lt;- lm(Y ~ 1, data = data)
+
+# Modèle avec toutes les variables
+m_all &lt;- lm(Y ~ ., data = data)
+
+# Sélection backward (on part du modèle complet et on retire des variables)
+cat(&quot;=== SÉLECTION BACKWARD ===\n\n&quot;)</code></pre>
+<pre><code>## === SÉLECTION BACKWARD ===</code></pre>
+<pre class="r"><code>m_back &lt;- stepAIC(m_all, direction = &quot;backward&quot;, trace = TRUE)</code></pre>
+<pre><code>## Start:  AIC=-0.8
+## Y ~ X1 + X2 + X3 + X4 + X5 + X6 + X7
+## 
+## 
+## Step:  AIC=-0.8
+## Y ~ X1 + X2 + X3 + X4 + X5 + X6
+## 
+##        Df Sum of Sq    RSS      AIC
+## - X3    1  0.002218 3.4983 -2.79158
+## - X6    1  0.027082 3.5232 -2.70659
+## - X5    1  0.084293 3.5804 -2.51329
+## - X2    1  0.102814 3.5989 -2.45138
+## - X4    1  0.135593 3.6317 -2.34258
+## - X1    1  0.159001 3.6551 -2.26548
+## &lt;none&gt;              3.4961 -0.79919
+## 
+## Step:  AIC=-2.79
+## Y ~ X1 + X2 + X4 + X5 + X6
+## 
+##        Df Sum of Sq    RSS     AIC
+## - X6    1   0.08997 3.5883 -4.4869
+## - X5    1   0.23972 3.7380 -3.9962
+## - X2    1   0.28702 3.7853 -3.8454
+## - X4    1   0.36541 3.8637 -3.5994
+## - X1    1   0.42297 3.9213 -3.4219
+## &lt;none&gt;              3.4983 -2.7916
+## 
+## Step:  AIC=-4.49
+## Y ~ X1 + X2 + X4 + X5
+## 
+##        Df Sum of Sq     RSS    AIC
+## &lt;none&gt;                3.588 -4.487
+## - X5    1     3.533   7.121  1.738
+## - X2    1    50.419  54.008 26.051
+## - X1    1    92.385  95.973 32.950
+## - X4    1   135.027 138.615 37.362</code></pre>
+<pre class="r"><code>cat(&quot;\n--- Résumé du modèle backward ---\n&quot;)</code></pre>
+<pre><code>## 
+## --- Résumé du modèle backward ---</code></pre>
+<pre class="r"><code>print(summary(m_back))</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Y ~ X1 + X2 + X4 + X5, data = data)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -0.8147 -0.2742 -0.1112  0.2329  1.2051 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  100.980      0.749 134.828 3.26e-13 ***
+## X1           -40.147      2.990 -13.425 2.98e-06 ***
+## X2           -15.152      1.528  -9.918 2.26e-05 ***
+## X4           -21.936      1.352 -16.230 8.21e-07 ***
+## X5           -12.773      4.866  -2.625   0.0341 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.716 on 7 degrees of freedom
+## Multiple R-squared:  0.9923, Adjusted R-squared:  0.9879 
+## F-statistic: 226.4 on 4 and 7 DF,  p-value: 1.768e-07</code></pre>
+</div>
+<div id="sélection-forward-pas-à-pas-ascendante" class="section level3">
+<h3>Sélection forward (pas-à-pas ascendante)</h3>
+<pre class="r"><code># Sélection forward (on part du modèle vide et on ajoute des variables)
+cat(&quot;\n=== SÉLECTION FORWARD ===\n\n&quot;)</code></pre>
+<pre><code>## 
+## === SÉLECTION FORWARD ===</code></pre>
+<pre class="r"><code>m_forw &lt;- stepAIC(
+  m_0,
+  direction = &quot;forward&quot;,
+  scope = list(upper = m_all, lower = m_0),
+  trace = TRUE
+)</code></pre>
+<pre><code>## Start:  AIC=45.96
+## Y ~ 1
+## 
+##        Df Sum of Sq    RSS    AIC
+## + X6    1    453.93  13.86  5.732
+## + X3    1    328.47 139.32 33.423
+## + X1    1    327.96 139.84 33.467
+## + X7    1    256.94 210.86 38.395
+## + X4    1    233.64 234.16 39.653
+## + X5    1    114.07 353.73 44.604
+## &lt;none&gt;              467.80 45.958
+## + X2    1      2.35 465.45 47.897
+## 
+## Step:  AIC=5.73
+## Y ~ X6
+## 
+##        Df Sum of Sq     RSS     AIC
+## + X7    1    7.3485  6.5152 -1.3292
+## + X2    1    6.7120  7.1517 -0.2106
+## + X4    1    4.0095  9.8542  3.6359
+## + X3    1    2.6671 11.1967  5.1685
+## + X1    1    2.6534 11.2104  5.1832
+## &lt;none&gt;              13.8638  5.7325
+## + X5    1    0.8501 13.0136  6.9731
+## 
+## Step:  AIC=-1.33
+## Y ~ X6 + X7
+## 
+##        Df Sum of Sq    RSS      AIC
+## + X1    1   1.42728 5.0880 -2.29636
+## + X3    1   1.38121 5.1340 -2.18821
+## + X5    1   1.08694 5.4283 -1.51938
+## &lt;none&gt;              6.5152 -1.32916
+## + X4    1   0.36245 6.1528 -0.01603
+## + X2    1   0.01238 6.5029  0.64802
+## 
+## Step:  AIC=-2.3
+## Y ~ X6 + X7 + X1
+## 
+##        Df Sum of Sq    RSS     AIC
+## + X4    1   1.52705 3.5609 -4.5787
+## &lt;none&gt;              5.0880 -2.2964
+## + X3    1   0.49613 4.5918 -1.5275
+## + X5    1   0.44979 4.6382 -1.4071
+## + X2    1   0.06527 5.0227 -0.4513
+## 
+## Step:  AIC=-4.58
+## Y ~ X6 + X7 + X1 + X4
+## 
+##        Df Sum of Sq    RSS     AIC
+## &lt;none&gt;              3.5609 -4.5787
+## + X2    1  0.050479 3.5104 -2.7500
+## + X5    1  0.049644 3.5113 -2.7472
+## + X3    1  0.001742 3.5592 -2.5846</code></pre>
+<pre class="r"><code>cat(&quot;\n--- Résumé du modèle forward ---\n&quot;)</code></pre>
+<pre><code>## 
+## --- Résumé du modèle forward ---</code></pre>
+<pre class="r"><code>print(summary(m_forw))</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Y ~ X6 + X7 + X1 + X4, data = data)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.94758 -0.32950 -0.04971  0.10991  1.11211 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   86.037      1.010  85.166  8.1e-12 ***
+## X6            13.782      2.770   4.976  0.00161 ** 
+## X7            45.069     48.573   0.928  0.38436    
+## X1           -22.500      9.968  -2.257  0.05857 .  
+## X4           -10.353      5.976  -1.733  0.12677    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.7132 on 7 degrees of freedom
+## Multiple R-squared:  0.9924, Adjusted R-squared:  0.988 
+## F-statistic: 228.1 on 4 and 7 DF,  p-value: 1.721e-07</code></pre>
+</div>
+<div id="sélection-stepwise-bidirectionnelle" class="section level3">
+<h3>Sélection stepwise (bidirectionnelle)</h3>
+<pre class="r"><code># Sélection stepwise (on peut ajouter ou retirer des variables)
+cat(&quot;\n=== SÉLECTION STEPWISE (BIDIRECTIONNELLE) ===\n\n&quot;)</code></pre>
+<pre><code>## 
+## === SÉLECTION STEPWISE (BIDIRECTIONNELLE) ===</code></pre>
+<pre class="r"><code>m_stepwise &lt;- stepAIC(
+  m_0,
+  direction = &quot;both&quot;,
+  scope = list(upper = m_all, lower = m_0),
+  trace = TRUE
+)</code></pre>
+<pre><code>## Start:  AIC=45.96
+## Y ~ 1
+## 
+##        Df Sum of Sq    RSS    AIC
+## + X6    1    453.93  13.86  5.732
+## + X3    1    328.47 139.32 33.423
+## + X1    1    327.96 139.84 33.467
+## + X7    1    256.94 210.86 38.395
+## + X4    1    233.64 234.16 39.653
+## + X5    1    114.07 353.73 44.604
+## &lt;none&gt;              467.80 45.958
+## + X2    1      2.35 465.45 47.897
+## 
+## Step:  AIC=5.73
+## Y ~ X6
+## 
+##        Df Sum of Sq    RSS    AIC
+## + X7    1      7.35   6.52 -1.329
+## + X2    1      6.71   7.15 -0.211
+## + X4    1      4.01   9.85  3.636
+## + X3    1      2.67  11.20  5.169
+## + X1    1      2.65  11.21  5.183
+## &lt;none&gt;               13.86  5.732
+## + X5    1      0.85  13.01  6.973
+## - X6    1    453.93 467.80 45.958
+## 
+## Step:  AIC=-1.33
+## Y ~ X6 + X7
+## 
+##        Df Sum of Sq     RSS    AIC
+## + X1    1     1.427   5.088 -2.296
+## + X3    1     1.381   5.134 -2.188
+## + X5    1     1.087   5.428 -1.519
+## &lt;none&gt;                6.515 -1.329
+## + X4    1     0.362   6.153 -0.016
+## + X2    1     0.012   6.503  0.648
+## - X7    1     7.349  13.864  5.732
+## - X6    1   204.343 210.858 38.395
+## 
+## Step:  AIC=-2.3
+## Y ~ X6 + X7 + X1
+## 
+##        Df Sum of Sq    RSS     AIC
+## + X4    1     1.527  3.561 -4.5787
+## &lt;none&gt;               5.088 -2.2964
+## + X3    1     0.496  4.592 -1.5275
+## + X5    1     0.450  4.638 -1.4071
+## - X1    1     1.427  6.515 -1.3292
+## + X2    1     0.065  5.023 -0.4513
+## - X7    1     6.122 11.210  5.1832
+## - X6    1    93.651 98.739 31.2909
+## 
+## Step:  AIC=-4.58
+## Y ~ X6 + X7 + X1 + X4
+## 
+##        Df Sum of Sq     RSS     AIC
+## - X7    1    0.4379  3.9988 -5.1868
+## &lt;none&gt;               3.5609 -4.5787
+## + X2    1    0.0505  3.5104 -2.7500
+## + X5    1    0.0496  3.5113 -2.7472
+## + X3    1    0.0017  3.5592 -2.5846
+## - X4    1    1.5271  5.0880 -2.2964
+## - X1    1    2.5919  6.1528 -0.0160
+## - X6    1   12.5943 16.1552 11.5680
+## 
+## Step:  AIC=-5.19
+## Y ~ X6 + X1 + X4
+## 
+##        Df Sum of Sq    RSS     AIC
+## &lt;none&gt;               3.999 -5.1868
+## + X7    1     0.438  3.561 -4.5787
+## + X2    1     0.261  3.738 -3.9962
+## + X5    1     0.214  3.785 -3.8454
+## + X3    1     0.177  3.821 -3.7316
+## - X1    1     5.855  9.854  3.6359
+## - X4    1     7.212 11.210  5.1832
+## - X6    1    50.660 54.659 24.1945</code></pre>
+<pre class="r"><code>cat(&quot;\n--- Résumé du modèle stepwise ---\n&quot;)</code></pre>
+<pre><code>## 
+## --- Résumé du modèle stepwise ---</code></pre>
+<pre class="r"><code>print(summary(m_stepwise))</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Y ~ X6 + X1 + X4, data = data)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.00154 -0.41198  0.02205  0.29286  1.00148 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  85.9435     0.9964  86.255 3.64e-13 ***
+## X6           15.8852     1.5779  10.067 8.07e-06 ***
+## X1          -14.0924     4.1175  -3.423  0.00905 ** 
+## X4           -4.9445     1.3018  -3.798  0.00525 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.707 on 8 degrees of freedom
+## Multiple R-squared:  0.9915, Adjusted R-squared:  0.9882 
+## F-statistic: 309.3 on 3 and 8 DF,  p-value: 1.31e-08</code></pre>
+</div>
+<div id="comparaison-des-modèles-selon-le-critère-press" class="section level3">
+<h3>Comparaison des modèles selon le critère PRESS</h3>
+<pre class="r"><code>cat(&quot;\n=== COMPARAISON DES MODÈLES SELON LE CRITÈRE PRESS ===\n\n&quot;)</code></pre>
+<pre><code>## 
+## === COMPARAISON DES MODÈLES SELON LE CRITÈRE PRESS ===</code></pre>
+<pre class="r"><code># Calcul du PRESS pour chaque modèle
+press_back &lt;- press(m_back)
+press_forw &lt;- press(m_forw)
+press_stepwise &lt;- press(m_stepwise)
+
+# Extraction des variables de chaque modèle
+vars_back &lt;- names(coef(m_back))[-1]  # Exclure l&#39;intercept
+vars_forw &lt;- names(coef(m_forw))[-1]
+vars_stepwise &lt;- names(coef(m_stepwise))[-1]
+
+# Tableau comparatif
+comparaison_modeles &lt;- data.frame(
+  Methode = c(&quot;Backward&quot;, &quot;Forward&quot;, &quot;Stepwise&quot;),
+  Nb_Variables = c(
+    length(vars_back),
+    length(vars_forw),
+    length(vars_stepwise)
+  ),
+  Variables = c(
+    paste(vars_back, collapse = &quot;, &quot;),
+    paste(vars_forw, collapse = &quot;, &quot;),
+    paste(vars_stepwise, collapse = &quot;, &quot;)
+  ),
+  AIC = c(
+    AIC(m_back),
+    AIC(m_forw),
+    AIC(m_stepwise)
+  ),
+  PRESS = c(
+    press_back,
+    press_forw,
+    press_stepwise
+  ),
+  R2 = c(
+    summary(m_back)$r.squared,
+    summary(m_forw)$r.squared,
+    summary(m_stepwise)$r.squared
+  ),
+  R2_ajuste = c(
+    summary(m_back)$adj.r.squared,
+    summary(m_forw)$adj.r.squared,
+    summary(m_stepwise)$adj.r.squared
+  )
+)
+
+knitr::kable(
+  comparaison_modeles,
+  col.names = c(
+    &quot;Méthode&quot;,
+    &quot;Nb Var&quot;,
+    &quot;Variables sélectionnées&quot;,
+    &quot;AIC&quot;,
+    &quot;PRESS&quot;,
+    &quot;R²&quot;,
+    &quot;R² ajusté&quot;
+  ),
+  digits = 4
+)</code></pre>
+<table>
+<colgroup>
+<col width="12%" />
+<col width="9%" />
+<col width="33%" />
+<col width="11%" />
+<col width="9%" />
+<col width="9%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Méthode</th>
+<th align="right">Nb Var</th>
+<th align="left">Variables sélectionnées</th>
+<th align="right">AIC</th>
+<th align="right">PRESS</th>
+<th align="right">R²</th>
+<th align="right">R² ajusté</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Backward</td>
+<td align="right">4</td>
+<td align="left">X1, X2, X4, X5</td>
+<td align="right">31.5677</td>
+<td align="right">1.2871</td>
+<td align="right">0.9923</td>
+<td align="right">0.9879</td>
+</tr>
+<tr class="even">
+<td align="left">Forward</td>
+<td align="right">4</td>
+<td align="left">X6, X7, X1, X4</td>
+<td align="right">31.4758</td>
+<td align="right">1.0121</td>
+<td align="right">0.9924</td>
+<td align="right">0.9880</td>
+</tr>
+<tr class="odd">
+<td align="left">Stepwise</td>
+<td align="right">3</td>
+<td align="left">X6, X1, X4</td>
+<td align="right">30.8677</td>
+<td align="right">1.0176</td>
+<td align="right">0.9915</td>
+<td align="right">0.9882</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Identifier le meilleur modèle selon PRESS
+meilleur_press &lt;- which.min(comparaison_modeles$PRESS)
+cat(&quot;\n=== MEILLEUR MODÈLE SELON LE CRITÈRE PRESS ===\n&quot;)</code></pre>
+<pre><code>## 
+## === MEILLEUR MODÈLE SELON LE CRITÈRE PRESS ===</code></pre>
+<pre class="r"><code>cat(&quot;Méthode :&quot;, comparaison_modeles$Methode[meilleur_press], &quot;\n&quot;)</code></pre>
+<pre><code>## Méthode : Forward</code></pre>
+<pre class="r"><code>cat(&quot;PRESS :&quot;, round(comparaison_modeles$PRESS[meilleur_press], 4), &quot;\n&quot;)</code></pre>
+<pre><code>## PRESS : 1.0121</code></pre>
+<pre class="r"><code>cat(&quot;Variables :&quot;, comparaison_modeles$Variables[meilleur_press], &quot;\n&quot;)</code></pre>
+<pre><code>## Variables : X6, X7, X1, X4</code></pre>
+</div>
+</div>
 
 
 

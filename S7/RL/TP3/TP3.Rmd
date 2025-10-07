@@ -345,3 +345,139 @@ knitr::kable(
   col.names = c("Critère", "Nb Variables", "Variables sélectionnées", "Valeur")
 )
 ```
+
+## 6 Sélection de variables pas-à-pas
+
+Les recherches précédentes étaient exhaustives. Cela pose un problème lorsque le nombre de variables est grand. Faisons une sélection de variables pas-à-pas.
+
+### Définition de la fonction PRESS
+
+```{r fonction_press}
+press <- function(fit) {
+  h <- lm.influence(fit)$hat
+  sqrt(mean((residuals(fit) / (1 - h))^2))
+}
+```
+
+### Sélection backward (pas-à-pas descendante)
+
+```{r selection_backward}
+library(MASS)
+
+# Modèle sans aucune variable explicative
+m_0 <- lm(Y ~ 1, data = data)
+
+# Modèle avec toutes les variables
+m_all <- lm(Y ~ ., data = data)
+
+# Sélection backward (on part du modèle complet et on retire des variables)
+cat("=== SÉLECTION BACKWARD ===\n\n")
+m_back <- stepAIC(m_all, direction = "backward", trace = TRUE)
+
+cat("\n--- Résumé du modèle backward ---\n")
+print(summary(m_back))
+```
+
+### Sélection forward (pas-à-pas ascendante)
+
+```{r selection_forward}
+# Sélection forward (on part du modèle vide et on ajoute des variables)
+cat("\n=== SÉLECTION FORWARD ===\n\n")
+m_forw <- stepAIC(
+  m_0,
+  direction = "forward",
+  scope = list(upper = m_all, lower = m_0),
+  trace = TRUE
+)
+
+cat("\n--- Résumé du modèle forward ---\n")
+print(summary(m_forw))
+```
+
+### Sélection stepwise (bidirectionnelle)
+
+```{r selection_stepwise}
+# Sélection stepwise (on peut ajouter ou retirer des variables)
+cat("\n=== SÉLECTION STEPWISE (BIDIRECTIONNELLE) ===\n\n")
+m_stepwise <- stepAIC(
+  m_0,
+  direction = "both",
+  scope = list(upper = m_all, lower = m_0),
+  trace = TRUE
+)
+
+cat("\n--- Résumé du modèle stepwise ---\n")
+print(summary(m_stepwise))
+```
+
+### Comparaison des modèles selon le critère PRESS
+
+```{r comparaison_press}
+cat("\n=== COMPARAISON DES MODÈLES SELON LE CRITÈRE PRESS ===\n\n")
+
+# Calcul du PRESS pour chaque modèle
+press_back <- press(m_back)
+press_forw <- press(m_forw)
+press_stepwise <- press(m_stepwise)
+
+# Extraction des variables de chaque modèle
+vars_back <- names(coef(m_back))[-1]  # Exclure l'intercept
+vars_forw <- names(coef(m_forw))[-1]
+vars_stepwise <- names(coef(m_stepwise))[-1]
+
+# Tableau comparatif
+comparaison_modeles <- data.frame(
+  Methode = c("Backward", "Forward", "Stepwise"),
+  Nb_Variables = c(
+    length(vars_back),
+    length(vars_forw),
+    length(vars_stepwise)
+  ),
+  Variables = c(
+    paste(vars_back, collapse = ", "),
+    paste(vars_forw, collapse = ", "),
+    paste(vars_stepwise, collapse = ", ")
+  ),
+  AIC = c(
+    AIC(m_back),
+    AIC(m_forw),
+    AIC(m_stepwise)
+  ),
+  PRESS = c(
+    press_back,
+    press_forw,
+    press_stepwise
+  ),
+  R2 = c(
+    summary(m_back)$r.squared,
+    summary(m_forw)$r.squared,
+    summary(m_stepwise)$r.squared
+  ),
+  R2_ajuste = c(
+    summary(m_back)$adj.r.squared,
+    summary(m_forw)$adj.r.squared,
+    summary(m_stepwise)$adj.r.squared
+  )
+)
+
+knitr::kable(
+  comparaison_modeles,
+  col.names = c(
+    "Méthode",
+    "Nb Var",
+    "Variables sélectionnées",
+    "AIC",
+    "PRESS",
+    "R²",
+    "R² ajusté"
+  ),
+  digits = 4
+)
+
+# Identifier le meilleur modèle selon PRESS
+meilleur_press <- which.min(comparaison_modeles$PRESS)
+cat("\n=== MEILLEUR MODÈLE SELON LE CRITÈRE PRESS ===\n")
+cat("Méthode :", comparaison_modeles$Methode[meilleur_press], "\n")
+cat("PRESS :", round(comparaison_modeles$PRESS[meilleur_press], 4), "\n")
+cat("Variables :", comparaison_modeles$Variables[meilleur_press], "\n")
+```
