@@ -47,6 +47,12 @@ public class CellContainer extends JPanel {
   }
 
   private void onLeftClick() {
+    if (!GridContainer.getIsStarted()) {
+      GridContainer.setIsStarted(true);
+      if (this.cell.getNbBombe() > 0) {
+        GridContainer.moveBombe(this.cell);
+      }
+    }
     if (this.cell.getNbBombe() > 0) {
       label.setBackground(Color.RED);
       label.setText("💣");

@@ -16,7 +16,7 @@ public class Cell {
 
   private List<Cell> voisins;
   private Status status;
-  private final int nbBombe;
+  private int nbBombe;
 
   private static int nbBombeGlobal = 0;
   private static int flagGlobal = 0;
@@ -33,12 +33,20 @@ public class Cell {
   }
 
   public void addVoisin(Cell cell) {
-    this.voisins.add(cell);
+    this.add(cell);
     cell.add(this);
   }
 
   public int getNbBombe() {
     return this.nbBombe;
+  }
+
+  public void resetNbBombe() {
+    this.nbBombe = 0;
+  }
+
+  public void incrementNbBombe() {
+    this.nbBombe += 1;
   }
 
   public int getNbBombeVoisins() {

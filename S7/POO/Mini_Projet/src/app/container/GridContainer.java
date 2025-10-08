@@ -2,6 +2,7 @@ package app.container;
 
 import java.awt.GridLayout;
 import java.util.HashMap;
+import java.util.Random;
 
 import javax.swing.JPanel;
 
@@ -11,9 +12,11 @@ import game.composent.Grid;
 public class GridContainer extends JPanel {
   Grid grid;
   static HashMap<Cell, CellContainer> cellContainers = new HashMap<>();
+  private static boolean isStarted = false;
 
   public GridContainer(int gridSize, int nbBombe) {
     super();
+    GridContainer.setIsStarted(false);
     this.grid = new Grid(gridSize, nbBombe);
     this.setLayout(new GridLayout(gridSize, gridSize));
 
@@ -26,6 +29,26 @@ public class GridContainer extends JPanel {
                 this.add(cellContainer);
               });
         });
+  }
+
+  public static void setIsStarted(boolean isStarted) {
+    GridContainer.isStarted = isStarted;
+  }
+
+  public static boolean getIsStarted() {
+    return GridContainer.isStarted;
+  }
+
+  public static void moveBombe(Cell cell) {
+    cell.resetNbBombe();
+    int indexRandom = new Random().nextInt(Grid.SIZE * Grid.SIZE);
+    Cell cellRandom = GridContainer.cellContainers.keySet().stream().toList().get(indexRandom);
+    // Compare l'adresse mémoire de la cellule
+    while (cellRandom == cell) {
+      indexRandom = new Random().nextInt(Grid.SIZE * Grid.SIZE);
+      cellRandom = GridContainer.cellContainers.keySet().stream().toList().get(indexRandom);
+    }
+    cellRandom.incrementNbBombe();
   }
 
   public static boolean isWin() {
