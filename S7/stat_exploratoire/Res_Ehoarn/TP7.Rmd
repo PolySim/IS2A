@@ -1,0 +1,555 @@
+---
+title: "Rapport TP7"
+author: "Antonin"
+date: "2025-10-06"
+output: html_document
+---
+
+```{r, imports}
+library(FactoMineR)
+library(factoextra)
+library(corrplot)
+```
+
+```{r}
+data <- readRDS(file = "Soils.RDS")
+donnees <- readRDS(file = "Soils.RDS")
+donnees <- as.data.frame(donnees)
+data <- as.data.frame(data)
+data <- subset(data, select = -c(Contour, Depth)) 
+data
+```
+
+```{r}
+# Si ton dataframe contient plusieurs colonnes numériques :
+boxplot(donnees, 
+        main = "Boxplot de toutes les variables", 
+        col = "lightblue", 
+        las = 2)  # las=2 pour les noms en diagonale
+
+```
+
+
+
+
+```{r}
+data_scale <- scale(data)
+acp <- PCA(data_scale, graph = FALSE)
+```
+
+
+```{r}
+acp$eig[,1]
+```
+
+
+```{r}
+fviz_eig(acp, addlabels = TRUE)
+```
+
+Le critere du coude et de variance cumulée nous indiquent de prendre seulement les deux premiers axes, le critere de kaiser nous indique de prendre seulement le premier axe mais cela nest pas possible pour les analyses a suivre.
+
+```{r}
+fviz_contrib(acp, choice = "var", axes = 1)
+fviz_contrib(acp, choice = "var", axes = 2) 
+```
+
+La ligne rouge pointillée représente le seuil de contribution moyenne (environ 11,1% si vous avez 9 variables, soit 100%/9).
+
+Variables contribuant le plus (au-dessus du seuil) (dim 1):
+
+Conduc. (~18%) : contribution la plus forte
+Na (~17%)
+N (~16%)
+Ca (~15%)
+Dens (~13%)
+P (~12%)
+
+La Dim-1 est principalement définie par des variables liées à la composition chimique et physique de vos données (conductivité, sodium, azote, calcium, densité, phosphore). C'est probablement un axe de minéralisation/composition ionique.
+
+Variable dominant largement (dim 2) :
+
+Mg (Magnésium) : ~72% de contribution ! C'est énorme et très inhabituel.
+
+Les autres variables contribuent très faiblement (<10% chacune).
+Interprétation : La Dim-2 est quasi-exclusivement définie par le Mg. Cet axe représente essentiellement la variabilité du magnésium dans vos échantillons.
+Conclusion préliminaire
+
+Dim-1 : axe "multivariable" reflétant la composition générale
+Dim-2 : axe "spécifique" au magnésium
+
+Cette forte domination du Mg sur Dim-2 suggère que cette variable a un comportement très indépendant des autres.
+
+
+```{r}
+fviz_contrib(acp, choice = "ind", axes = 1)
+fviz_contrib(acp, choice = "ind", axes = 2) 
+```
+
+Contribution des individus à Dim-1
+Observations :
+
+Distribution relativement homogène et décroissante
+Les premiers individus (S33, S35, S38, S7, S21...) contribuent entre 7% et 4%
+La ligne rouge (seuil moyen ~2%) montre qu'environ la moitié des individus contribuent au-dessus de la moyenne
+Décroissance progressive, pas de rupture brutale
+
+Interprétation :
+
+La Dim-1 est construite par plusieurs individus de manière équilibrée
+Aucun individu extrême ne domine l'axe
+Cela suggère une variabilité naturelle et continue de la composition chimique dans votre échantillon
+Les individus comme S33, S35, S38 sont les plus typiques/extrêmes sur cet axe
+
+Contribution des individus à Dim-2
+Observations :
+
+S2 domine massivement avec ~12% de contribution (presque 6× la moyenne !)
+Suivi par S36, S33, S35, S28 (6-7%)
+Décroissance très rapide après les premiers individus
+Beaucoup d'individus contribuent très faiblement (<1%)
+
+Interprétation :
+
+La Dim-2 est fortement influencée par quelques individus atypiques, particulièrement S2
+Rappel : Dim-2 = axe du Mg → S2 a probablement une concentration en Mg très particulière (très haute ou très basse)
+Cette structure confirme que le Mg a un comportement spécifique porté par quelques échantillons
+
+Ensembles des individus ayant une contribution notable:
+1,2,3,4,5,9,11,13,14,15,16,17,18,19,20,21,24,27,29,30,31,32,33,34,36,38,41,45,46,47,48
+```{r}
+fviz_cos2(acp, choice = "var", axes = 1)
+fviz_cos2(acp, choice = "var", axes = 2)
+```
+Cos² des variables sur Dim-1
+Variables bien représentées (Cos² élevé) :
+
+Conduc. (~0.92) : excellente représentation
+Na (~0.88)
+N (~0.87)
+Ca (~0.85)
+Dens (~0.78)
+P (~0.73)
+
+Variables moins bien représentées :
+
+pH (~0.64)
+K (~0.63)
+Mg (~0.35) : mal représenté sur Dim-1
+
+Interprétation :
+
+La Dim-1 représente très bien la majorité des variables (Conduc., Na, N, Ca, Dens, P)
+Le Mg est très peu corrélé avec Dim-1, ce qui est cohérent avec son rôle sur Dim-2
+
+Cos² des variables sur Dim-2
+Variable excellemment représentée :
+
+Mg (~0.65) : de loin la mieux représentée
+
+Toutes les autres variables :
+
+K (~0.08), pH (~0.06), Ca (~0.05), P (~0.02), etc.
+Cos² très faibles → très mal représentées sur Dim-2
+
+Interprétation :
+
+La Dim-2 est presque exclusivement l'axe du Mg
+Les autres variables n'ont pratiquement aucune corrélation avec cet axe
+
+si on fait la somme des cos2 des deux axes ont obtiens 0.9 ou plus pour toutes les variables mise a part K et pH.
+
+```{r}
+fviz_cos2(acp, choice = "ind", axes = 1)
+fviz_cos2(acp, choice = "ind", axes = 2)
+```
+
+
+Cos² des individus sur Dim-1
+Observations :
+
+Majorité des individus très bien représentés : la plupart ont un Cos² entre 0.75 et 0.95
+Les meilleurs : S33, S35, S38, S34, S7... (Cos² > 0.90)
+Décroissance progressive vers la fin
+Quelques individus moins bien représentés en fin de graphique (Cos² < 0.50)
+
+Interprétation :
+
+La grande majorité des échantillons sont excellemment projetés sur Dim-1
+Cela confirme que Dim-1 capture bien la variabilité principale de vos données
+Les individus avec Cos² faible ont probablement leur variabilité expliquée ailleurs (sur Dim-2 ou dimensions suivantes)
+
+Cos² des individus sur Dim-2
+Observations :
+
+S2 extrêmement bien représenté (Cos² ~0.75) - c'est un outlier majeur !
+Quelques autres individus bien représentés : S36, S28, S33, S35, S21 (Cos² 0.30-0.50)
+Majorité des individus très mal représentés sur Dim-2 (Cos² < 0.20)
+Décroissance très rapide après les premiers
+
+Interprétation :
+
+S2 est l'individu qui définit Dim-2 → il a une caractéristique très spécifique (très probablement une teneur en Mg exceptionnelle)
+Quelques autres individus (S36, S28...) ont aussi des profils particuliers en Mg
+La majorité des échantillons sont "normaux" sur cet axe
+
+Qualité globale de représentation dans le plan Dim-1 × Dim-2
+Pour chaque individu, on peut estimer : Cos² total = Cos² Dim-1 + Cos² Dim-2
+Exemples d'individus :
+
+S33, S35, S38 : Cos² Dim-1 ≈ 0.95-0.98 + Cos² Dim-2 ≈ 0.30-0.45 → Total > 1.20 ✅ (excellent, mais plafonné à 1.0)
+S2 : Cos² Dim-1 ≈ 0.10-0.15 + Cos² Dim-2 ≈ 0.75 → Total ≈ 0.90 ✅ (bien représenté, mais surtout sur Dim-2)
+Individus en fin de graphique : faible sur les deux axes → représentation moyenne, leur variabilité est peut-être sur Dim-3+
+
+Messages clés
+
+Dim-1 représente bien la majorité des individus → c'est l'axe principal de variabilité
+S2 est un cas particulier qui "tire" Dim-2 → c'est un échantillon atypique (forte teneur en Mg ?)
+Le plan Dim-1 × Dim-2 est globalement satisfaisant pour représenter la plupart de vos données
+
+
+
+```{r}
+# Plan 1-2
+fviz_pca_var(acp, axes = c(1,2), repel = TRUE,select.var = list(names = c("Conduc", "Na", "N", "Ca", "Dens","Mg" ,"P")))
+
+# Plan 1-2
+fviz_pca_ind(acp, axes = c(1,2), repel = TRUE, select.ind = list(name =  c(1,2,3,4,5,9,11,13,14,15,16,17,18,19,20,21,24,27,29,30,31,32,33,34,36,38,41,45,46,47,48)))
+
+```
+
+Cercle de corrélation des variables
+Variance expliquée :
+
+Dim-1 : 72,7% - excellente ! C'est l'axe majeur
+Dim-2 : 8,2% - modeste mais significative
+Total plan factoriel : 80,9% ✅ Très bon (>80% est considéré comme excellent)
+
+Structure des variables :
+Groupe 1 - Côté gauche (coordonnées négatives sur Dim-1) :
+
+Na, Dens, Conduc. : fortement corrélées entre elles (flèches quasi superposées)
+Bien représentées, proches du cercle
+Interprétation : ces variables évoluent ensemble → axe de salinité/minéralisation
+
+Groupe 2 - Côté droit (coordonnées positives sur Dim-1) :
+
+Ca, N, P : corrélées entre elles
+Bien représentées
+Interprétation : axe des nutriments (azote, phosphore) et calcium
+
+Variable indépendante :
+
+Mg : perpendiculaire à Dim-1, très bien projeté sur Dim-2
+Orthogonal aux autres variables → indépendance du magnésium
+Confirme ce qu'on a vu : Mg varie indépendamment de la minéralisation générale
+
+Variables moins bien représentées :
+
+K, pH : flèches courtes → moins bien projetées dans ce plan (variance sur d'autres dimensions)
+
+Interprétation de Dim-1 (72,7%) :
+C'est un gradient de minéralisation/composition chimique :
+
+Gauche (-) : échantillons riches en Na, conductivité élevée, densité forte → eaux/sols très minéralisés
+Droite (+) : échantillons riches en Ca, N, P → profil nutritif/calcique
+
+Interprétation de Dim-2 (8,2%) :
+Axe quasi-exclusif du Mg → distingue les échantillons selon leur teneur en magnésium
+Graphique des individus
+Structure spatiale :
+Quadrant supérieur droit (Dim-1+, Dim-2+) :
+
+Individus : 5, 4, 1
+Profil : riches en Ca, N, P ET en Mg
+
+Quadrant inférieur droit (Dim-1+, Dim-2-) :
+
+Individus : 33, 2, 3, 34, 19, 36
+Profil : riches en Ca, N, P mais pauvres en Mg
+Attention : S2 est ici ! Contrairement à ce qu'on pensait, S2 a un Mg faible (coordonnée négative sur Dim-2)
+
+Quadrant supérieur gauche (Dim-1-, Dim-2+) :
+
+Individus : 16, 13, 38, 9, 21, 24
+Profil : riches en Na, Conduc., Dens. (minéralisation forte) ET riches en Mg
+
+Quadrant inférieur gauche (Dim-1-, Dim-2-) :
+
+Individus : 46, 29, 47, 32, 41, 43, 45, 15, 30, 31, 14, 27, 11
+Profil : riches en Na, Conduc., Dens. mais pauvres en Mg
+Groupe le plus nombreux
+
+Centre (proche de l'origine) :
+
+Individus : 20, 17, 18, 25, 44, 23, 8, 48
+Profil : valeurs moyennes sur toutes les variables
+
+Individus remarquables :
+
+S33, S2, S3 : très à droite → fortement minéralisés en Ca/N/P
+S34 : extrême à droite → le plus riche en Ca/N/P, pauvre en Mg
+S16 : extrême à gauche → très riche en Na/Conduc./Dens., riche en Mg
+S24 : haut → teneur en Mg particulièrement élevée
+
+Synthèse globale
+Votre ACP révèle deux axes de variabilité indépendants :
+
+Axe principal (72,7%) : opposition entre deux profils chimiques
+
+Type "salin" (Na, Conduc., Dens.) ↔ Type "nutritif/calcique" (Ca, N, P)
+
+
+Axe secondaire (8,2%) : variabilité du Mg indépendamment du reste
+
+Question contextuelle : Quel est votre domaine d'étude ? Eaux naturelles, sols, produits alimentaires ? Cela permettrait d'affiner l'interprétation écologique/agronomique/hydrogéochimique.
+
+
+```{r}
+donnees_cah <- acp$ind$coord[,1:2]
+matrice_dist <- dist(donnees_cah, method = "euclidean")
+cah_ward <- hclust(matrice_dist, method = "ward.D2")
+
+plot(cah_ward, main = "Dendrogramme CAH - Méthode Ward", 
+     xlab = "Individus", ylab = "Hauteur", hang = -1)
+```
+```{r}
+plot(cah_ward)
+abline(h = 10, col = "red", lty = 2)  # Ligne de coupure
+```
+
+```{r}
+hcpc <- HCPC(acp, graph = FALSE)
+plot(hcpc, choice = "tree")
+```
+
+Graphique d'inertie (en haut à droite)
+Ce petit graphique montre le gain d'inertie à chaque fusion de clusters. Il aide à déterminer le nombre optimal de classes.
+
+
+```{r}
+k <- 3
+groupes <- cutree(cah_ward, k = k)
+```
+
+
+```{r}
+table(groupes)
+```
+
+```{r}
+# Plan factoriel des individus avec couleurs selon les groupes
+fviz_pca_ind(acp,
+             geom.ind = "point",
+             col.ind = as.factor(groupes), # couleur selon le groupe
+             palette = c("red", "blue", "green"), 
+             addEllipses = TRUE,            # ajoute un ellipse autour de chaque groupe
+             legend.title = "Groupe",
+             repel = TRUE)                  # évite le chevauchement des labels
+
+```
+
+Vue d'ensemble
+Les 3 classes sont bien séparées spatialement, ce qui valide la qualité de votre classification. Les ellipses de concentration montrent peu de chevauchement.
+
+
+Caractérisation des 3 groupes
+🔴 Groupe 1 (rouge) - Droite du graphique
+Position : Dim-1 fortement positive (entre +2 et +6), Dim-2 variable (de -2 à +1)
+Profil chimique :
+
+Très riches en Ca, N, P (côté droit du cercle de corrélation)
+Faibles en Na, Conduc., Dens.
+Magnésium variable (étalés sur Dim-2)
+
+Taille du groupe : ~15-18 individus (groupe moyen)
+Interprétation : Échantillons à profil nutritif/calcique dominant, faible minéralisation saline
+Individus typiques : 33, 34, 2, 3, 19, 1, 4, 5...
+
+🔵 Groupe 2 (bleu) - Centre
+Position : Dim-1 légèrement négative à neutre (entre -1 et +1), Dim-2 fortement positive (entre +1 et +3)
+Profil chimique :
+
+Composition intermédiaire sur Dim-1 (ni très salin, ni très nutritif)
+Très riches en Mg (coordonnées élevées sur Dim-2)
+Valeurs moyennes pour les autres éléments
+
+Taille du groupe : ~12-15 individus (groupe moyen)
+Interprétation : Échantillons caractérisés par leur forte teneur en magnésium, composition générale équilibrée
+Individus typiques : 24, 9, 21, 38, 13, 16...
+
+🟢 Groupe 3 (vert) - Gauche du graphique
+Position : Dim-1 fortement négative (entre -4 et -1), Dim-2 négative à neutre (entre -2 et +1)
+Profil chimique :
+
+Très riches en Na, Conduc., Dens. (côté gauche du cercle de corrélation)
+Faibles en Ca, N, P
+Pauvres en Mg (majorité en Dim-2 négative)
+
+Taille du groupe : ~20-25 individus (le plus grand groupe)
+Interprétation : Échantillons à forte minéralisation saline, faible en nutriments et magnésium
+Individus typiques : 46, 29, 47, 32, 15, 30, 31, 14, 27, 11...
+
+
+
+```{r}
+table(groupes, donnees$Contour)
+table(groupes, donnees$Depth)
+```
+
+
+```{r}
+# Plan factoriel des individus avec couleurs selon les groupes
+fviz_pca_ind(acp,
+             geom.ind = "point",
+             col.ind = as.factor(donnees$Depth), # couleur selon le groupe
+             addEllipses = TRUE,            # ajoute un ellipse autour de chaque groupe
+             legend.title = "Groupe",
+             repel = TRUE)                  # évite le chevauchement des labels
+
+```
+ Échantillons superficiels (0-10 cm) :
+
+Se trouvent principalement à droite (Dim-1 positif)
+Profil : riches en Ca, N, P (nutriments)
+
+
+Échantillons profonds (60-90 cm) :
+
+Concentrés à GAUCHE (Dim-1 négatif)
+Profil : fortement salin (Na, Conduc., Dens. élevés)
+
+
+Le reste un peu dispersé
+
+SYNTHESE GLOBAL:
+
+Observations principales
+📍 Répartition spatiale selon la profondeur
+Zone GAUCHE (Dim-1 négatif) - Groupe 3 (profil salin) :
+
+Dominée par les profondeurs 30-60 (cyan) et 60-90 (violet)
+Quelques points 10-30 (vert)
+Très peu de 0-10 (rouge)
+
+Zone CENTRE (autour de l'origine) - Groupe 2 (profil magnésien) :
+
+Mélange de toutes les profondeurs
+Présence notable de 10-30 (vert) et 30-60 (cyan)
+Quelques 0-10 (rouge) et 60-90 (violet)
+
+Zone DROITE (Dim-1 positif) - Groupe 1 (profil nutritif/calcique) :
+
+Fortement dominée par 0-10 (rouge) et 10-30 (vert)
+Quelques 30-60 (cyan) en transition
+Quasi-absence de 60-90 (violet)
+
+
+Interprétations selon l'axe Dim-1 (gradient de profondeur)
+🔴 Échantillons superficiels (0-10 cm) :
+
+Se trouvent principalement à droite (Dim-1 positif)
+Profil : riches en Ca, N, P (nutriments)
+Interprétation :
+
+Horizon de surface enrichi en matière organique
+Accumulation de nutriments (apports biologiques, engrais si sols agricoles)
+Zone d'activité biologique intense
+
+
+
+🟢 Échantillons de subsurface (10-30 cm) :
+
+Répartis partout mais surtout centre-droite
+Profil : intermédiaire à nutritif
+Interprétation :
+
+Horizon de transition
+Encore influencé par les processus de surface
+Variabilité selon les sites
+
+
+
+🔵 Échantillons moyens (30-60 cm) :
+
+Largement répartis, surtout gauche et centre
+Profil : salin à intermédiaire
+Interprétation :
+
+Zone de transition vers les horizons profonds
+Début d'accumulation saline ou lessivage des nutriments
+
+
+
+🟣 Échantillons profonds (60-90 cm) :
+
+Concentrés à GAUCHE (Dim-1 négatif)
+Profil : fortement salin (Na, Conduc., Dens. élevés)
+Interprétation :
+
+Accumulation de sels en profondeur (lessivage vertical)
+Pauvreté en nutriments organiques
+Possiblement nappe phréatique salée ou remontées capillaires
+
+Lien avec la dimension Mg (Dim-2)
+Observation : Les classes de profondeur sont étalées sur Dim-2 (axe vertical), sans pattern net.
+Interprétation :
+
+Le Mg varie indépendamment de la profondeur
+Facteurs contrôlant le Mg : lithologie/roche-mère plutôt que processus verticaux
+Certains sites ont du Mg en surface, d'autres en profondeur
+
+
+
+
+```{r}
+interclass_inertia <- function(X, clusters) {
+  n <- nrow(X)
+  # Centre global
+  center_global <- colMeans(X)
+  
+  # Inertie totale
+  inertie_totale <- sum(rowSums((X - matrix(center_global, n, ncol(X), byrow=TRUE))^2))
+  
+  # Inertie intra-classe
+  inertie_intra <- 0
+  for (k in unique(clusters)) {
+    Xk <- X[clusters == k, , drop=FALSE]
+    ck <- colMeans(Xk)
+    inertie_intra <- inertie_intra + sum(rowSums((Xk - matrix(ck, nrow(Xk), ncol(Xk), byrow=TRUE))^2))
+  }
+  
+  # Inertie inter-classe = Totale - Intra
+  inertie_inter <- inertie_totale - inertie_intra
+  return(inertie_inter)
+}
+```
+
+```{r}
+res_inertie <- sapply(1:10, function(k) {
+  clusters <- cutree(cah_ward, k = k)
+  interclass_inertia(data, clusters)  # df non standardisé
+})
+```
+
+```{r}
+plot(1:10, res_inertie, type = "b", pch = 19,
+     xlab = "Nombre de classes (k)", 
+     ylab = "Inertie inter-classe",
+     main = "Inertie inter-classe en fonction du nombre de groupes")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
