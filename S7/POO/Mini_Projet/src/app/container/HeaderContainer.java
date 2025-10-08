@@ -4,17 +4,28 @@ import java.awt.GridLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 
 import game.composent.Cell;
 
 public class HeaderContainer extends JPanel {
+  enum ModeFlag {
+    ADD,
+    REMOVE,
+  }
+
+  private static ModeFlag modeFlag;
+
   private JLabel nbBombeGlobalLabel;
   private JLabel nbBombeRestantesLabel;
+  private JToggleButton modeButton;
+
   private static HeaderContainer instance;
 
   public HeaderContainer() {
     super();
-    this.setLayout(new GridLayout(1, 2));
+    HeaderContainer.modeFlag = ModeFlag.ADD;
+    this.setLayout(new GridLayout(1, 3));
     this.setSize(1000, 100);
 
     this.nbBombeGlobalLabel = new JLabel("Nombre de bombes : " + Cell.getNbBombeGlobal());
@@ -28,6 +39,11 @@ public class HeaderContainer extends JPanel {
 
     this.add(this.nbBombeGlobalLabel);
     this.add(this.nbBombeRestantesLabel);
+
+    this.modeButton = new JToggleButton("Mode : Ajouter drapeau");
+    this.modeButton.setSelected(false); // Démarrer en mode ADD (non sélectionné)
+    this.add(this.modeButton);
+    this.modeButton.addActionListener(e -> onModeButtonClick());
 
     // Enregistrer l'instance pour pouvoir la mettre à jour
     HeaderContainer.instance = this;
@@ -43,5 +59,19 @@ public class HeaderContainer extends JPanel {
     if (HeaderContainer.instance != null) {
       HeaderContainer.instance.updateLabels();
     }
+  }
+
+  public static ModeFlag getModeFlag() {
+    return HeaderContainer.modeFlag;
+  }
+
+  private void onModeButtonClick() {
+    if (this.modeButton.isSelected()) {
+      HeaderContainer.modeFlag = ModeFlag.REMOVE;
+      this.modeButton.setText("Mode : Retirer drapeau");
+      return;
+    }
+    HeaderContainer.modeFlag = ModeFlag.ADD;
+    this.modeButton.setText("Mode : Ajouter drapeau");
   }
 }

@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import app.container.GridContainer;
+import app.container.HeaderContainer;
+
 public class Cell {
   public enum Status {
     VIERGE,
@@ -17,6 +20,7 @@ public class Cell {
   private List<Cell> voisins;
   private Status status;
   private int nbBombe;
+  private int nbFlag;
 
   private static int nbBombeGlobal = 0;
   private static int flagGlobal = 0;
@@ -25,6 +29,7 @@ public class Cell {
     this.voisins = new ArrayList<>();
     this.status = Status.VIERGE;
     this.nbBombe = nbBombe;
+    this.nbFlag = 0;
     Cell.nbBombeGlobal += this.nbBombe;
   }
 
@@ -59,15 +64,35 @@ public class Cell {
     return this.voisins.size();
   }
 
+  public int getNbFlag() {
+    return this.nbFlag;
+  }
+
   public Status getStatus() {
     return this.status;
   }
 
   public void setStatus(Status status) {
     if (status == Status.FLAG) {
+      this.nbFlag += 1;
       Cell.flagGlobal += 1;
-    } else if (this.status == Status.FLAG) {
+      this.status = Status.FLAG;
+      return;
+    }
+    if (this.status == Status.FLAG && status == Status.VIERGE) {
+      this.nbFlag -= 1;
       Cell.flagGlobal -= 1;
+      if (this.nbFlag == 0) {
+        this.status = Status.VIERGE;
+      }
+      return;
+    }
+    if (status == Status.CLICK) {
+      Cell.flagGlobal -= this.nbFlag;
+      this.nbFlag = 0;
+      HeaderContainer.updateInstance();
+      GridContainer.cellContainers.get(this).label
+          .setText(String.valueOf(this.getNbBombeVoisins() > 0 ? this.getNbBombeVoisins() : ""));
     }
     this.status = status;
   }

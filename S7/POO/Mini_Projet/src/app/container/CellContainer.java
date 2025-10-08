@@ -14,14 +14,14 @@ import game.composent.Cell;
 
 public class CellContainer extends JPanel {
   Cell cell;
-  JLabel label;
+  public JLabel label;
 
   public CellContainer(Cell cell) {
     super();
     this.cell = cell;
     this.setLayout(new GridLayout(1, 1));
 
-    this.label = new JLabel(String.valueOf(cell.getNbBombe()));
+    this.label = new JLabel();
     label.setBackground(Color.LIGHT_GRAY);
     label.setOpaque(true);
     label.setHorizontalAlignment(JLabel.CENTER);
@@ -95,16 +95,24 @@ public class CellContainer extends JPanel {
     }
   }
 
+  private String flagByNb(int nbFlag) {
+    String flag = "";
+    for (int i = 0; i < nbFlag; i++) {
+      flag += "🚩";
+    }
+    return flag;
+  }
+
   private void onRightClick() {
-    if (cell.getStatus() == Cell.Status.FLAG) {
+    if (HeaderContainer.getModeFlag() == HeaderContainer.ModeFlag.REMOVE) {
       cell.setStatus(Cell.Status.VIERGE);
-      label.setText("");
+      label.setText(flagByNb(cell.getNbFlag()));
       HeaderContainer.updateInstance();
       return;
     }
-    if (cell.getStatus() == Cell.Status.VIERGE) {
+    if (cell.getStatus() != Cell.Status.CLICK && HeaderContainer.getModeFlag() == HeaderContainer.ModeFlag.ADD) {
       cell.setStatus(Cell.Status.FLAG);
-      label.setText("🚩");
+      label.setText(flagByNb(cell.getNbFlag()));
       HeaderContainer.updateInstance();
     }
   }

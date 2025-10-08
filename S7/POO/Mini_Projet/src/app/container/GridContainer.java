@@ -11,7 +11,7 @@ import game.composent.Grid;
 
 public class GridContainer extends JPanel {
   Grid grid;
-  static HashMap<Cell, CellContainer> cellContainers = new HashMap<>();
+  public static HashMap<Cell, CellContainer> cellContainers = new HashMap<>();
   private static boolean isStarted = false;
 
   public GridContainer(int gridSize, int nbBombe) {
