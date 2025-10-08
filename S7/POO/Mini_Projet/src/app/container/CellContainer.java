@@ -21,7 +21,7 @@ public class CellContainer extends JPanel {
     this.cell = cell;
     this.setLayout(new GridLayout(1, 1));
 
-    this.label = new JLabel();
+    this.label = new JLabel(String.valueOf(cell.getNbBombe()));
     label.setBackground(Color.LIGHT_GRAY);
     label.setOpaque(true);
     label.setHorizontalAlignment(JLabel.CENTER);

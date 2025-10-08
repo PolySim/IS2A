@@ -21,10 +21,10 @@ public class Cell {
   private static int nbBombeGlobal = 0;
   private static int flagGlobal = 0;
 
-  public Cell(boolean isBombe) {
+  public Cell(int nbBombe) {
     this.voisins = new ArrayList<>();
     this.status = Status.VIERGE;
-    this.nbBombe = isBombe ? 1 : 0;
+    this.nbBombe = nbBombe;
     Cell.nbBombeGlobal += this.nbBombe;
   }
 

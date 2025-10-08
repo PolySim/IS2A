@@ -21,7 +21,7 @@ public class Grid {
     for (int i = 0; i < Grid.SIZE; i++) {
       List<Cell> row = new ArrayList<>();
       for (int j = 0; j < Grid.SIZE; j++) {
-        row.add(new Cell(this.contains(bombePositions, i, j)));
+        row.add(new Cell(this.getNbBombe(bombePositions, i, j)));
         if (j > 0) {
           row.get(j).addVoisin(row.get(j - 1));
         }
@@ -39,9 +39,10 @@ public class Grid {
     }
   }
 
-  private boolean contains(List<int[]> positions, int x, int y) {
-    return positions.stream()
-        .anyMatch(position -> position[0] == x && position[1] == y);
+  private int getNbBombe(List<int[]> positions, int x, int y) {
+    return (int) positions.stream()
+        .filter(position -> position[0] == x && position[1] == y)
+        .count();
   }
 
   private List<int[]> generateBombePositions(int nbBombe) {
@@ -51,9 +52,7 @@ public class Grid {
     while (positions.size() < nbBombe) {
       int x = random.nextInt(Grid.SIZE);
       int y = random.nextInt(Grid.SIZE);
-      if (!this.contains(positions, x, y)) {
-        positions.add(new int[] { x, y });
-      }
+      positions.add(new int[] { x, y });
     }
 
     return positions;
