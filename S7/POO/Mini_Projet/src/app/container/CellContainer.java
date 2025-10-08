@@ -21,7 +21,7 @@ public class CellContainer extends JPanel {
     this.cell = cell;
     this.setLayout(new GridLayout(1, 1));
 
-    this.label = new JLabel(cell.getIsEarth() ? "🌏" : String.valueOf(cell.getNbBombe()));
+    this.label = new JLabel(cell.getIsEarth() ? "🌏" : "");
     label.setBackground(Color.LIGHT_GRAY);
     label.setOpaque(true);
     label.setHorizontalAlignment(JLabel.CENTER);
