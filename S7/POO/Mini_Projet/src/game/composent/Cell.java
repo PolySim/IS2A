@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 
 import app.container.GridContainer;
@@ -14,7 +15,8 @@ public class Cell {
   public enum Status {
     VIERGE,
     CLICK,
-    FLAG
+    FLAG,
+    EARTH
   }
 
   private List<Cell> voisins;
@@ -27,10 +29,18 @@ public class Cell {
 
   public Cell(int nbBombe) {
     this.voisins = new ArrayList<>();
-    this.status = Status.VIERGE;
+    this.status = this.isEarth() ? Status.EARTH : Status.VIERGE;
     this.nbBombe = nbBombe;
     this.nbFlag = 0;
     Cell.nbBombeGlobal += this.nbBombe;
+  }
+
+  private boolean isEarth() {
+    return new Random().nextInt(100) < 10;
+  }
+
+  public boolean getIsEarth() {
+    return this.status == Status.EARTH;
   }
 
   private void add(Cell cell) {

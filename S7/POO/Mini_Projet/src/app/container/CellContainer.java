@@ -21,7 +21,7 @@ public class CellContainer extends JPanel {
     this.cell = cell;
     this.setLayout(new GridLayout(1, 1));
 
-    this.label = new JLabel();
+    this.label = new JLabel(cell.getIsEarth() ? "🌏" : String.valueOf(cell.getNbBombe()));
     label.setBackground(Color.LIGHT_GRAY);
     label.setOpaque(true);
     label.setHorizontalAlignment(JLabel.CENTER);
@@ -47,6 +47,9 @@ public class CellContainer extends JPanel {
   }
 
   private void onLeftClick() {
+    if (this.cell.getIsEarth()) {
+      return;
+    }
     if (!GridContainer.getIsStarted()) {
       GridContainer.setIsStarted(true);
       if (this.cell.getNbBombe() > 0) {
@@ -104,6 +107,9 @@ public class CellContainer extends JPanel {
   }
 
   private void onRightClick() {
+    if (this.cell.getIsEarth()) {
+      return;
+    }
     if (HeaderContainer.getModeFlag() == HeaderContainer.ModeFlag.REMOVE) {
       cell.setStatus(Cell.Status.VIERGE);
       label.setText(flagByNb(cell.getNbFlag()));
