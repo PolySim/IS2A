@@ -5,8 +5,13 @@ import java.awt.GridLayout;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import game.exceptions.TropDeBombeException;
+import game.exceptions.TropPetiteGridException;
+import game.exceptions.TropPeuDeBombeException;
 
 public class HomeContainer extends JPanel {
   enum Status {
@@ -55,11 +60,33 @@ public class HomeContainer extends JPanel {
     this.startButton.addActionListener(e -> onStartButtonClick());
   }
 
+  private void controle(int nbBombe, int gridSize)
+      throws TropDeBombeException, TropPeuDeBombeException, TropPetiteGridException {
+    if (gridSize < 3) {
+      throw new TropPetiteGridException();
+    }
+    if (nbBombe > gridSize * gridSize) {
+      System.out.println("Trop de bombes" + nbBombe + " " + gridSize + " " + gridSize * gridSize);
+      throw new TropDeBombeException();
+    }
+    if (nbBombe < 1) {
+      throw new TropPeuDeBombeException();
+    }
+  }
+
   private void onStartButtonClick() {
-    int gridSize = Integer.parseInt(this.gridSizeField.getText()) > 0 ? Integer.parseInt(this.gridSizeField.getText())
-        : 10;
-    int nbBombe = Integer.parseInt(this.nbBombeField.getText()) > 0 ? Integer.parseInt(this.nbBombeField.getText())
-        : 10;
-    GameContainer.runGame(gridSize, nbBombe);
+    try {
+      int gridSize = Integer.parseInt(this.gridSizeField.getText());
+      int nbBombe = Integer.parseInt(this.nbBombeField.getText());
+
+      this.controle(nbBombe, gridSize);
+      GameContainer.runGame(gridSize, nbBombe);
+    } catch (NumberFormatException e) {
+      JOptionPane.showMessageDialog(this, "Veuillez entrer des nombres valides", "Erreur", JOptionPane.ERROR_MESSAGE);
+      return;
+    } catch (Exception e) {
+      JOptionPane.showMessageDialog(this, e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
   }
 }
