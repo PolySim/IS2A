@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +32,7 @@ public class GridTest {
   public void testGetCells() {
     Grid grid = new Grid(4, 2);
 
-    var cells = grid.getCells();
+    List<List<Cell>> cells = grid.getCells();
 
     assertNotNull(cells, "La liste de cellules ne devrait pas être null");
     assertEquals(4, cells.size(), "La grille devrait avoir 4 lignes");

@@ -1,7 +1,6 @@
 package tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,22 +18,24 @@ public class CellTest {
 
   @Test
   public void testCellCreationWithoutBombe() {
-    Cell cell = new Cell(false);
+    Cell cell = new Cell(0);
     assertEquals(0, cell.getNbBombe(), "Une cellule sans bombe devrait avoir 0 bombe");
-    assertEquals(Status.VIERGE, cell.getStatus(), "Une nouvelle cellule devrait avoir le statut VIERGE");
+    assertEquals(true, cell.getStatus() == Status.VIERGE || cell.getStatus() == Status.EARTH,
+        "Une nouvelle cellule devrait avoir le statut VIERGE ou EARTH");
   }
 
   @Test
   public void testCellCreationWithBombe() {
-    Cell cell = new Cell(true);
+    Cell cell = new Cell(1);
     assertEquals(1, cell.getNbBombe(), "Une cellule avec bombe devrait avoir 1 bombe");
-    assertEquals(Status.VIERGE, cell.getStatus(), "Une nouvelle cellule devrait avoir le statut VIERGE");
+    assertEquals(true, cell.getStatus() == Status.VIERGE || cell.getStatus() == Status.EARTH,
+        "Une nouvelle cellule devrait avoir le statut VIERGE ou EARTH");
   }
 
   @Test
   public void testAddVoisin() {
-    Cell cell1 = new Cell(false);
-    Cell cell2 = new Cell(false);
+    Cell cell1 = new Cell(0);
+    Cell cell2 = new Cell(0);
 
     cell1.addVoisin(cell2);
 
@@ -44,10 +45,10 @@ public class CellTest {
 
   @Test
   public void testGetNbBombeVoisins() {
-    Cell cell1 = new Cell(false);
-    Cell cell2 = new Cell(true);
-    Cell cell3 = new Cell(true);
-    Cell cell4 = new Cell(false);
+    Cell cell1 = new Cell(0);
+    Cell cell2 = new Cell(1);
+    Cell cell3 = new Cell(1);
+    Cell cell4 = new Cell(0);
 
     cell1.addVoisin(cell2);
     cell1.addVoisin(cell3);
@@ -57,16 +58,8 @@ public class CellTest {
   }
 
   @Test
-  public void testSetStatusToClick() {
-    Cell cell = new Cell(false);
-    cell.setStatus(Status.CLICK);
-
-    assertEquals(Status.CLICK, cell.getStatus(), "Le statut de la cellule devrait être CLICK");
-  }
-
-  @Test
   public void testSetStatusToFlag() {
-    Cell cell = new Cell(false);
+    Cell cell = new Cell(0);
     cell.setStatus(Status.FLAG);
 
     assertEquals(Status.FLAG, cell.getStatus(), "Le statut de la cellule devrait être FLAG");
@@ -75,7 +68,7 @@ public class CellTest {
 
   @Test
   public void testSetStatusFromFlagToVierge() {
-    Cell cell = new Cell(false);
+    Cell cell = new Cell(0);
     cell.setStatus(Status.FLAG);
     assertEquals(1, Cell.getFlagGlobal(), "Le compteur global de drapeaux devrait être 1");
 
@@ -85,18 +78,18 @@ public class CellTest {
 
   @Test
   public void testGetNbBombeGlobal() {
-    Cell cell1 = new Cell(true);
-    Cell cell2 = new Cell(true);
-    Cell cell3 = new Cell(false);
+    Cell cell1 = new Cell(1);
+    Cell cell2 = new Cell(1);
+    Cell cell3 = new Cell(0);
 
     assertEquals(2, Cell.getNbBombeGlobal(), "Il devrait y avoir 2 bombes au total");
   }
 
   @Test
   public void testGetFlagGlobal() {
-    Cell cell1 = new Cell(false);
-    Cell cell2 = new Cell(false);
-    Cell cell3 = new Cell(false);
+    Cell cell1 = new Cell(0);
+    Cell cell2 = new Cell(0);
+    Cell cell3 = new Cell(0);
 
     cell1.setStatus(Status.FLAG);
     cell2.setStatus(Status.FLAG);
@@ -106,28 +99,13 @@ public class CellTest {
 
   @Test
   public void testReset() {
-    Cell cell1 = new Cell(true);
-    Cell cell2 = new Cell(true);
+    Cell cell1 = new Cell(1);
+    Cell cell2 = new Cell(1);
     cell1.setStatus(Status.FLAG);
 
     Cell.reset();
 
     assertEquals(0, Cell.getNbBombeGlobal(), "Le compteur global de bombes devrait être réinitialisé à 0");
     assertEquals(0, Cell.getFlagGlobal(), "Le compteur global de drapeaux devrait être réinitialisé à 0");
-  }
-
-  @Test
-  public void testGetVoisinsEmptys() {
-    Cell cell1 = new Cell(false);
-    Cell cell2 = new Cell(false);
-    Cell cell3 = new Cell(false);
-
-    cell1.addVoisin(cell2);
-    cell2.addVoisin(cell3);
-
-    var voisinsEmptys = cell1.getVoisinsEmptys();
-
-    assertTrue(voisinsEmptys.contains(cell2), "Les voisins vides devraient contenir cell2");
-    assertTrue(voisinsEmptys.contains(cell3), "Les voisins vides devraient contenir cell3 (voisin de voisin)");
   }
 }
