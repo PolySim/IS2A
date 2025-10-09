@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import app.container.GridContainer;
 import app.container.HeaderContainer;
@@ -23,16 +24,24 @@ public class Cell {
   private Status status;
   private int nbBombe;
   private int nbFlag;
+  private int x;
+  private int y;
 
   private static int nbBombeGlobal = 0;
   private static int flagGlobal = 0;
 
-  public Cell(int nbBombe) {
+  public Cell(int nbBombe, int x, int y) {
     this.voisins = new ArrayList<>();
-    this.status = this.isEarth() ? Status.EARTH : Status.VIERGE;
+    this.status = nbBombe > 0 ? Status.VIERGE : this.isEarth() ? Status.EARTH : Status.VIERGE;
     this.nbBombe = nbBombe;
     this.nbFlag = 0;
     Cell.nbBombeGlobal += this.nbBombe;
+    this.x = x;
+    this.y = y;
+  }
+
+  public Cell(int nbBombe) {
+    this(nbBombe, 0, 0);
   }
 
   private boolean isEarth() {
@@ -141,7 +150,9 @@ public class Cell {
 
     resultParcours.stream()
         .forEach(c -> {
-          result.addAll(c.voisins);
+          result.addAll(c.voisins.stream()
+              .filter(v -> v.getStatus() == Status.VIERGE)
+              .collect(Collectors.toSet()));
         });
 
     return result;
@@ -160,8 +171,12 @@ public class Cell {
     Cell.flagGlobal = 0;
   }
 
+  public boolean equals(Cell cell) {
+    return this.x == cell.x && this.y == cell.y;
+  }
+
   public String toString() {
-    return "Cell [status=" + status + ", nb_bombe=" + nbBombe + "]";
+    return "Cell [status=" + status + ", nb_bombe=" + nbBombe + ", x=" + x + ", y=" + y + "]";
   }
 
 }

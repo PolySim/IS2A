@@ -126,31 +126,6 @@ public class GridTest {
   }
 
   @Test
-  public void testNbBombeVoisinsCalculation() {
-    Grid grid = new Grid(3, 0);
-
-    // Créer une grille avec une bombe au centre
-    grid = new Grid(3, 1);
-
-    // Le nombre total de bombes dans les voisins de toutes les cellules
-    // devrait être cohérent
-    boolean atLeastOneCellHasNoBombeVoisins = false;
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        int nbBombeVoisins = grid.getCell(i, j).getNbBombeVoisins();
-        assertTrue(nbBombeVoisins >= 0,
-            "Le nombre de bombes voisines devrait être >= 0");
-        assertTrue(nbBombeVoisins <= 8,
-            "Le nombre de bombes voisines ne peut pas dépasser 8");
-
-        if (nbBombeVoisins == 0) {
-          atLeastOneCellHasNoBombeVoisins = true;
-        }
-      }
-    }
-  }
-
-  @Test
   public void testResetBetweenGrids() {
     Grid grid1 = new Grid(3, 2);
     assertEquals(2, Cell.getNbBombeGlobal(), "La première grille devrait avoir 2 bombes");

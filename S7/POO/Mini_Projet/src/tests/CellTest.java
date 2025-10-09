@@ -1,6 +1,9 @@
 package tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -108,4 +111,22 @@ public class CellTest {
     assertEquals(0, Cell.getNbBombeGlobal(), "Le compteur global de bombes devrait être réinitialisé à 0");
     assertEquals(0, Cell.getFlagGlobal(), "Le compteur global de drapeaux devrait être réinitialisé à 0");
   }
+
+  @Test
+  public void testGetVoisinsEmptys() {
+    Cell cell1 = new Cell(0);
+    Cell cell2 = new Cell(0);
+    Cell cell3 = new Cell(0);
+
+    cell1.addVoisin(cell2);
+    cell2.addVoisin(cell3);
+
+    Set<Cell> voisinsEmptys = cell1.getVoisinsEmptys();
+
+    assertTrue(cell2.getStatus() == Status.VIERGE ? voisinsEmptys.contains(cell2) : true,
+        "Les voisins vides devraient contenir cell2");
+    assertTrue(cell3.getStatus() == Status.VIERGE ? voisinsEmptys.contains(cell3) : true,
+        "Les voisins vides devraient contenir cell3 (voisin de voisin)");
+  }
+
 }

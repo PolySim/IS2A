@@ -21,7 +21,7 @@ public class Grid {
     for (int i = 0; i < Grid.SIZE; i++) {
       List<Cell> row = new ArrayList<>();
       for (int j = 0; j < Grid.SIZE; j++) {
-        row.add(new Cell(this.getNbBombe(bombePositions, i, j)));
+        row.add(new Cell(this.getNbBombe(bombePositions, i, j), i, j));
         if (j > 0) {
           row.get(j).addVoisin(row.get(j - 1));
         }
