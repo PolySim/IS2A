@@ -8,15 +8,18 @@ import javax.swing.JPanel;
 
 import game.composent.Cell;
 import game.composent.Grid;
+import game.composent.Timer;
 
 public class GridContainer extends JPanel {
   Grid grid;
   public static HashMap<Cell, CellContainer> cellContainers = new HashMap<>();
   private static boolean isStarted = false;
+  private static Timer gameTimer = null;
 
-  public GridContainer(int gridSize, int nbBombe) {
+  public GridContainer(int gridSize, int nbBombe, Timer timer) {
     super();
     GridContainer.setIsStarted(false);
+    GridContainer.gameTimer = timer;
     this.grid = new Grid(gridSize, nbBombe);
     this.setLayout(new GridLayout(gridSize, gridSize));
 
@@ -33,10 +36,18 @@ public class GridContainer extends JPanel {
 
   public static void setIsStarted(boolean isStarted) {
     GridContainer.isStarted = isStarted;
+    // Démarrer le timer quand le jeu commence
+    if (isStarted && GridContainer.gameTimer != null) {
+      HeaderContainer.startTimerInstance();
+    }
   }
 
   public static boolean getIsStarted() {
     return GridContainer.isStarted;
+  }
+
+  public static game.composent.Timer getGameTimer() {
+    return GridContainer.gameTimer;
   }
 
   public static void moveBombe(Cell cell) {

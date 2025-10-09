@@ -121,5 +121,8 @@ public class CellContainer extends JPanel {
       label.setText(flagByNb(cell.getNbFlag()));
       HeaderContainer.updateInstance();
     }
+    if (GridContainer.isWin()) {
+      GameContainer.endGame(HomeContainer.Status.WIN);
+    }
   }
 }
