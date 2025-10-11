@@ -43,7 +43,7 @@ public class HeaderContainer extends JPanel {
 
     this.nbBombeGlobalLabel = new JLabel("Nombre de bombes : " + Cell.getNbBombeGlobal());
     this.nbBombeRestantesLabel = new JLabel(
-        "Nombre de bombes restantes : " + (Cell.getNbBombeGlobal() - Cell.getFlagGlobal()));
+        "Bombes restantes : " + (Cell.getNbBombeGlobal() - Cell.getFlagGlobal()));
 
     this.nbBombeGlobalLabel.setHorizontalAlignment(JLabel.CENTER);
     this.nbBombeRestantesLabel.setHorizontalAlignment(JLabel.CENTER);
