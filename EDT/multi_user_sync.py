@@ -101,7 +101,8 @@ class MultiUserCalendarSync:
         # Configuration API
         self.api_url_template = os.getenv('API_URL', 'https://votre-api.com/events?user={user_id}')
         self.api_headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Cookie': os.getenv('COOKIE')
         }
         
         # Rate limiter pour l'API Google Calendar
