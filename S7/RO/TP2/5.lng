@@ -1,0 +1,9 @@
+! VAR : A, C, N : Nombre Astro / Cosmo / Novo;
+
+MAX = 20 * A + 30 * C + 47 * N;
+A + N <= 60;
+C <= 50;
+A + 2 * C + 3 * N <= 120;
+A >= 0;
+C >= 0;
+N >= 0;
