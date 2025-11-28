@@ -1,0 +1,22 @@
+! Minimiser (Couts variation + Couts stockage);
+MIN = 500*H1 + 500*B1 + 500*H2 + 500*B2 + 500*H3 + 500*B3 + 500*H4 + 500*B4 
+      + 500*H_Fin + 500*B_Fin
+      + 800*S1 + 800*S2 + 800*S3 + 800*S4;
+
+! Contraintes de flux de stock (Stock_prec + Prod = Demande + Stock_actuel);
+S1 = 0 + P1 - 20;
+S2 = S1 + P2 - 30;
+S3 = S2 + P3 - 50;
+S4 = S3 + P4 - 60;
+
+! Contrainte état final (Stock nul);
+S4 = 0;
+
+! Définition des variations (P_actuel - P_prec = Hausse - Baisse);
+P1 - 55 = H1 - B1;
+P2 - P1 = H2 - B2;
+P3 - P2 = H3 - B3;
+P4 - P3 = H4 - B4;
+55 - P4 = H_Fin - B_Fin; ! Retour à 55 à la fin
+
+END

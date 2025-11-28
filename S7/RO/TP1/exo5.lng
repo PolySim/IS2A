@@ -1,0 +1,16 @@
+! Minimiser le Coût Total;
+MIN = 315*x1 + 315*x2 + 315*x3 + 315*x4 + 290*x5 + 250*x6 + 275*x7 + 200*Interim;
+
+! Contraintes de couverture (ajout des Interims le Lun, Ven, Dim);
+x2 + x3 + x4 + x5 + x6 + Interim >= 18; ! Lundi
+x3 + x4 + x5 + x6 + x7 >= 16;          ! Mardi
+x1 + x4 + x5 + x6 + x7 >= 15;          ! Mercredi
+x1 + x2 + x5 + x6 + x7 >= 16;          ! Jeudi
+x1 + x2 + x3 + x6 + x7 + Interim >= 19; ! Vendredi
+x1 + x2 + x3 + x4 + x7 >= 13;          ! Samedi
+x1 + x2 + x3 + x4 + x5 + Interim >= 12; ! Dimanche
+
+! Limite Intérimaires;
+Interim <= 3;
+
+END
