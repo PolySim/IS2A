@@ -1,0 +1,33 @@
+# Successful (i.e., finished) Wikispeedia paths.
+# Article names are URL-encoded; e.g., in Java they can be decoded using java.net.URLDecoder.decode(articleName, "UTF-8").
+# Articles in a path are separated by ";".
+# Back clicks are represented as "<".
+# Ratings are optionally given by the user after finishing the game and range from 1 ("easy") to 5 ("brutal").
+# Missing ratings are represented as "NULL".
+# FORMAT:   hashedIpAddress   timestamp   durationInSec   path   rating
+#
+# When publishing on this data set, please cite:
+# (1) Robert West and Jure Leskovec:
+#     Human Wayfinding in Information Networks.
+#     21st International World Wide Web Conference (WWW), 2012.
+# (2) Robert West, Joelle Pineau, and Doina Precup:
+#     Wikispeedia: An Online Game for Inferring Semantic Distances between Concepts.
+#     21st International Joint Conference on Artificial Intelligence (IJCAI), 2009.
+
+6a3701d319fc3754	1297740409	166	14th_century;15th_century;16th_century;Pacific_Ocean;Atlantic_Ocean;Accra;Africa;Atlantic_slave_trade;African_slave_trade	NULL
+3824310e536af032	1344753412	88	14th_century;Europe;Africa;Atlantic_slave_trade;African_slave_trade	3
+415612e93584d30e	1349298640	138	14th_century;Niger;Nigeria;British_Empire;Slavery;Africa;Atlantic_slave_trade;African_slave_trade	NULL
+64dd5cd342e3780c	1265613925	37	14th_century;Renaissance;Ancient_Greece;Greece	NULL
+015245d773376aab	1366730828	175	14th_century;Italy;Roman_Catholic_Church;HIV;Ronald_Reagan;President_of_the_United_States;John_F._Kennedy	3
+5295bca242be81fe	1372890414	110	14th_century;Europe;North_America;United_States;President_of_the_United_States;John_F._Kennedy	NULL
+36dabfa133b20e3c	1249525912	112	14th_century;China;Gunpowder;Fire	2
+20418ff4797f96be	1229188046	139	14th_century;Time;Isaac_Newton;Light;Color;Rainbow	1
+08888b1b428dd90e	1232241510	74	14th_century;Time;Light;Rainbow	3
+08888b1b428dd90e	1232241601	167	14th_century;15th_century;Plato;Nature;Ultraviolet;Color;Rainbow	NULL
+4cb0068c36658716	1248654953	253	14th_century;Time;Science;Nature;Weather;Sunlight;<;Sun;Earth%27s_atmosphere;Ultraviolet;Color;Light;Rainbow	3
+1082b6b8501a04b1	1248791776	218	14th_century;Christianity;Bible;God;Nature;Earth%27s_atmosphere;Ultraviolet;Optical_fiber;Light;Rainbow	3
+390ae528683f78ab	1250727252	66	14th_century;Time;Astronomy;Light;Rainbow	NULL
+0d57c8c57d75e2f5	1283956474	391	14th_century;Renaissance;Empiricism;Nature;Weather;Sunlight;<;Rain;<;Sunlight;Earth%27s_atmosphere;<;<;Sun;Isaac_Newton;Rainbow	5
+0d57c8c57d75e2f5	1290753904	432	14th_century;Renaissance;Leonardo_da_Vinci;Water;Rain;Cloud;<;<;Rainbow	NULL
+0d57c8c57d75e2f5	1290754816	43	14th_century;Renaissance;Leonardo_da_Vinci;Water;Rainbow	NULL
+03dc907932cecfc5	1336436263	387	14th_century;Europe;Republic_of_Ireland;<;<;Europe;<;Europe;Republic_of_Ireland;<;<;Time;Physics;Speed_of_light;Rainbow	2
