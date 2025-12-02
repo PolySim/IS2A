@@ -10,7 +10,7 @@ def main():
     initial_data = load_data()
     (matrix_initial, map_key) = group_by_city(initial_data)
     matrix_norm = normalize_matrix(matrix_initial)
-    (res, count) = page_rank(matrix_norm, 1e-14, 1000)
+    (res, count) = page_rank(matrix_norm, 0.85, 1e-8)
     print("15 first cities with highest PageRank:")
     indices_sorted = np.argsort(res)[::-1]
     for i in range(15):
