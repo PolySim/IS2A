@@ -117,9 +117,10 @@ class MultiUserCalendarSync:
         }
 
         # Rate limiter pour l'API Google Calendar
+        # Réduit à 300 pour éviter les blocages agressifs (Quota standard ~600/min)
         self.rate_limiter = RateLimiter(
-            max_requests_per_minute=550
-        )  # Marge de sécurité
+            max_requests_per_minute=300
+        )
 
         # Initialisation de la base de données
         self.init_database()
@@ -128,8 +129,8 @@ class MultiUserCalendarSync:
         """
         Exécute un appel API avec gestion du rate limiting et retry automatique
         """
-        max_retries = 3
-        base_delay = 1
+        max_retries = 8  # Augmentation du nombre de retries
+        base_delay = 1.5
 
         for attempt in range(max_retries + 1):
             try:
@@ -140,18 +141,24 @@ class MultiUserCalendarSync:
                 return api_func(*args, **kwargs).execute()
 
             except HttpError as e:
-                if e.resp.status == 429:  # Too Many Requests
+                # Gestion des erreurs de quota (403) et de surcharge (429)
+                is_rate_limit = e.resp.status == 429 or (
+                    e.resp.status == 403
+                    and ("rateLimitExceeded" in str(e) or "userRateLimitExceeded" in str(e))
+                )
+
+                if is_rate_limit:
                     if attempt < max_retries:
                         # Backoff exponentiel
                         delay = base_delay * (2**attempt)
                         logger.warning(
-                            f"Erreur 429 (Too Many Requests), retry dans {delay}s (tentative {attempt + 1}/{max_retries + 1})"
+                            f"Rate Limit atteint (Code {e.resp.status}), pause de {delay:.1f}s avant retry (tentative {attempt + 1}/{max_retries + 1})"
                         )
                         time.sleep(delay)
                         continue
                     else:
                         logger.error(
-                            "Nombre maximum de tentatives atteint pour l'erreur 429"
+                            "Nombre maximum de tentatives atteint pour le Rate Limit"
                         )
                         raise
                 elif e.resp.status in [500, 502, 503, 504]:  # Erreurs serveur
