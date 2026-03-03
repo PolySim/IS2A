@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 int main(int argc, char *argv[]) {
-  int child_somme, child_produit;
+  int child_somme, child_produit, pid;
 
   if (argc != 3) {
     fprintf(stderr, "Usage: %s n1 n2\n", argv[0]);
@@ -33,11 +34,19 @@ int main(int argc, char *argv[]) {
       perror("./produit");
       exit(1);
     } else {
-      waitpid(child_somme, NULL, 0);
-      printf("Somme effectué\n");
+      pid = wait(NULL);
+      if (pid == child_somme) {
+        printf("Somme effectué\n");
+      } else {
+        printf("Produit effectué\n");
+      }
 
-      waitpid(child_produit, NULL, 0);
-      printf("Produit effectué\n");
+      pid = wait(NULL);
+      if (pid == child_somme) {
+        printf("Somme effectué\n");
+      } else {
+        printf("Produit effectué\n");
+      }
     }
   }
 
