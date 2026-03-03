@@ -17,7 +17,7 @@ int main() {
 
   if (pid == 0) {
     execlp("wc", "wc", "-l", fich, NULL);
-    perror("execlp");
+    perror("wc");
     exit(1);
   } else {
     wait(NULL);
