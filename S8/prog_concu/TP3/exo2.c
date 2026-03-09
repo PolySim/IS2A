@@ -1,5 +1,6 @@
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
 #define MAX 10
 
 int tab[MAX];
@@ -30,6 +31,7 @@ void *moyenne(void *arg) {
 
 void *supSeuil(void *seuil_arg) {
   int seuil = *(int *)seuil_arg;
+  free(seuil_arg);
   int i;
   for (i = 0; i < MAX; i++)
     if (tab[i] > seuil)
@@ -40,6 +42,7 @@ void *supSeuil(void *seuil_arg) {
 
 void *infSeuil(void *seuil_args) {
   int seuil = *(int *)seuil_args;
+  free(seuil_args);
   int i;
   for (i = 0; i < MAX; i++)
     if (tab[i] < seuil)
@@ -70,14 +73,20 @@ int main() {
 
   scanf("%d%d", &seuilSup, &seuilInf);
 
+  int *seuilSupMalloc, *seuilInfMalloc;
+  seuilSupMalloc = (int *)malloc(sizeof(int));
+  seuilInfMalloc = (int *)malloc(sizeof(int));
+  *seuilSupMalloc = seuilSup;
+  *seuilInfMalloc = seuilInf;
+
   pthread_t thread_moy, thread_sup, thread_inf;
   pthread_attr_t attr_detached;
   pthread_attr_init(&attr_detached);
   pthread_attr_setdetachstate(&attr_detached, PTHREAD_CREATE_DETACHED);
 
   pthread_create(&thread_moy, &attr_detached, moyenne, NULL);
-  pthread_create(&thread_sup, &attr_detached, supSeuil, &seuilSup);
-  pthread_create(&thread_inf, &attr_detached, infSeuil, &seuilInf);
+  pthread_create(&thread_sup, &attr_detached, supSeuil, seuilSupMalloc);
+  pthread_create(&thread_inf, &attr_detached, infSeuil, seuilInfMalloc);
   minMax(&min, &max);
 
   printf("min = %d, max = %d\n", min, max);
