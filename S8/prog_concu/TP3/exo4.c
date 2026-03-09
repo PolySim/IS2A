@@ -2,6 +2,11 @@
 #include <stdio.h>
 #define MAX 10
 
+struct MinMax {
+  int *min;
+  int *max;
+};
+
 int tab[MAX];
 int nb = 0; // cumul des valeurs anormales (sup ou inf aux seuils)
 pthread_mutex_t mutex;
@@ -57,9 +62,9 @@ void *infSeuil(void *seuil_args) {
 }
 
 void *minMax(void *args) {
-  int **arg = (int **)args;
-  int *min = arg[0];
-  int *max = arg[1];
+  struct MinMax minMaxStruct = *(struct MinMax *)args;
+  int *min = minMaxStruct.min;
+  int *max = minMaxStruct.max;
   int i;
   *min = tab[0];
   *max = tab[0];
@@ -92,8 +97,11 @@ int main() {
   pthread_create(&thread_moy, &attr_detached, moyenne, NULL);
   pthread_create(&thread_sup, NULL, supSeuil, &seuilSup);
   pthread_create(&thread_inf, NULL, infSeuil, &seuilInf);
-  int *args[] = {&min, &max};
-  pthread_create(&thread_min_max, NULL, minMax, args);
+  // int *args[] = {&min, &max};
+  struct MinMax minMaxStruct;
+  minMaxStruct.min = &min;
+  minMaxStruct.max = &max;
+  pthread_create(&thread_min_max, NULL, minMax, &minMaxStruct);
 
   pthread_join(thread_min_max, NULL);
   printf("min = %d, max = %d\n", min, max);
