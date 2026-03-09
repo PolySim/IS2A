@@ -4,6 +4,7 @@
 
 int tab[MAX];
 int nb = 0; // cumul des valeurs anormales (sup ou inf aux seuils)
+pthread_mutex_t mutex;
 
 void lire() {
   int i;
@@ -31,9 +32,12 @@ void *moyenne(void *arg) {
 void *supSeuil(void *seuil_arg) {
   int seuil = *(int *)seuil_arg;
   int i;
-  for (i = 0; i < MAX; i++)
+  for (i = 0; i < MAX; i++) {
+    pthread_mutex_lock(&mutex);
     if (tab[i] > seuil)
       nb++;
+    pthread_mutex_unlock(&mutex);
+  }
 
   *(int *)seuil_arg = nb;
   return NULL;
@@ -42,9 +46,12 @@ void *supSeuil(void *seuil_arg) {
 void *infSeuil(void *seuil_args) {
   int seuil = *(int *)seuil_args;
   int i;
-  for (i = 0; i < MAX; i++)
+  for (i = 0; i < MAX; i++) {
+    pthread_mutex_lock(&mutex);
     if (tab[i] < seuil)
       nb++;
+    pthread_mutex_unlock(&mutex);
+  }
   *(int *)seuil_args = nb;
   return NULL;
 }
@@ -68,6 +75,7 @@ void *minMax(void *args) {
 
 int main() {
   int seuilInf, seuilSup, min, max;
+  pthread_mutex_init(&mutex, NULL);
 
   lire();
   affiche();
