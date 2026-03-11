@@ -6,11 +6,10 @@ Pour comprendre les dépendances entre les paquets python, on va s'intéresser a
 2. **Construisez** le graphe des dépendances correspondant.
 3. Peut-on installer `myappconf` ?
 
-
 ## (BONUS) Quand vous serez utiliser un environnement virtuel
 
 4. Comme on l'a fait juste avant, testez avec pip l'installation du paquet `myappconf`
+
 ```bash
 pip install --no-index --find-links dist --dry-run myappconf
 ```
-
