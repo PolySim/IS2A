@@ -118,9 +118,7 @@ class MultiUserCalendarSync:
 
         # Rate limiter pour l'API Google Calendar
         # Réduit à 300 pour éviter les blocages agressifs (Quota standard ~600/min)
-        self.rate_limiter = RateLimiter(
-            max_requests_per_minute=300
-        )
+        self.rate_limiter = RateLimiter(max_requests_per_minute=300)
 
         # Initialisation de la base de données
         self.init_database()
@@ -144,7 +142,10 @@ class MultiUserCalendarSync:
                 # Gestion des erreurs de quota (403) et de surcharge (429)
                 is_rate_limit = e.resp.status == 429 or (
                     e.resp.status == 403
-                    and ("rateLimitExceeded" in str(e) or "userRateLimitExceeded" in str(e))
+                    and (
+                        "rateLimitExceeded" in str(e)
+                        or "userRateLimitExceeded" in str(e)
+                    )
                 )
 
                 if is_rate_limit:
@@ -443,6 +444,11 @@ class MultiUserCalendarSync:
             return True
 
         except HttpError as e:
+            if e.resp.status == 404:
+                logger.warning(
+                    f"Événement déjà absent côté Google (404), nettoyage local : {event_id}"
+                )
+                return True
             logger.error(f"Erreur lors de la suppression de l'événement : {e}")
             return False
 
