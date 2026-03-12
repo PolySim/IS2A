@@ -41,8 +41,20 @@ public class VirementCompte {
             System.out.println(compte1);
             System.out.println(compte2);
 
-            compte1.setSolde(compte1.getSolde() - montant);
-            compte2.setSolde(compte2.getSolde() + montant);
+            compte1.startTransaction();
+            compte2.startTransaction();
+
+            try {
+                compte1.setSolde(compte1.getSolde() - montant);
+                compte2.setSolde(compte2.getSolde() + montant);
+                if (compte1.getSolde() < 0) {
+                    throw new CompteNegatifException("Solde négatif");
+                }
+            } catch (Exception e) {
+                compte1.rollback();
+                compte2.rollback();
+                throw e;
+            }
 
             System.out.println(
                 "virement de " +
@@ -56,6 +68,8 @@ public class VirementCompte {
             System.out.println(compte1);
             System.out.println(compte2);
 
+            compte1.commit();
+            compte2.commit();
             compte1.close();
             compte2.close();
         } catch (ArrayIndexOutOfBoundsException e0) {
@@ -68,6 +82,8 @@ public class VirementCompte {
             System.err.println("erreur SQL : " + e3.getMessage());
         } catch (CompteInconnuException e4) {
             System.err.println("compte client inconnu");
+        } catch (CompteNegatifException e5) {
+            System.err.println("solde négatif : " + e5.getMessage());
         }
     }
 }

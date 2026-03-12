@@ -29,7 +29,21 @@ public class Compte {
         return connect;
     }
 
+    public void startTransaction() throws SQLException {
+        connect.setAutoCommit(false);
+        connect.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+    }
+
+    public void commit() throws SQLException {
+        connect.commit();
+    }
+
+    public void rollback() throws SQLException {
+        connect.rollback();
+    }
+
     public double getSolde() throws SQLException {
+        rs.refreshRow();
         return rs.getDouble("solde");
     }
 
@@ -39,6 +53,7 @@ public class Compte {
     }
 
     public String getIdClient() throws SQLException {
+        rs.refreshRow();
         return rs.getString("id_client");
     }
 
