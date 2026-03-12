@@ -5,7 +5,7 @@
    <!-- LIGNES SUIVANTES A MODIFIER EVENTUELLEMENT: -->
   	<property
             name="driverJDBCPostgres"
-            value="/home/gisEns/ocaron/public/lib/postgresql.jar"
+            value="/Users/simondesdevises/Library/Application Support/JetBrains/DataGrip2025.3/jdbc-drivers/PostgreSQL/42.7.3/org/postgresql/postgresql/42.7.3/postgresql-42.7.3.jar"
         />
    <!-- FIN LIGNES  A MODIFIER : -->
    <property name="src.dir" value="${basedir}/src" />
