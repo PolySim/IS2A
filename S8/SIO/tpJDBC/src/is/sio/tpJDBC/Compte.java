@@ -45,4 +45,14 @@ public class Compte {
     public void close() throws SQLException {
         connect.close();
     }
+
+    public String toString() {
+        try {
+            return (
+                "Compte " + getIdClient() + " avec un solde de " + getSolde()
+            );
+        } catch (SQLException e) {
+            return "Compte [erreur: " + e.getMessage() + "]";
+        }
+    }
 }

@@ -24,20 +24,10 @@ public class AccesCompte {
 
             // programme :
             Compte compte = new Compte(url, username, password, idClient);
-            System.out.println(
-                "compte : " +
-                    compte.getIdClient() +
-                    ", solde : " +
-                    compte.getSolde()
-            );
+            System.out.println(compte);
             compte.setSolde(compte.getSolde() + 20.0);
             System.out.println("ajout de 20.0 au compte");
-            System.out.println(
-                "compte : " +
-                    compte.getIdClient() +
-                    ", solde : " +
-                    compte.getSolde()
-            );
+            System.out.println(compte);
             compte.close();
         } catch (ArrayIndexOutOfBoundsException e0) {
             System.err.println(
