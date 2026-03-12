@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<project name="tpJDBC" default="compile" basedir=".">
+  <target name="init">
+   <!-- Declarations proprietes et classpath -->
+   <!-- LIGNES SUIVANTES A MODIFIER EVENTUELLEMENT: -->
+  	<property
+            name="driverJDBCPostgres"
+            value="/home/gisEns/ocaron/public/lib/postgresql.jar"
+        />
+   <!-- FIN LIGNES  A MODIFIER : -->
+   <property name="src.dir" value="${basedir}/src" />
+   <property name="build.dir" value="${basedir}/build" />
+
+   <!-- The run classpath -->
+   <path id="run.classpath">
+   	<pathelement location="${driverJDBCPostgres}" />
+   	<pathelement location="${build.dir}" />
+  </path>
+
+  </target>
+   <!-- Prepare -->
+   <target name="prepare" depends="init">
+      <mkdir dir="${build.dir}" />
+      <mkdir dir="${build.dir}" />
+   </target>
+
+
+  <!-- Compile Java-->
+   <target name="compile" depends="prepare">
+      <javac destdir="${build.dir}" includeantruntime="false">
+	    <src path="${src.dir}" />
+      </javac>
+   </target>
+
+	<target name="runAccesCompte" depends="compile">
+		<input message="Nom base ?" addproperty="nomBase" />
+		<input message="id client ?" addproperty="idClient" />
+	   <java classname="is.sio.tpJDBC.AccesCompte" fork="yes" dir=".">
+	      <classpath refid="run.classpath" />
+	   	  <arg value="${nomBase}" />
+	   	  <arg value="${idClient}" />
+	   </java>
+	 </target>
+	<target name="runVirementCompte" depends="compile">
+		<input message="Nom base débit ?" addproperty="nomBaseD" />
+		<input message="id client débit ?" addproperty="idClientD" />
+		<input message="Nom base crédit ?" addproperty="nomBaseC" />
+		<input message="id client crédit ?" addproperty="idClientC" />
+		<input message="montant du virement ?" addproperty="montant" />
+		<java classname="is.sio.tpJDBC.VirementCompte" fork="yes" dir=".">
+			<classpath refid="run.classpath" />
+			<arg value="${nomBaseD}" />
+		    <arg value="${idClientD}" />
+			<arg value="${nomBaseC}" />
+			<arg value="${idClientC}" />
+			<arg value="${montant}" />
+		</java>
+	</target>
+
+
+   <target name="clean" depends="prepare">
+      <delete dir="${build.dir}" />
+   </target>
+</project>
