@@ -1,0 +1,84 @@
+<?xml version="1.0" ?>
+<project name="sitesPolytech" default="compile" basedir=".">
+  <target name="init">
+   <!-- Declarations proprietes et classpath -->
+   <!-- LIGNES SUIVANTES A MODIFIER : -->
+  	<property name="serveurPostgres" value="serveur-etu.polytech-lille.fr" />
+  	<property name="basePostgres" value="sdesdevi_sitespolytech" />
+  	<property name="userPostgres" value="sdesdevi" />
+  	<property name="passwordPostgres" value="postgres" />
+   <!-- FIN LIGNES  A MODIFIER : -->
+  	<property
+            name="driverJDBCPostgres"
+            value="/Users/simondesdevises/Library/Application Support/JetBrains/DataGrip2025.3/jdbc-drivers/PostgreSQL/42.7.3/org/postgresql/postgresql/42.7.3/postgresql-42.7.3.jar"
+        />
+   <property name="eclipseLinkAndJPA.dir" value="${basedir}/lib" />
+   <property name="src.dir" value="${basedir}/src" />
+   <property name="eclipseLinkLib.dir" value="${eclipseLinkHome.dir}/jlib" />
+   <property name="eclipseLinkLibJPA.dir" value="${eclipseLinkLib.dir}/jpa" />
+   	<property name="build.dir" value="${basedir}/build" />
+
+   <!-- The build classpath -->
+   <path id="build.classpath">
+      <fileset dir="${eclipseLinkAndJPA.dir}">
+   	   <include name="*.jar" />
+   	</fileset>
+   	<pathelement location="${driverJDBCPostgres}" />
+  </path>
+
+  <!-- The run classpath -->
+   <path id="run.classpath">
+    <fileset dir="${eclipseLinkAndJPA.dir}">
+   	   <include name="*.jar" />
+   	</fileset>
+    <pathelement location="${build.dir}" />
+    <pathelement location="${driverJDBCPostgres}" />
+  </path>
+  </target>
+   <!-- Prepare -->
+   <target name="prepare" depends="init">
+      <mkdir dir="${build.dir}" />
+      <mkdir dir="${build.dir}/META-INF" />
+   </target>
+
+
+  <!-- Compile Java-->
+   <target name="compile" depends="prepare">
+      <copy file="${src.dir}/persistence.xml" todir="${build.dir}/META-INF" />
+      <javac
+            destdir="${build.dir}"
+            classpathref="build.classpath"
+            includeantruntime="false"
+        >
+	    <src path="${src.dir}" />
+      </javac>
+   </target>
+
+	<target name="runInitEcole" depends="compile">
+	      <java classname="is.sio.main.RunInitEcoles" fork="yes" dir=".">
+	        <classpath refid="run.classpath" />
+	      </java>
+	   </target>
+   <target name="run" depends="compile">
+      <java classname="is.sio.main.RunEcoles" fork="yes" dir=".">
+        <classpath refid="run.classpath" />
+      </java>
+   </target>
+
+	<target name="initBase" depends="init">
+	      <sql
+            driver="org.postgresql.Driver"
+            url="jdbc:postgresql://${serveurPostgres}/${basePostgres}?useUnicode=true&amp;characterEncoding=UTF-8"
+            userid="${userPostgres}"
+            password="${passwordPostgres}"
+        >
+		  <classpath>
+		      <pathelement path="${driverJDBCPostgres}" />
+		  </classpath>
+		  <transaction src="${src.dir}/initBase.sql" />
+	       </sql>
+	     </target>
+   <target name="clean" depends="prepare">
+      <delete dir="${build.dir}" />
+   </target>
+</project>
