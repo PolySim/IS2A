@@ -2,6 +2,7 @@ package is.sio.jpa.entites;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
@@ -12,6 +13,7 @@ public abstract class Specialite {
 
     private String acronyme;
 
+    @JoinColumn(name = "ecole", nullable = false)
     @ManyToOne
     private EcolePolytech ecole;
 

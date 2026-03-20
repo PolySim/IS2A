@@ -1,18 +1,27 @@
 package is.sio.jpa.entites;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.Set;
 
+@Table(name = "ecole")
 @Entity
 public class EcolePolytech {
 
+    @Column(name = "nom", length = 80)
     @Id
     private String nom;
 
+    @Column(name = "url", length = 100)
     private String siteWeb;
+
+    @Column(name = "longit")
     private double latitude;
+
+    @Column(name = "latit")
     private double longitude;
 
     @OneToMany(mappedBy = "ecole")

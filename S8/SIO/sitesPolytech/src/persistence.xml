@@ -41,7 +41,7 @@
             <!-- EclipseLink should create the database schema automatically -->
             <property
                 name="jakarta.persistence.schema-generation.database.action"
-                value="drop-and-create"
+                value="none"
             /> <!-- drop-and-create ou bien none -->
 
 
