@@ -34,7 +34,7 @@
             />
             <property
                 name="jakarta.persistence.jdbc.url"
-                value="jdbc:postgresql://sdesdevi_sitespolytech"
+                value="jdbc:postgresql://serveur-etu.polytech-lille.fr/sdesdevi_sitespolytech"
             />
             <!-- Configuration [4] -->
             <!-- <property name="eclipselink.logging.level" value="INFO" /> -->

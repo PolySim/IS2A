@@ -13,7 +13,7 @@ public class ServiceEcolesPolytech implements IServiceEcolesPolytech {
     private EntityManager em;
 
     public ServiceEcolesPolytech() {
-        this.emf = Persistence.createEntityManagerFactory("XXXXXXX");
+        this.emf = Persistence.createEntityManagerFactory("sitesPolytechUnit");
         this.em = emf.createEntityManager();
     }
 
