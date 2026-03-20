@@ -1,9 +1,10 @@
 package is.sio.jpa.entites;
 
+import java.util.Set;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import java.util.Set;
 
 @Entity
 public class Domaine {
@@ -16,7 +17,8 @@ public class Domaine {
     @ManyToMany
     private Set<EcolePolytech> ecoles;
 
-    public Domaine() {}
+    public Domaine() {
+    }
 
     public int getId() {
         return id;
@@ -32,5 +34,13 @@ public class Domaine {
 
     public void setNom(String nom) {
         this.nom = nom;
+    }
+
+    public Set<EcolePolytech> getEcoles() {
+        return ecoles;
+    }
+
+    public void setEcoles(Set<EcolePolytech> ecoles) {
+        this.ecoles = ecoles;
     }
 }

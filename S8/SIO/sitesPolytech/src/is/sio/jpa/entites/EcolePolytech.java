@@ -29,6 +29,18 @@ public class EcolePolytech {
 
     public EcolePolytech() {}
 
+    public EcolePolytech(
+        String nom,
+        String siteWeb,
+        double lat,
+        double longitude
+    ) {
+        this.setNom(nom);
+        this.setSiteWeb(siteWeb);
+        this.setLatitude(lat);
+        this.setLongitude(longitude);
+    }
+
     public String getNom() {
         return nom;
     }
