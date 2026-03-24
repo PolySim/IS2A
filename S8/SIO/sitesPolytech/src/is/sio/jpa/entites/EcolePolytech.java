@@ -18,10 +18,10 @@ public class EcolePolytech {
     @Column(name = "url", length = 100)
     private String siteWeb;
 
-    @Column(name = "longit")
+    @Column(name = "latit")
     private double latitude;
 
-    @Column(name = "latit")
+    @Column(name = "longit")
     private double longitude;
 
     @OneToMany(mappedBy = "ecole")
@@ -79,5 +79,9 @@ public class EcolePolytech {
 
     public void setSpecialites(Set<Specialite> specialites) {
         this.specialites = specialites;
+    }
+
+    public String toString() {
+        return this.getNom();
     }
 }

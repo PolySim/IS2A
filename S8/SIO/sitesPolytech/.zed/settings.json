@@ -1,0 +1,15 @@
+{
+  "lsp": {
+    "jdtls": {
+      "settings": {
+        "java.import.gradle.enabled": false,
+        "java.import.maven.enabled": false
+      }
+    }
+  },
+  "languages": {
+    "Java": {
+      "enable_language_server": true
+    }
+  }
+}
