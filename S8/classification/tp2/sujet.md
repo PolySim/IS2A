@@ -27,7 +27,7 @@
 Ce jeu de données contient des mesures physico-chimiques de vins blancs portugais, collectées dans le cadre d'une étude visant à évaluer leur qualité sensorielle. Il comprend 11 variables d'entrée (comme l'acidité, la teneur en sucre, la densité, ou encore le taux d'alcool) et 1 variable de sortie : la note de qualité, attribuée par des dégustateurs sur une échelle de 0 à 10. L'objectif sera d'utiliser ces données pour prédire la qualité des vins (variable quality) à partir de leurs caractéristiques physico-chimiques. On considérera le score quality comme une variable qualitative.
 
 2. Réalisez une rapide analyse descriptive des données.
-3. Choisissez des graphiques appropriés pour représenter les évventuels liens entre la variable quality et les variables quantitatives.
+3. Choisissez des graphiques appropriés pour représenter les éventuels liens entre la variable quality et les variables quantitatives.
 
 ## 2 Analyse factorielle discriminante sur R
 
@@ -41,7 +41,7 @@ Ce jeu de données contient des mesures physico-chimiques de vins blancs portuga
 1. En utilisant les prédictions de votre choix (celles calculées par vos soins ou celle données par la fonction predict), calculer la matrice de confusion à l'aide de la fonction table sur la classe réelle et la classe prédite.
 2. Calculer le taux de bon classement (TBC) et le taux de mauvais classement (TMC).
 3. Expliquer pourquoi la méthode utilisée peut souffrir d'un biais d'optimisme.
-4. Découper les données iris en un échantillon d'apprentissage (70% des données) et un échantillon test (30% des données). Utilisez les données d'apprentissage pour apprendre un modèle d'AFD sur les données de test.
+4. Découper les données en un échantillon d'apprentissage (70% des données) et un échantillon test (30% des données). Utilisez les données d'apprentissage pour apprendre un modèle d'AFD sur les données de test.
 5. Estimez les taux de bon et mauvais classement sur les données d'apprentissage et celles de test. Estimez quelles sont les limites de cette méthode.
 6. Afin de prendre en compte ces limites, on propose d'estimer les taux de bon et mauvais classement par validation croisée $k$-fold. Vous pourrez utiliser une boucle afin de coder la validation croisée $k$-fold et déterminer les taux de bon et mauvais classement.
 
