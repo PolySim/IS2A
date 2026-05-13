@@ -17,3 +17,5 @@ package-lock.json
 #Python
 __pycache__
 .Rproj.user
+
+logs
