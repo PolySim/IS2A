@@ -1,0 +1,49 @@
+13-May-2026 10:33:34.294 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Nom version serveur :              Apache Tomcat/11.0.22
+13-May-2026 10:33:34.296 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Serveur compilé :                  May 1 2026 18:29:05 UTC
+13-May-2026 10:33:34.296 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Version du serveur :               11.0.22.0
+13-May-2026 10:33:34.296 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Nom de l'OS :                      Mac OS X
+13-May-2026 10:33:34.296 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Version OS :                       26.4.1
+13-May-2026 10:33:34.296 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Architecture :                     aarch64
+13-May-2026 10:33:34.296 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Java Home :                        /Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home
+13-May-2026 10:33:34.296 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Version JVM :                      17.0.19+10
+13-May-2026 10:33:34.296 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Fournisseur de la JVM :            Eclipse Adoptium
+13-May-2026 10:33:34.297 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_BASE :                    /Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac
+13-May-2026 10:33:34.297 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_HOME :                    /Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Djava.util.logging.config.file=/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/conf/logging.properties
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Djdk.tls.ephemeralDHKeySize=2048
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Dorg.apache.catalina.security.SecurityListener.UMASK=0027
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --add-opens=java.base/java.lang=ALL-UNNAMED
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --add-opens=java.base/java.io=ALL-UNNAMED
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --add-opens=java.base/java.util=ALL-UNNAMED
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --add-opens=java.base/java.util.concurrent=ALL-UNNAMED
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --enable-native-access=ALL-UNNAMED
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Dcatalina.base=/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Dcatalina.home=/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac
+13-May-2026 10:33:34.308 INFOS [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Djava.io.tmpdir=/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/temp
+13-May-2026 10:33:34.312 INFOS [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent La librairie Apache Tomcat Native basée sur APR qui permet des performances optimales dans les environnements de production n'a pas été trouvée sur le java.library.path : [/Users/simondesdevises/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:.]
+13-May-2026 10:33:34.387 INFOS [main] org.apache.coyote.AbstractProtocol.init Initialisation du gestionnaire de protocole ["http-nio-8080"]
+13-May-2026 10:33:34.400 INFOS [main] org.apache.catalina.startup.Catalina.load L'initialisation du serveur a pris [184] millisecondes
+13-May-2026 10:33:34.415 INFOS [main] org.apache.catalina.core.StandardService.startInternal Démarrage du service [Catalina]
+13-May-2026 10:33:34.415 INFOS [main] org.apache.catalina.core.StandardEngine.startInternal Démarrage du moteur de Servlets : [Apache Tomcat/11.0.22]
+13-May-2026 10:33:34.418 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/docs]
+13-May-2026 10:33:34.518 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/docs] de l'application web s'est terminé en [99] ms
+13-May-2026 10:33:34.518 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/manager]
+13-May-2026 10:33:34.529 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/manager] de l'application web s'est terminé en [11] ms
+13-May-2026 10:33:34.529 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/tp501]
+13-May-2026 10:33:34.539 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/tp501] de l'application web s'est terminé en [10] ms
+13-May-2026 10:33:34.539 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/examples]
+13-May-2026 10:33:34.614 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/examples] de l'application web s'est terminé en [75] ms
+13-May-2026 10:33:34.615 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/ROOT]
+13-May-2026 10:33:34.620 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/ROOT] de l'application web s'est terminé en [5] ms
+13-May-2026 10:33:34.620 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/host-manager]
+13-May-2026 10:33:34.626 INFOS [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [/Users/simondesdevises/Documents/Projet_Perso/IS2A/S8/ArchiLog/tomcat_mac/webapps/host-manager] de l'application web s'est terminé en [6] ms
+13-May-2026 10:33:34.628 INFOS [main] org.apache.coyote.AbstractProtocol.start Démarrage du gestionnaire de protocole ["http-nio-8080"]
+13-May-2026 10:33:34.633 INFOS [main] org.apache.catalina.startup.Catalina.start Le démarrage du serveur a pris [232] millisecondes
+13-May-2026 10:33:58.400 INFOS [main] org.apache.catalina.core.StandardServer.await Une commande d'arrêt valide a été reçue sur le port d'arrêt, arrêt de l'instance du serveur
+13-May-2026 10:33:58.400 INFOS [main] org.apache.coyote.AbstractProtocol.pause Le gestionnaire de protocole ["http-nio-8080"] est mis en pause
+13-May-2026 10:33:58.402 INFOS [main] org.apache.catalina.core.StandardService.stopInternal Arrêt du service [Catalina]
+13-May-2026 10:33:58.408 INFOS [main] org.apache.coyote.AbstractProtocol.stop Arrêt du gestionnaire de protocole ["http-nio-8080"]
+13-May-2026 10:33:58.410 INFOS [main] org.apache.coyote.AbstractProtocol.destroy Destruction du gestionnaire de protocole ["http-nio-8080"]
