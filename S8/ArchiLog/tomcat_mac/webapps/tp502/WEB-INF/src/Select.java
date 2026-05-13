@@ -7,15 +7,17 @@ import java.sql.*;
 @WebServlet("/select")
 public class Select extends HttpServlet {
 
-  String url = "jdbc:postgresql://localhost:5432/archilog";
-  String user = "postgres";
-  String passwd = "postgres";
-
   public void service(HttpServletRequest req, HttpServletResponse res)
     throws ServletException, IOException {
+    Connection connect = (Connection) getServletContext().getAttribute("connect");
+    if (connect == null) {
+      throw new ServletException("Connexion BDD introuvable dans le ServletContext");
+    }
+
     try (
-      Connection connect = DriverManager.getConnection(url, user, passwd);
-      PreparedStatement stmt = connect.prepareStatement("select * from etudiant;");
+      PreparedStatement stmt = connect.prepareStatement(
+        "select * from etudiant;"
+      );
       ResultSet rs = stmt.executeQuery()
     ) {
       res.setContentType("text/html;charset=UTF-8");
