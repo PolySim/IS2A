@@ -1,0 +1,19 @@
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-width: 100vw;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.game {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+}

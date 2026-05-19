@@ -1,0 +1,43 @@
+<html lang="fr">
+  <head>
+    <link rel="stylesheet" href="exo1.css" />
+  </head>
+  <script src="exo1.js"></script>
+  <body class="container">
+    <div class="start_mise">
+      <div>
+        <label htmlFor="global_mise"
+          >Vous avez combien dans votre portefeuille ?</label
+        >
+        <input
+          id="global_mise"
+          name="global_mise"
+          type="number"
+          min="0"
+          step="1"
+        />
+        <button onclick="onValidGlobalMise()" type="button">Valider</button>
+      </div>
+    </div>
+    <div class="game">
+      <p>Vous avez actuellement : <span id="amount"></span> €</p>
+      <div>
+        <label htmlFor="mise">Vous voulez miser combien ?</label>
+        <input type="number" min="0" name="mise" id="mise" step="1" />
+      </div>
+      <div>
+        <label htmlFor="nombre">Quel est votre nombre ?</label>
+        <input
+          type="number"
+          min="0"
+          max="20"
+          step="1"
+          name="nombre"
+          id="nombre"
+        />
+      </div>
+      <button onclick="onValidate()" type="button">Valider</button>
+      <p id="result"></p>
+    </div>
+  </body>
+</html>
