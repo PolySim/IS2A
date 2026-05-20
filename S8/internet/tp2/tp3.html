@@ -1,0 +1,93 @@
+<html lang="fr">
+  <head>
+    <link rel="stylesheet" href="tp3.css" />
+  </head>
+  <script src="tp3.js"></script>
+  <body class="container">
+    <header>
+      <span onclick="toggleFocus('btn_home')" id="btn_home" class="current"
+        >Home</span
+      >
+      <span onclick="toggleFocus('btn_about')" id="btn_about">About me</span>
+      <span onclick="toggleFocus('btn_skill')" id="btn_skill">Skills</span>
+      <span onclick="toggleFocus('btn_project')" id="btn_project"
+        >Projects</span
+      >
+    </header>
+    <section id="home">
+      <div class="welcome">
+        <p>Welcome on my portfolio, I am</p>
+        <p>Simon</p>
+      </div>
+      <div class="view_more" onclick="toggleFocus('btn_about')">
+        <!-- biome-ignore lint/a11y/noSvgWithoutTitle: svg -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-arrow-down"
+        >
+          <path d="M12 5v14"></path>
+          <path d="m19 12-7 7-7-7"></path>
+        </svg>
+      </div>
+    </section>
+    <section id="about">
+      <div>
+        <h5>Hello, I&apos;m Simon 👋</h5>
+        <p>
+          Currently an engineering student at Polytech Lille, I quickly started
+          to learn <span class="text-linear">fullstack development</span> on my
+          own.
+        </p>
+        <p>
+          Since 2023 I&apos;ve been
+          <span class="text-linear">freelancing</span>, taking on a series of
+          assignments that have enabled me to develop a number of
+          <span class="text-linear">skills</span>.
+        </p>
+        <p>
+          I&apos;m currently working for
+          <span class="text-linear">Faire Savoir</span> as a part-time student
+          on various assignments
+        </p>
+      </div>
+    </section>
+    <section id="skill">
+      <h3>Skills</h3>
+      <div>
+        <div>
+          <h6>Frontend</h6>
+          <div id="frontend"></div>
+        </div>
+        <div>
+          <h6>Backend</h6>
+          <div id="backend"></div>
+        </div>
+      </div>
+    </section>
+    <section id="project">
+      <div>
+        <h3>Projects</h3>
+        <p
+          className="max-w-2xl px-4 mx-auto text-white pb-12 text-lg font-rubik mt-12"
+        >
+          Here are some of my personal projects, you can find more on
+          <a
+            href="https://github.com/PolySim"
+            className="text-primary-100 underline after:content-[''] after:block after:h-px after:bg-red-300 after:w-fit"
+          >
+            my github
+          </a>
+        </p>
+        <div id="project_block"></div>
+      </div>
+    </section>
+  </body>
+</html>
