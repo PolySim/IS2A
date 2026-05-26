@@ -16,18 +16,15 @@
 
         <properties>
             <!-- Info BD [3] -->
-            <property name="jakarta.persistence.jdbc.user" value="postgres" />
-            <property
-        name="jakarta.persistence.jdbc.password"
-        value="postgres"
-      />
+            <property name="jakarta.persistence.jdbc.user" value="sa" />
+            <property name="jakarta.persistence.jdbc.password" value="" />
             <property
         name="jakarta.persistence.jdbc.driver"
-        value="org.postgresql.Driver"
+        value="org.h2.Driver"
       />
             <property
         name="jakarta.persistence.jdbc.url"
-        value="jdbc:postgresql://localhost:5432/archilog-2"
+        value="jdbc:h2:mem:archilog;DB_CLOSE_DELAY=-1;MODE=LEGACY"
       />
             <!-- Configuration [4] -->
             <property name="eclipselink.logging.level" value="FINE" />

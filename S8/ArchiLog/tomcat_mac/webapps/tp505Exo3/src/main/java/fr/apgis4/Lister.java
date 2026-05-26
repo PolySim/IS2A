@@ -4,11 +4,12 @@ import fr.apgis4.model.Auteur;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Lister {
 
-  private List<Auteur> auteurs;
+  private List<Auteur> auteurs = new ArrayList<>();
 
   public List<Auteur> getAuteurs() {
     return auteurs;
@@ -31,7 +32,7 @@ public class Lister {
           .createQuery("SELECT a FROM Auteur a", Auteur.class)
           .getResultList();
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        e.printStackTrace();
       } finally {
         em.close();
       }
