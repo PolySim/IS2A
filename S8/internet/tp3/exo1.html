@@ -1,0 +1,38 @@
+<html lang="fr">
+  <head>
+    <link rel="stylesheet" href="exo1.css" />
+  </head>
+  <script src="exo1.js"></script>
+  <body class="container">
+    <h1>Pixel art</h1>
+    <p>
+      Ad cillum cillum pariatur fugiat anim sint nostrud officia. Sunt
+      consectetur deserunt cupidatat. Consectetur nisi Lorem laboris duis Lorem
+      est. Sit est veniam commodo ad ipsum veniam Lorem magna culpa cupidatat
+      voluptate. Velit magna sit eu qui. Ut excepteur aliquip anim id commodo
+      duis velit reprehenderit occaecat pariatur commodo ad cupidatat. Est sit
+      eiusmod qui esse velit deserunt ipsum qui. Eiusmod velit qui veniam culpa
+      ex veniam irure dolor consectetur id. Minim tempor esse nulla pariatur.
+    </p>
+    <div id="grid"></div>
+    <div id="select-btn"></div>
+    <div id="option">
+      <div id="current-color"></div>
+      <button onclick="onReset()" type="button" id="reset">Reset</button>
+      <input
+        type="number"
+        value="10"
+        id="nb_colors"
+        onchange="generateButtons()"
+        min="5"
+        max="20"
+        step="1"
+      />
+      <label for="gray">Nuance de gris</label>
+      <input type="checkbox" id="gray" onchange="generateButtons()" />
+      <button type="button" onclick="generateButtons(true)">
+        Regenerer les couleurs
+      </button>
+    </div>
+  </body>
+</html>
