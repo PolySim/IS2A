@@ -3,7 +3,13 @@
     <link rel="stylesheet" href="exo1.css" />
   </head>
   <script src="exo1.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
   <body class="container">
-    <p>Random number between 1 and 10 : <span id="random_number"></span></p>
+    <select onchange="apply_random_number()" id="range">
+      <option value="0_10">Entre 0 et 10</option>
+      <option value="20_25">Entre 20 et 25</option>
+      <option value="50_100">Entre 50 et 100</option>
+    </select>
+    <div id="histo"></div>
   </body>
 </html>

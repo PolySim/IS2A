@@ -3,10 +3,21 @@ const get_random_number = ({ min, max }) => {
 };
 
 const apply_random_number = () => {
-  const elt = document.querySelector("#random_number");
+  const range = document.querySelector("#range");
+  if (!range) return;
+  const min = parseInt(range.value.split("_")[0]);
+  const max = parseInt(range.value.split("_")[1]);
+
+  const elt = document.querySelector("#histo");
   if (!elt) return;
-  const random_number = get_random_number({ min: 1, max: 10 });
-  elt.textContent = random_number;
+  const data = []
+  for (let i = 0; i < 501; i++)
+    data.push( get_random_number({ min, max }))
+
+  Plotly.newPlot(elt,  [{
+     x: data,
+     type: 'histogram',
+   }]);
 };
 
 window.addEventListener("load", () => {
