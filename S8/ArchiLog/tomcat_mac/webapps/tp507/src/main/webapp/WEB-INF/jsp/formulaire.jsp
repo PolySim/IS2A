@@ -11,4 +11,6 @@
   <label for="groupe">Groupe:</label>
   <input type="text" name="groupe" id="groupe" />
   <input type="submit" value="Envoyer" />
+
+  <p>${message}</p>
 </form>

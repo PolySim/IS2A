@@ -5,11 +5,15 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import fr.apgis4.tp507.Model.Etudiant;
 import fr.apgis4.tp507.Repository.EtudiantRepository;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,9 +30,16 @@ public class ControleurFormulaire {
     return "formulaire";
   }
 
-  @RequestMapping(value = "/formulaire", method = RequestMethod.POST)
-  public String submitFormulaire(Etudiant etudiant, Model model) {
-    // etudiants.add(etudiant);
+  @PostMapping("/formulaire")
+  public String submitFormulaire(@Valid @ModelAttribute("etudiant") Etudiant etudiant,
+      BindingResult bindingResult,
+      Model model) {
+
+    if (bindingResult.hasErrors()) {
+      model.addAttribute("message", bindingResult.getAllErrors().get(0).getDefaultMessage());
+      return "formulaire";
+    }
+
     etudiantRepository.save(etudiant);
     return "redirect:/liste";
   }
