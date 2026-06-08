@@ -1,19 +1,18 @@
 package fr.apgis4.tp507.Model;
 
-// import org.springframework.data.annotation.Id;
-
-// import jakarta.persistence.Entity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
-// @Entity
+@Entity
 @Getter
 @Setter
 public class Etudiant {
-  // @Id
-  private Long id;
+  @Id
+  private Integer id;
   private String nom;
   private String prenom;
-  private int age;
+  private Integer age;
   private String groupe;
 }
