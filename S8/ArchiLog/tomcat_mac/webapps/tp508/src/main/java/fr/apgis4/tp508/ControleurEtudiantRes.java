@@ -8,10 +8,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,16 +22,18 @@ import java.util.Optional;
 
 import fr.apgis4.tp508.Model.Etudiant;
 import fr.apgis4.tp508.Repository.EtudiantRepository;
+import jakarta.validation.Valid;
 
 @RestController
+@RequestMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 public class ControleurEtudiantRes {
 
   @Autowired
   private EtudiantRepository etudiantRepository;
 
   @GetMapping("/etudiants")
-  public Iterable<Etudiant> listeEtudiants() {
-    return etudiantRepository.findAll();
+  public ResponseEntity<Iterable<Etudiant>> listeEtudiants() {
+    return ResponseEntity.ok(etudiantRepository.findAll());
   }
 
   @GetMapping("/etudiants/{id}")
@@ -57,13 +62,18 @@ public class ControleurEtudiantRes {
     }
   }
 
-  @PostMapping("/etudiants")
-  public ResponseEntity<Object> ajouterEtudiant(@RequestBody Etudiant etudiant) {
+  @PostMapping(value = "/etudiants", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+  public ResponseEntity<Object> ajouterEtudiant(@Valid @RequestBody Etudiant etudiant) {
+    // if (bindingResult.hasErrors()) {
+    // return ResponseEntity.badRequest().body("Il y a des erreurs dans les données
+    // envoyées");
+    // }
     Etudiant savedEtudiant = etudiantRepository.save(etudiant);
     return ResponseEntity.ok(savedEtudiant);
   }
 
-  @PutMapping("/etudiants/{id}")
+  @PutMapping(value = "/etudiants/{id}", consumes = { MediaType.APPLICATION_JSON_VALUE,
+      MediaType.APPLICATION_XML_VALUE })
   public ResponseEntity<Object> modifierEtudiant(@PathVariable int id, @RequestBody Etudiant etudiant) {
     Optional<Etudiant> existingEtudiant = etudiantRepository.findById(id);
     if (existingEtudiant.isPresent()) {
@@ -82,7 +92,8 @@ public class ControleurEtudiantRes {
     }
   }
 
-  @PatchMapping("/etudiants/{id}")
+  @PatchMapping(value = "/etudiants/{id}", consumes = { MediaType.APPLICATION_JSON_VALUE,
+      MediaType.APPLICATION_XML_VALUE })
   public ResponseEntity<Object> modifierEtudiantPartiellement(@PathVariable int id, @RequestBody Etudiant etudiant) {
     Optional<Etudiant> existingEtudiant = etudiantRepository.findById(id);
     if (existingEtudiant.isPresent()) {
@@ -122,4 +133,5 @@ public class ControleurEtudiantRes {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
   }
+
 }

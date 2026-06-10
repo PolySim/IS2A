@@ -1,5 +1,7 @@
 package fr.apgis4.tp508.Model;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Max;
@@ -12,6 +14,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@JacksonXmlRootElement(localName = "etudiant")
 public class Etudiant {
   @Id
   private Integer id;
