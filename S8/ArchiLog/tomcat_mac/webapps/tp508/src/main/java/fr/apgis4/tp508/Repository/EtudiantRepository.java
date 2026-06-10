@@ -5,4 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 import fr.apgis4.tp508.Model.Etudiant;
 
 public interface EtudiantRepository extends CrudRepository<Etudiant, Integer> {
+  Iterable<Etudiant> findByGroupeOrderByNom(String groupe);
 }
