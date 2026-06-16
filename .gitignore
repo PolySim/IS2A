@@ -19,3 +19,5 @@ __pycache__
 .Rproj.user
 
 logs
+
+S8/noSQL/data/db
