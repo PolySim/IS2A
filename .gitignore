@@ -21,3 +21,6 @@ __pycache__
 logs
 
 S8/noSQL/data/db
+
+python3
+.ipynb_checkpoints
