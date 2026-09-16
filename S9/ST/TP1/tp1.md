@@ -1,3 +1,7 @@
+# TP 1
+
+## PT 1
+
 ### Q2
 
 ```python
@@ -93,3 +97,100 @@ def evo_annuelle(data=global_data):
 
 Les profils mensuels confirment le cycle saisonnier.
 Les totaux annuels montrent une baisse surtout à partir de la fin des années 1950, avec des variations importantes entre les années.
+
+## TP2
+
+### Q1
+
+L'autocorrélation compare une série à elle-même, décalée dans le temps. Au retard 0, elle vaut 1 : on compare chaque valeur à elle-même. Aux autres retards, elle vaut 0 en théorie : les tirages sont indépendants.
+
+### Q2
+
+```python
+def calc_espilon(n):
+    epsilon = np.random.normal(0, 1, n)
+    return epsilon
+
+
+def simule_bruit_blanc(n=100):
+    t = np.arange(1, n + 1)
+    epsilon = calc_espilon(n)
+
+    plt.figure()
+    plt.plot(t, epsilon)
+    plt.title("Bruit blanc gaussien")
+    plt.xlabel("Temps")
+    plt.ylabel("epsilon")
+
+```
+
+### Q3
+
+```python
+def display_autocorr(epsilon):
+    auto_corr(epsilon)
+    plt.title("Question 3 : autocorrélation du bruit blanc")
+```
+
+Avec seulement 100 valeurs, les autocorrélations ne sont pas exactement 0 mais bien dans la zone de confiance.
+
+### Q4
+
+Avec 1000 valeurs, les autocorrélations sont généralement plus proches de 0. Plus le nombre de valeurs augmente, plus les autocorrélations se rapprochent de 0.
+
+### Q5
+
+```python
+def simule_st():
+    n = 100
+    epsilon = calc_espilon(n)
+    t = np.arange(1, n + 1)
+    return (0.5 * t + 2 * epsilon, t)
+```
+
+### Q6
+
+```python
+def display_st():
+    (x, t) = simule_st()
+    plt.figure()
+    plt.plot(t, x)
+    plt.plot(t, 0.5 * t, "--", label="Tendance : 0.5t")
+    plt.legend()
+    plt.title("tendance + bruit")
+    plt.xlabel("Temps")
+    plt.ylabel("X(t)")
+```
+
+La droite 0.5t monte avec le temps ; le bruit fait osciller la série autour.
+
+### Q7
+
+Les autocorrélations restent positives aux petits retards et diminuent lentement. Cela vient de la tendance commune aux valeurs successives.
+
+### Q8
+
+```python
+def simule_st_2():
+    n = 100
+    epsilon = calc_espilon(n)
+    t = np.arange(1, n + 1)
+    return (epsilon + 3 * np.cos(t * np.pi / 6), t)
+```
+
+Le cosinus se répète tous les 12 pas de temps.
+L'autocorrélation est positive vers 12 et 24 : le cycle se retrouve.
+Elle est négative vers 6 et 18 : les sommets correspondent aux creux.
+
+### Q9
+
+```python
+def simule_st_3():
+    n = 100
+    epsilon = calc_espilon(n)
+    t = np.arange(1, n + 1)
+    return (0.5 * t + epsilon + 3 * np.cos(t * np.pi / 6), t)
+```
+
+La série monte tout en oscillant selon un cycle de 12 pas.
+La tendance domine l'autocorrélation ; le cycle y est moins visible.
