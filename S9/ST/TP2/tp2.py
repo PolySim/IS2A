@@ -12,6 +12,12 @@ class Types(Enum):
     lissage_double = "lissage_double"
 
 
+class Fonction(Enum):
+    X1 = "X1"
+    X2 = "X2"
+    X3 = "X3"
+
+
 def load_data(filename="co2.txt"):
     with open(filename, "r") as f:
         data = f.readlines()
@@ -36,8 +42,24 @@ def X3(t, epsillon):
     return 0.5 * t + 3 * np.cos(t * np.pi / 6) + epsillon
 
 
-data_norm = simulate_normal()
-train_test, test_test = data_norm[:70], data_norm[70:]
+epsilon = simulate_normal()
+t = np.arange(1, 101)
+serie2 = X2(t, epsilon)
+serie3 = X3(t, epsilon)
+train_test, test_test = epsilon[:70], epsilon[70:]
+train_test2, test_test2 = serie2[:70], serie2[70:]
+train_test3, test_test3 = serie3[:70], serie3[70:]
+
+
+def get_dataset(fonction):
+    if fonction == Fonction.X1:
+        return train_test, test_test
+    elif fonction == Fonction.X2:
+        return train_test2, test_test2
+    elif fonction == Fonction.X3:
+        return train_test3, test_test3
+    else:
+        raise ValueError("Fonction non supportée")
 
 
 def lissage_simple(X, alpha, horizon):
@@ -60,9 +82,9 @@ def lissage_simple_with_lib(X, alpha, horizon):
     return resultat.forecast(horizon)
 
 
-def display_results(alpha, previsions):
-    plt.plot(np.arange(1, 71), train_test, label="Apprentissage")
-    plt.plot(np.arange(71, 101), test_test, label="Test")
+def display_results(alpha, previsions, type, fonction):
+    plt.plot(np.arange(1, 71), get_dataset(fonction)[0], label="Apprentissage")
+    plt.plot(np.arange(71, 101), get_dataset(fonction)[1], label="Test")
 
     plt.plot(
         np.arange(71, 101),
@@ -73,35 +95,45 @@ def display_results(alpha, previsions):
     )
     plt.xlabel("Temps")
     plt.ylabel("Valeur")
-    plt.title("X1 — Lissage exponentiel simple")
+    plt.title(f"{fonction.name} — Lissage exponentiel {type.name}")
     plt.legend()
 
 
-def multi_alpha(type):
+def multi_alpha(type, fonction):
     plt.figure(figsize=(12, 9))
 
     for i, alpha in enumerate(ALPHAS):
         plt.subplot(3, 2, i + 1)
         if type == Types.lissage_simple:
-            display_results(alpha, lissage_simple(train_test, alpha, 30))
+            display_results(
+                alpha,
+                lissage_simple(get_dataset(fonction)[0], alpha, 30),
+                type,
+                fonction,
+            )
         elif type == Types.lissage_double:
-            display_results(alpha, lissage_double(train_test, alpha, 30))
+            display_results(
+                alpha,
+                lissage_double(get_dataset(fonction)[0], alpha, 30),
+                type,
+                fonction,
+            )
 
     plt.tight_layout()
 
 
-def calc_erreur(previsions):
-    return np.sum((previsions - test_test) ** 2)
+def calc_erreur(previsions, fonction):
+    return np.sum((previsions - get_dataset(fonction)[1]) ** 2)
 
 
-def display_erreur(type):
+def display_erreur(type, fonction):
     for alpha in ALPHAS:
         previsions = None
         if type == Types.lissage_simple:
-            previsions = lissage_simple(train_test, alpha, 30)
+            previsions = lissage_simple(get_dataset(fonction)[0], alpha, 30)
         elif type == Types.lissage_double:
-            previsions = lissage_double(train_test, alpha, 30)
-        erreur = calc_erreur(previsions)
+            previsions = lissage_double(get_dataset(fonction)[0], alpha, 30)
+        erreur = calc_erreur(previsions, fonction)
         print(f"Erreur pour α = {alpha}: {erreur}")
 
 
@@ -122,9 +154,9 @@ global_data = load_data()
 
 if __name__ == "__main__":
     print()
-    # multi_alpha(Types.lissage_simple)
-    # display_erreur(Types.lissage_simple)
-    # multi_alpha(Types.lissage_double)
-    display_erreur(Types.lissage_double)
+    # multi_alpha(Types.lissage_simple, Fonction.X1)
+    # display_erreur(Types.lissage_simple, Fonction.X1)
+    multi_alpha(Types.lissage_double, Fonction.X3)
+    display_erreur(Types.lissage_double, Fonction.X3)
 
-    # plt.show()
+    plt.show()

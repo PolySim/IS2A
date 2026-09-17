@@ -125,3 +125,15 @@ def lissage_double(X, alpha, horizon):
 
     return resultat.forecast(horizon)
 ```
+
+### Q5
+
+Modèle trend seasonal
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━ ━━━━━━━ ━━━━━━━━━━
+Simple None None
+──────────────────────────── ─────── ──────────
+Double de Holt "add" None
+──────────────────────────── ─────── ──────────
+Holt-Winters additif "add" "add"
+──────────────────────────── ─────── ──────────
+Holt-Winters multiplicatif "add" "mul"
