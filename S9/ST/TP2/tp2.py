@@ -10,6 +10,8 @@ ALPHAS = (0.1, 0.3, 0.5, 0.7, 0.9)
 class Types(Enum):
     lissage_simple = "lissage_simple"
     lissage_double = "lissage_double"
+    hw_additif = "hw_additif"
+    hw_multiplicatif = "hw_multiplicatif"
 
 
 class Fonction(Enum):
@@ -100,24 +102,13 @@ def display_results(alpha, previsions, type, fonction):
 
 
 def multi_alpha(type, fonction):
+    train, test = get_dataset(fonction)
     plt.figure(figsize=(12, 9))
 
     for i, alpha in enumerate(ALPHAS):
         plt.subplot(3, 2, i + 1)
-        if type == Types.lissage_simple:
-            display_results(
-                alpha,
-                lissage_simple(get_dataset(fonction)[0], alpha, 30),
-                type,
-                fonction,
-            )
-        elif type == Types.lissage_double:
-            display_results(
-                alpha,
-                lissage_double(get_dataset(fonction)[0], alpha, 30),
-                type,
-                fonction,
-            )
+        previsions = calculer_previsions(train, alpha, len(test), type)
+        display_results(alpha, previsions, type, fonction)
 
     plt.tight_layout()
 
@@ -127,14 +118,17 @@ def calc_erreur(previsions, fonction):
 
 
 def display_erreur(type, fonction):
+    train, test = get_dataset(fonction)
+    erreurs = []
+
     for alpha in ALPHAS:
-        previsions = None
-        if type == Types.lissage_simple:
-            previsions = lissage_simple(get_dataset(fonction)[0], alpha, 30)
-        elif type == Types.lissage_double:
-            previsions = lissage_double(get_dataset(fonction)[0], alpha, 30)
+        previsions = calculer_previsions(train, alpha, len(test), type)
         erreur = calc_erreur(previsions, fonction)
+        erreurs.append(erreur)
         print(f"Erreur pour α = {alpha}: {erreur}")
+
+    meilleur = np.argmin(erreurs)
+    print(f"Meilleur α : {ALPHAS[meilleur]}")
 
 
 def lissage_double(X, alpha, horizon):
@@ -150,13 +144,50 @@ def lissage_double(X, alpha, horizon):
     return resultat.forecast(horizon)
 
 
+def holt_winters(X, alpha, horizon, seasonal):
+    decalage = 0
+
+    # Le multiplicatif nécessite des observations positives.
+    if seasonal == "mul" and np.min(X) <= 0:
+        decalage = 1 - np.min(X)
+
+    modele = ExponentialSmoothing(
+        X + decalage,
+        trend="add",
+        seasonal=seasonal,
+        seasonal_periods=12,
+        initialization_method="estimated",
+    )
+
+    resultat = modele.fit(smoothing_level=alpha)
+
+    return resultat.forecast(horizon) - decalage
+
+
+def calculer_previsions(train, alpha, horizon, type):
+    if type == Types.lissage_simple:
+        return lissage_simple(train, alpha, horizon)
+    elif type == Types.lissage_double:
+        return lissage_double(train, alpha, horizon)
+    elif type == Types.hw_additif:
+        return holt_winters(train, alpha, horizon, "add")
+    elif type == Types.hw_multiplicatif:
+        return holt_winters(train, alpha, horizon, "mul")
+
+    raise ValueError("Type de lissage non supporté")
+
+
 global_data = load_data()
 
 if __name__ == "__main__":
     print()
     # multi_alpha(Types.lissage_simple, Fonction.X1)
     # display_erreur(Types.lissage_simple, Fonction.X1)
-    multi_alpha(Types.lissage_double, Fonction.X3)
-    display_erreur(Types.lissage_double, Fonction.X3)
+    # multi_alpha(Types.lissage_double, Fonction.X3)
+    # display_erreur(Types.lissage_double, Fonction.X3)
+    multi_alpha(Types.hw_additif, Fonction.X3)
+    display_erreur(Types.hw_additif, Fonction.X3)
+    multi_alpha(Types.hw_multiplicatif, Fonction.X3)
+    display_erreur(Types.hw_multiplicatif, Fonction.X3)
 
     plt.show()
