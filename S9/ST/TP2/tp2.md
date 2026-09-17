@@ -109,3 +109,19 @@ def display_erreur():
 ```
 
 On constate que l'erreur est minimisée pour α = 0.1.
+
+### Q4
+
+```python
+def lissage_double(X, alpha, horizon):
+    modele = ExponentialSmoothing(
+        X,
+        trend="add",
+        seasonal=None,
+        initialization_method="estimated",
+    )
+
+    resultat = modele.fit(smoothing_level=alpha)
+
+    return resultat.forecast(horizon)
+```

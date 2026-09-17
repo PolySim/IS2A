@@ -1,10 +1,15 @@
-from sre_compile import dis
+from enum import Enum
 
 import matplotlib.pyplot as plt
 import numpy as np
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
 ALPHAS = (0.1, 0.3, 0.5, 0.7, 0.9)
+
+
+class Types(Enum):
+    lissage_simple = "lissage_simple"
+    lissage_double = "lissage_double"
 
 
 def load_data(filename="co2.txt"):
@@ -55,9 +60,7 @@ def lissage_simple_with_lib(X, alpha, horizon):
     return resultat.forecast(horizon)
 
 
-def display_results(alpha):
-    previsions = lissage_simple(train_test, alpha, 30)
-
+def display_results(alpha, previsions):
     plt.plot(np.arange(1, 71), train_test, label="Apprentissage")
     plt.plot(np.arange(71, 101), test_test, label="Test")
 
@@ -74,12 +77,15 @@ def display_results(alpha):
     plt.legend()
 
 
-def multi_alpha():
+def multi_alpha(type):
     plt.figure(figsize=(12, 9))
 
     for i, alpha in enumerate(ALPHAS):
         plt.subplot(3, 2, i + 1)
-        display_results(alpha)
+        if type == Types.lissage_simple:
+            display_results(alpha, lissage_simple(train_test, alpha, 30))
+        elif type == Types.lissage_double:
+            display_results(alpha, lissage_double(train_test, alpha, 30))
 
     plt.tight_layout()
 
@@ -88,18 +94,37 @@ def calc_erreur(previsions):
     return np.sum((previsions - test_test) ** 2)
 
 
-def display_erreur():
+def display_erreur(type):
     for alpha in ALPHAS:
-        previsions = lissage_simple(train_test, alpha, 30)
+        previsions = None
+        if type == Types.lissage_simple:
+            previsions = lissage_simple(train_test, alpha, 30)
+        elif type == Types.lissage_double:
+            previsions = lissage_double(train_test, alpha, 30)
         erreur = calc_erreur(previsions)
         print(f"Erreur pour α = {alpha}: {erreur}")
+
+
+def lissage_double(X, alpha, horizon):
+    modele = ExponentialSmoothing(
+        X,
+        trend="add",
+        seasonal=None,
+        initialization_method="estimated",
+    )
+
+    resultat = modele.fit(smoothing_level=alpha)
+
+    return resultat.forecast(horizon)
 
 
 global_data = load_data()
 
 if __name__ == "__main__":
     print()
-    # multi_alpha()
-    display_erreur()
+    # multi_alpha(Types.lissage_simple)
+    # display_erreur(Types.lissage_simple)
+    # multi_alpha(Types.lissage_double)
+    display_erreur(Types.lissage_double)
 
     # plt.show()
