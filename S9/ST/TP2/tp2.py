@@ -20,14 +20,6 @@ class Fonction(Enum):
     X3 = "X3"
 
 
-def load_data(filename="co2.txt"):
-    with open(filename, "r") as f:
-        data = f.readlines()
-        res = np.array([float(line.strip()) for line in data])
-        f.close()
-        return res
-
-
 def simulate_normal(size=100):
     return np.random.normal(0, 1, size)
 
@@ -177,17 +169,15 @@ def calculer_previsions(train, alpha, horizon, type):
     raise ValueError("Type de lissage non supporté")
 
 
-global_data = load_data()
-
 if __name__ == "__main__":
     print()
     # multi_alpha(Types.lissage_simple, Fonction.X1)
     # display_erreur(Types.lissage_simple, Fonction.X1)
     # multi_alpha(Types.lissage_double, Fonction.X3)
     # display_erreur(Types.lissage_double, Fonction.X3)
-    multi_alpha(Types.hw_additif, Fonction.X3)
-    display_erreur(Types.hw_additif, Fonction.X3)
-    multi_alpha(Types.hw_multiplicatif, Fonction.X3)
-    display_erreur(Types.hw_multiplicatif, Fonction.X3)
+    # multi_alpha(Types.hw_additif, Fonction.X3)
+    # display_erreur(Types.hw_additif, Fonction.X3)
+    # multi_alpha(Types.hw_multiplicatif, Fonction.X3)
+    # display_erreur(Types.hw_multiplicatif, Fonction.X3)
 
     plt.show()
