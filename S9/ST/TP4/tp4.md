@@ -186,8 +186,9 @@ Le Ljung–Box affiché porte seulement sur le retard 1 et ne valide donc pas,
 On reprend les mêmes étapes pour `MA.txt` et `ARMA.txt`, en réutilisant les
 fonctions définies précédemment. L'identification et l'estimation du modèle
 MA ci-dessous ont été calculées sur les 500 observations de `MA.txt`.
-Les résultats numériques du modèle ARMA et les conclusions sur les résidus
-de ces deux modèles restent à compléter.
+L'analyse du fichier `ARMA.txt` et les diagnostics des résidus sont également
+calculés ci-dessous. Le script `tp4_suite.py` reproduit les calculs et les
+figures de la suite du TP avec l'environnement Python existant.
 
 #### Observation des autocorrélations
 
@@ -234,8 +235,14 @@ par défaut par `plot_acf` : le graphique seul ne distingue donc pas
 nettement MA(2) de MA(3). On complète cette lecture par une comparaison des
 critères d'information, qui conduit à retenir **MA(3)**.
 
-Pour `ARMA.txt`, les ordres sont plus difficiles à identifier graphiquement ;
-on compare plusieurs petits modèles.
+![ACF et PACF du processus MA](resultats_tp4/ma_correlations.png)
+
+Pour `ARMA.txt`, l'ACF oscille en s'amortissant : les premières valeurs sont
+0,808, 0,382, −0,009, −0,192 et −0,165. La PACF ne présente pas non plus de
+coupure nette. Ces observations sont compatibles avec un processus ARMA,
+mais ne suffisent pas à fixer les ordres : on compare plusieurs modèles.
+
+![ACF et PACF du processus ARMA](resultats_tp4/arma_correlations.png)
 
 #### Estimation des coefficients
 
@@ -291,7 +298,10 @@ Pour le processus ARMA, on compare les candidats suivants sur la même série,
 sans différenciation :
 
 ```python
-ordres = [(1, 0, 1), (1, 0, 2), (2, 0, 1), (2, 0, 2)]
+ordres = [
+    (1, 0, 1), (1, 0, 2), (2, 0, 1), (2, 0, 2),
+    (2, 0, 3), (3, 0, 3), (2, 0, 4),
+]
 modeles = {}
 
 for ordre in ordres:
@@ -310,6 +320,32 @@ Un AIC plus faible est préférable parmi les modèles comparés. Le BIC est
 également affiché et pénalise davantage le nombre de paramètres pour cet
 échantillon. Le choix fait ici selon l'AIC reste à valider par l'analyse des
 résidus et suppose que les ajustements ont convergé.
+
+| Modèle | AIC | BIC |
+|---|---:|---:|
+| ARMA(1,1) | 1693,450 | 1710,309 |
+| ARMA(1,2) | 1592,063 | 1613,136 |
+| ARMA(2,1) | 1502,821 | 1523,894 |
+| ARMA(2,2) | 1504,813 | 1530,101 |
+| **ARMA(2,3)** | **1459,238** | **1488,740** |
+| ARMA(3,3) | 1461,060 | 1494,777 |
+| ARMA(2,4) | 1461,063 | 1494,780 |
+
+Les modèles limités à $p,q\leq 2$ laissent des résidus autocorrélés : pour
+ARMA(2,1), le test de Ljung–Box à 20 retards donne une p-valeur de
+$1{,}43\times10^{-5}$. Il faut donc élargir la comparaison. On retient
+**ARMA(2,3)**, dont les AIC et BIC sont les plus faibles dans ce tableau et
+dont les résidus passent les tests d'absence d'autocorrélation ci-dessous.
+
+| Paramètre | Estimation |
+|---|---:|
+| $\mu$ | 0,4076 |
+| $\phi_1$ | 0,9009 |
+| $\phi_2$ | −0,4894 |
+| $\theta_1$ | 1,1648 |
+| $\theta_2$ | 0,7367 |
+| $\theta_3$ | 0,4752 |
+| $\sigma_\varepsilon^2$ | 1,0429 |
 
 Le modèle ARMA combine les coefficients `ar.L1`, etc. et `ma.L1`, etc. :
 
@@ -342,6 +378,10 @@ Par défaut, `ARIMA` impose la stationnarité de la partie AR pendant
 l'estimation. Ce contrôle concerne donc le modèle ajusté, et ne prouve pas
 à lui seul la stationnarité de la série observée.
 
+Pour l'ARMA(2,3) estimé, les racines AR sont environ
+$0{,}9204\pm1{,}0937i$, de module $1{,}4294>1$ : le modèle est stationnaire.
+Le MA(3) est stationnaire par construction.
+
 #### Analyse des résidus
 
 ```python
@@ -357,8 +397,458 @@ que leur dispersion reste relativement constante et que leur ACF ne montre
 pas de structure persistante. Quelques dépassements isolés de la bande de
 confiance ne suffisent pas à invalider un modèle.
 
-Si ces conditions sont satisfaites, les résidus sont compatibles avec un
-bruit blanc et la modélisation semble fidèle à la dépendance temporelle des
-données. Si des autocorrélations structurées persistent, il faut reconsidérer
-les ordres retenus, même si le modèle possède le plus petit AIC parmi les
-candidats comparés.
+![Résidus du MA(3)](resultats_tp4/ma_residus.png)
+
+![Résidus de l'ARMA(2,3)](resultats_tp4/arma_residus.png)
+
+On complète les graphiques par le test de Ljung–Box. Son hypothèse nulle
+est l'absence d'autocorrélation jusqu'au retard testé. `model_df=p+q`
+corrige les degrés de liberté pour les coefficients AR et MA estimés.
+
+```python
+from statsmodels.stats.diagnostic import acorr_ljungbox
+
+print(acorr_ljungbox(results_ma.resid, lags=[10, 20, 30], model_df=3))
+print(acorr_ljungbox(results_arma.resid, lags=[10, 20, 30], model_df=5))
+```
+
+| Modèle | p-valeur à 10 retards | À 20 retards | À 30 retards |
+|---|---:|---:|---:|
+| MA(3) | 0,380 | 0,551 | 0,642 |
+| ARMA(2,3) | 0,247 | 0,703 | 0,875 |
+
+Les résidus sont visuellement centrés, sans structure persistante, avec une
+dispersion assez stable. Aucune de ces p-valeurs n'est inférieure à 5 % :
+les diagnostics sont compatibles avec des bruits blancs. Les modèles MA(3)
+et ARMA(2,3) semblent donc fidèles à la dépendance temporelle des données.
+Le test de Jarque–Bera ne rejette pas non plus la normalité (p-valeurs de
+0,723 et 0,595), sans que cela constitue une preuve de normalité.
+
+## Partie 2 — Prédiction d'un processus
+
+On utilise les 300 observations du fichier `data/Exercice2.txt`. Les temps
+sont numérotés de 1 à 300 ; les prévisions porteront sur les temps 301 à 320.
+
+### Question 1 — Peut-on utiliser directement un ARMA ?
+
+```python
+data_prediction = load_data("data/Exercice2.txt")
+plt.plot(np.arange(1, len(data_prediction) + 1), data_prediction)
+plt.title("Série initiale — Exercice 2")
+plt.xlabel("Temps")
+plt.show()
+auto_correlation(data_prediction)
+plt.show()
+```
+
+La série présente une forte tendance croissante : son niveau passe
+d'environ 3 à 148. Elle ne paraît donc pas stationnaire autour d'une moyenne
+constante. Son ACF décroît très lentement : environ 0,989 au retard 1 et
+0,873 au retard 12. Un ARMA stationnaire à moyenne constante ne convient pas
+directement à cette série.
+
+![Série initiale et première différence](resultats_tp4/exercice2_series.png)
+
+![Corrélations de la série initiale](resultats_tp4/exercice2_correlations_initiales.png)
+
+### Question 2 — Combien de différences ?
+
+On applique **une seule différence**, soit $d=1$ :
+
+$$
+Y_t=\Delta X_t=X_t-X_{t-1}.
+$$
+
+```python
+data_diff = np.diff(data_prediction)
+plt.plot(np.arange(2, len(data_prediction) + 1), data_diff)
+plt.axhline(data_diff.mean(), color="red", linestyle="--")
+plt.title("Première différence")
+plt.show()
+```
+
+La série différenciée fluctue autour d'un niveau stable, avec une moyenne
+empirique de 0,4846 et un écart-type de 2,0610. Une seconde différence n'est
+pas nécessaire. On peut compléter l'observation par ADF et KPSS :
+
+```python
+from statsmodels.tsa.stattools import adfuller, kpss
+
+for nom, serie in [("Initiale", data_prediction), ("Différence", data_diff)]:
+    print(nom, "p-valeur ADF :", adfuller(serie, regression="c", autolag="AIC")[1])
+    print(nom, "p-valeur KPSS :", kpss(serie, regression="c", nlags="auto")[1])
+```
+
+| Série | p-valeur ADF | p-valeur KPSS |
+|---|---:|---:|
+| Initiale | 0,9250 | < 0,01 |
+| Première différence | $1{,}65\times10^{-13}$ | > 0,10 |
+
+ADF teste une racine unitaire ; KPSS teste la stationnarité autour d'une
+constante dans cette configuration. Ces résultats soutiennent l'utilisation
+de la première différence comme série stationnaire. Les valeurs KPSS 0,01
+et 0,10 renvoyées par le logiciel sont ici des bornes de sa table, ce qui
+explique les avertissements d'interpolation.
+
+**Nuance :** cela ne démontre pas que la série initiale possède une racine
+unitaire. Avec une tendance linéaire dans le test ADF (`regression="ct"`),
+la p-valeur vaut $2{,}06\times10^{-5}$, ce qui suggère plutôt une série
+stationnaire autour d'une tendance déterministe. On suit ici la méthode
+des différences demandée ; retirer une tendance linéaire serait une autre
+approche possible.
+
+### Question 3 — Proposer des modèles de faible ordre
+
+```python
+auto_correlation(data_diff)
+plt.show()
+```
+
+![ACF et PACF de la première différence](resultats_tp4/exercice2_correlations.png)
+
+L'ACF oscille : environ 0,609 au retard 1, −0,071 au retard 2, −0,480 au
+retard 3 et −0,520 au retard 4. La PACF possède deux premiers pics marqués,
+mais aussi des pics ultérieurs : un AR(2) est un premier candidat, sans
+coupure suffisamment nette pour s'y limiter. On compare AR(1), AR(2),
+MA(1), MA(2), ARMA(1,1), ARMA(2,1), ARMA(1,2) et ARMA(2,2) pour $Y_t$.
+
+Pour préparer les prévisions sur l'échelle initiale, on estime directement
+les ARIMA($p,1,q$) correspondants sur $X_t$. `trend="t"` introduit une
+tendance linéaire dans $X_t$, donc une moyenne non nulle dans ses différences.
+Les AIC/BIC suivants sont tous calculés selon cette même méthode, sur les
+mêmes observations :
+
+```python
+candidats = [(1, 0), (2, 0), (0, 1), (0, 2), (1, 1), (2, 1), (1, 2), (2, 2)]
+for p, q in candidats:
+    resultat = ARIMA(data_prediction, order=(p, 1, q), trend="t").fit(
+        method_kwargs={"maxiter": 500}
+    )
+    print((p, q), resultat.aic, resultat.bic)
+```
+
+| Modèle sur les différences | AIC | BIC |
+|---|---:|---:|
+| AR(1) | 1149,037 | 1160,138 |
+| AR(2) | 949,444 | 964,246 |
+| MA(1) | 1016,477 | 1027,578 |
+| MA(2) | 971,248 | 986,050 |
+| ARMA(1,1) | 977,955 | 992,757 |
+| ARMA(2,1) | 944,166 | 962,668 |
+| ARMA(1,2) | 970,757 | 989,259 |
+| **ARMA(2,2)** | **878,025** | **900,228** |
+
+On retient **ARMA(2,2) pour $Y_t$**, donc **ARIMA(2,1,2) avec dérive pour
+$X_t$**. Un essai supplémentaire ARMA(2,4) donne AIC = 876,217 et BIC =
+905,821 : le faible gain d'AIC ne compense pas sa complexité selon le BIC.
+Le modèle (2,2), plus simple, a aussi des résidus satisfaisants.
+
+### Question 4 — Estimer les paramètres
+
+```python
+results_prediction = ARIMA(
+    data_prediction, order=(2, 1, 2), trend="t"
+).fit(method_kwargs={"maxiter": 500})
+print(results_prediction.summary())
+```
+
+| Paramètre | Estimation |
+|---|---:|
+| Dérive $\delta$ (`x1`) | 0,4960 |
+| $\phi_1$ | 1,2179 |
+| $\phi_2$ | −0,5873 |
+| $\theta_1$ | −0,1742 |
+| $\theta_2$ | −0,8256 |
+| $\sigma_\varepsilon^2$ | 1,0354 |
+
+Le modèle estimé des différences est :
+
+$$
+Y_t-0{,}4960=1{,}2179(Y_{t-1}-0{,}4960)
+-0{,}5873(Y_{t-2}-0{,}4960)
++\varepsilon_t-0{,}1742\varepsilon_{t-1}-0{,}8256\varepsilon_{t-2}.
+$$
+
+Une racine MA est très proche de 1 (environ 1,00009). Le modèle est près
+de la limite d'inversibilité et les erreurs-types des coefficients MA sont
+grandes : leur interprétation individuelle est fragile. Ce résultat est
+cohérent avec la possibilité d'une tendance déterministe discutée plus haut,
+car différencier un bruit stationnaire peut introduire un facteur MA $1-B$.
+
+### Question 5 — Analyser les résidus
+
+On écarte le premier résidu associé à l'initialisation du modèle intégré.
+
+```python
+residus_prediction = results_prediction.resid[1:]
+display_residus(residus_prediction)
+plt.show()
+print(acorr_ljungbox(residus_prediction, lags=[10, 20, 30], model_df=4))
+```
+
+![Résidus de l'ARIMA(2,1,2)](resultats_tp4/exercice2_residus.png)
+
+| Retard du test Ljung–Box | p-valeur |
+|---|---:|
+| 10 | 0,105 |
+| 20 | 0,506 |
+| 30 | 0,632 |
+
+La moyenne des résidus vaut −0,0077. Leurs fluctuations sont centrées autour
+de zéro, sans structure persistante visible ; les tests ne rejettent pas
+l'absence d'autocorrélation à 5 %. Jarque–Bera donne une p-valeur de 0,709.
+Ces diagnostics sont compatibles avec un bruit blanc et soutiennent l'usage
+du modèle pour la prévision, avec la réserve sur la paramétrisation MA.
+
+### Question 6 — Prévoir les 20 temps suivants
+
+On utilise le modèle ajusté sur la série initiale : `get_forecast` rend
+directement les prévisions de $X_t$, avec la réintégration des différences.
+Il ne faut donc pas cumuler une seconde fois ces prévisions.
+
+```python
+prevision = results_prediction.get_forecast(steps=20)
+moyenne = np.asarray(prevision.predicted_mean)
+intervalle = np.asarray(prevision.conf_int(alpha=0.05))
+temps_futurs = np.arange(len(data_prediction) + 1, len(data_prediction) + 21)
+
+plt.figure(figsize=(11, 4))
+plt.plot(np.arange(221, 301), data_prediction[-80:], label="Observations")
+plt.plot(temps_futurs, moyenne, label="Prévisions")
+plt.fill_between(temps_futurs, intervalle[:, 0], intervalle[:, 1], alpha=0.2,
+                 label="Intervalle de prévision à 95 %")
+plt.xlabel("Temps")
+plt.legend()
+plt.show()
+```
+
+![Prévisions aux temps 301 à 320](resultats_tp4/exercice2_previsions.png)
+
+| Temps | Prévision | Intervalle de prévision à 95 % |
+|---|---:|---|
+| 301 | 149,112 | [147,114 ; 151,109] |
+| 302 | 150,690 | [146,139 ; 155,240] |
+| 303 | 151,850 | [145,910 ; 157,791] |
+| 304 | 152,520 | [146,164 ; 158,876] |
+| 305 | 152,837 | [146,460 ; 159,215] |
+| 306 | 153,014 | [146,601 ; 159,427] |
+| 307 | 153,226 | [146,715 ; 159,736] |
+| 308 | 153,563 | [146,983 ; 160,143] |
+| 309 | 154,033 | [147,434 ; 160,631] |
+| 310 | 154,590 | [147,992 ; 161,189] |
+| 311 | 155,176 | [148,572 ; 161,780] |
+| 312 | 155,746 | [149,132 ; 162,359] |
+| 313 | 156,278 | [149,659 ; 162,898] |
+| 314 | 156,776 | [150,155 ; 163,397] |
+| 315 | 157,252 | [150,631 ; 163,873] |
+| 316 | 157,723 | [151,102 ; 164,345] |
+| 317 | 158,201 | [151,579 ; 164,822] |
+| 318 | 158,688 | [152,067 ; 165,310] |
+| 319 | 159,185 | [152,564 ; 165,807] |
+| 320 | 159,687 | [153,066 ; 166,309] |
+
+Les prévisions prolongent la tendance avec une augmentation à long terme
+d'environ 0,496 par période. Les intervalles sont conditionnels au modèle
+et aux paramètres estimés ; ils n'intègrent pas l'incertitude de choix du
+modèle. Les valeurs complètes sont dans
+[previsions_exercice2.csv](resultats_tp4/previsions_exercice2.csv).
+
+## Partie 3 — Précipitations mensuelles à San Francisco
+
+On utilise `data/SanFransisco.txt`, qui contient 420 valeurs, soit 35 années
+de 12 mois. On suppose, conformément à la période du sujet, que la première
+valeur correspond à janvier 1932 et la dernière à décembre 1966. Le fichier
+ne précise pas l'unité ; les résultats restent dans les unités du fichier.
+
+### Question 1 — La série semble-t-elle stationnaire ?
+
+```python
+import pandas as pd
+
+pluie = pd.Series(
+    load_data("data/SanFransisco.txt"),
+    index=pd.date_range("1932-01-01", periods=420, freq="MS"),
+)
+pluie.plot(figsize=(11, 4), title="Précipitations mensuelles")
+plt.show()
+auto_correlation(pluie)
+plt.show()
+```
+
+![Précipitations et moyennes par mois](resultats_tp4/pluie_series.png)
+
+![Corrélations des précipitations](resultats_tp4/pluie_correlations.png)
+
+La série ne présente pas de tendance globale évidente, mais une saisonnalité
+annuelle marquée. L'ACF vaut environ 0,599, 0,557 et 0,508 aux retards 12,
+24 et 36. Les moyennes mensuelles sont très différentes, d'environ 10,95
+pour le huitième mois à 68,23 pour le onzième.
+
+La stationnarité autour d'une moyenne constante est donc peu convaincante
+pour la série brute. Il faut distinguer une moyenne variant selon le mois
+d'une simple corrélation saisonnière : une ACF saisonnière n'interdit pas,
+à elle seule, la stationnarité. Le modèle imposé ci-dessous représente la
+dépendance annuelle, mais sa capacité à décrire toutes ces variations doit
+être vérifiée sur les résidus.
+
+### Question 2 — Caractéristiques du modèle SARIMA(2,0,0,12)
+
+La notation de l'énoncé est abrégée. On l'interprète ici comme un modèle
+**SARIMA$(0,0,0)\times(2,0,0)_{12}$**, c'est-à-dire un AR saisonnier d'ordre 2 :
+
+- période saisonnière de 12 mois ;
+- dépendance aux retards 12 et 24, avec deux coefficients $\Phi_1,\Phi_2$ ;
+- aucune différenciation ordinaire ou saisonnière ;
+- aucune partie MA et aucune partie AR non saisonnière.
+
+Avec une moyenne $\mu$, son équation est :
+
+$$
+X_t-\mu=\Phi_1(X_{t-12}-\mu)+\Phi_2(X_{t-24}-\mu)+\varepsilon_t.
+$$
+
+Sous Python, on fournit séparément `order=(0, 0, 0)` et
+`seasonal_order=(2, 0, 0, 12)`. Les racines de
+$1-\Phi_1z^{12}-\Phi_2z^{24}$ doivent avoir un module supérieur à 1
+pour la stationnarité causale du modèle.
+
+### Question 3 — Estimation et analyse des résidus
+
+On commence par l'ajustement descriptif sur les 420 observations :
+
+```python
+results_pluie = ARIMA(
+    pluie, order=(0, 0, 0), seasonal_order=(2, 0, 0, 12), trend="c"
+).fit(method_kwargs={"maxiter": 500})
+print(results_pluie.summary())
+
+# On écarte deux saisons initiales pour limiter l'effet de l'initialisation.
+residus_pluie = results_pluie.resid.iloc[24:]
+display_residus(residus_pluie)
+plt.show()
+print(acorr_ljungbox(residus_pluie, lags=[12, 24, 36], model_df=2))
+
+from statsmodels.stats.stattools import jarque_bera
+print("p-valeur Jarque–Bera :", jarque_bera(residus_pluie)[1])
+```
+
+| Paramètre | Estimation sur 1932–1966 |
+|---|---:|
+| $\mu$ | 27,2673 |
+| $\Phi_1$ (`ar.S.L12`) | 0,4100 |
+| $\Phi_2$ (`ar.S.L24`) | 0,3598 |
+| $\sigma_\varepsilon^2$ | 319,4088 |
+
+Le plus petit module des racines AR vaut environ 1,01475 : le modèle ajusté
+est stationnaire, avec une persistance saisonnière forte. Cela ne démontre
+pas la stationnarité de la série réelle, discutée à la question 1.
+
+![Résidus du modèle saisonnier](resultats_tp4/pluie_residus.png)
+
+| Retard du test Ljung–Box | p-valeur |
+|---|---:|
+| 12 | 0,360 |
+| 24 | 0,026 |
+| 36 | 0,015 |
+
+Les tests à 24 et 36 retards rejettent l'absence d'autocorrélation au seuil
+de 5 %. Le test de Jarque–Bera rejette également la normalité, avec une
+p-valeur de $1{,}56\times10^{-12}$ ; les résidus sont asymétriques, avec de
+grandes valeurs positives.
+
+**Conclusion : le modèle capte une partie de la saisonnalité, mais la
+modélisation reste imparfaite.** Les résidus ne peuvent pas être assimilés
+sans réserve à un bruit blanc gaussien. Une modélisation avec moyennes
+mensuelles ou une transformation des précipitations pourrait être étudiée,
+mais on conserve le modèle demandé pour la prévision.
+
+### Question 4 — Prévoir 1964, 1965 et 1966
+
+Pour produire de vraies prévisions, on réestime le modèle **uniquement sur
+janvier 1932 à décembre 1963**, soit 384 observations. Les 36 observations
+de 1964–1966 servent à évaluer les prévisions et ne sont pas utilisées pour
+estimer les paramètres de ce modèle.
+
+```python
+apprentissage = pluie.loc[:"1963-12-01"]
+observations_test = pluie.loc["1964-01-01":]
+
+results_pluie_train = ARIMA(
+    apprentissage,
+    order=(0, 0, 0),
+    seasonal_order=(2, 0, 0, 12),
+    trend="c",
+).fit(method_kwargs={"maxiter": 500})
+
+prevision_pluie = results_pluie_train.get_forecast(steps=36)
+moyenne_pluie = prevision_pluie.predicted_mean
+intervalle_pluie = np.asarray(prevision_pluie.conf_int(alpha=0.05))
+
+plt.figure(figsize=(12, 5))
+plt.plot(pluie.loc["1962":], label="Observations")
+plt.plot(moyenne_pluie, label="Prévisions depuis fin 1963")
+plt.fill_between(moyenne_pluie.index, intervalle_pluie[:, 0],
+                 intervalle_pluie[:, 1], alpha=0.2,
+                 label="Intervalle de prévision à 95 %")
+plt.axvline(pd.Timestamp("1964-01-01"), color="grey", linestyle="--")
+plt.legend()
+plt.show()
+
+rmse = np.sqrt(np.mean((observations_test - moyenne_pluie) ** 2))
+mae = np.mean(np.abs(observations_test - moyenne_pluie))
+print("RMSE :", rmse, "MAE :", mae)
+```
+
+Sur la période d'apprentissage, les paramètres estimés sont
+$\mu=26{,}9686$, $\Phi_1=0{,}3852$, $\Phi_2=0{,}3701$ et
+$\sigma_\varepsilon^2=321{,}9486$. Les défauts des résidus persistent :
+les p-valeurs de Ljung–Box à 24 et 36 retards valent 0,040 et 0,023.
+
+![Prévisions des précipitations de 1964 à 1966](resultats_tp4/pluie_previsions.png)
+
+| Mois | Prévision 1964 | Prévision 1965 | Prévision 1966 |
+|---|---:|---:|---:|
+| Janvier | 34,23 | 33,42 | 32,14 |
+| Février | 25,20 | 22,98 | 24,78 |
+| Mars | 33,65 | 32,72 | 31,66 |
+| Avril | 21,04 | 20,81 | 22,40 |
+| Mai | 16,61 | 20,99 | 20,83 |
+| Juin | 13,09 | 13,90 | 16,80 |
+| Juillet | 12,05 | 13,50 | 16,26 |
+| Août | 7,18 | 9,83 | 13,04 |
+| Septembre | 12,30 | 12,84 | 16,10 |
+| Octobre | 51,09 | 40,66 | 41,17 |
+| Novembre | 52,58 | 63,89 | 50,67 |
+| Décembre | 56,27 | 49,80 | 46,61 |
+
+Sur ces 36 mois, **RMSE = 18,18** et **MAE = 14,31**, dans les unités du
+fichier. Une prévision saisonnière naïve répétant les 12 valeurs de 1963
+sur les trois années donne RMSE = 19,79 : le modèle améliore modestement ce
+repère sur cette période, tout en lissant fortement certains pics.
+
+Les intervalles gaussiens peuvent avoir une borne inférieure négative,
+physiquement impossible pour des précipitations. Ils sont présentés tels
+que calculés, sans les tronquer : cela illustre une limite de ce modèle,
+renforcée par les diagnostics des résidus. Les prévisions, leurs bornes et
+les observations réelles sont dans
+[previsions_precipitations.csv](resultats_tp4/previsions_precipitations.csv).
+
+## Reproduire les résultats
+
+Depuis le dossier du TP, avec l'environnement existant :
+
+```sh
+../venv/bin/python tp4_suite.py
+```
+
+Le script génère les figures, les deux tableaux CSV de prévisions et
+`resultats_tp4/resultats.json`. Les calculs ont été effectués avec
+`statsmodels` 0.15.0. Tous les ajustements retenus ont convergé. Les exemples
+du compte rendu utilisent les imports et fonctions définis précédemment.
+
+Références des fonctions utilisées :
+
+- [ARIMA : ordres, tendance et composante saisonnière](https://www.statsmodels.org/stable/generated/statsmodels.tsa.arima.model.ARIMA.html).
+- [Prévisions et intervalles avec get_forecast](https://www.statsmodels.org/stable/generated/statsmodels.tsa.arima.model.ARIMAResults.get_forecast.html).
+- [Test de Ljung–Box et correction des degrés de liberté](https://www.statsmodels.org/stable/generated/statsmodels.stats.diagnostic.acorr_ljungbox.html).
+- [Tests ADF et KPSS de stationnarité](https://www.statsmodels.org/stable/examples/notebooks/generated/stationarity_detrending_adf_kpss.html).
